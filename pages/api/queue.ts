@@ -1,7 +1,6 @@
 import { getQueue, updateOrder } from "../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getRequestByID } from "../../redis/handlers/Request";
-import { prisma } from "../../utils/prisma";
 import { getVideo } from "../../redis/handlers/Video";
 import { getPgStatus } from "../../redis/handlers/PgStatus";
 
