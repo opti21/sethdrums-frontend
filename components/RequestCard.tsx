@@ -1,6 +1,4 @@
-import { useUser } from "@auth0/nextjs-auth0";
 import {
-  AspectRatio,
   Box,
   Button,
   Flex,
@@ -15,7 +13,6 @@ import {
   PopoverHeader,
   PopoverTrigger,
   Text,
-  useDisclosure,
 } from "@chakra-ui/react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -23,13 +20,14 @@ import axios from "axios";
 import { FC } from "react";
 import PGButton from "./PgButton";
 import { MdDragIndicator } from "react-icons/md";
-import { Status } from "../utils/types";
+import { IApiRequest, IAPiVideo, Status } from "../utils/types";
+import { PG_Status } from "@prisma/client";
 
 type Props = {
   id: string;
-  request: any;
-  video: any;
-  pgStatus: any;
+  request: IApiRequest;
+  video: IAPiVideo;
+  pgStatus: PG_Status;
   cardBG: string;
   onPgDataChange: any;
   openPGModal: any;
@@ -51,10 +49,9 @@ const RequestCard: FC<Props> = ({
   if (!request) return null;
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
-      id: `${id}`,
-      disabled: disabled,
+      id: `sortable${id}`,
+      // disabled: disabled,
     });
-  const { user, error, isLoading } = useUser();
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -62,23 +59,21 @@ const RequestCard: FC<Props> = ({
   };
 
   const handlePGClick = async () => {
-    if (pgStatus.status === Status.NotChecked) {
-      await axios.put("/api/pg-status", {
-        entityID: pgStatus,
-        status: Status.BeingChecked,
-      });
-
-      await axios.post("/api/trigger", {
-        channelName: "sethdrums-queue",
-        eventName: "update-queue",
-        data: {},
-      });
-    }
     onPgDataChange({
-      video: {
-        youtube_id: video.youtube_id,
-      },
-      pgStatus: { entityId: pgStatus.entityId },
+      youtubeID: video.youtube_id,
+      pgStatusID: pgStatus.id,
+      currentStatus: pgStatus.status,
+    });
+
+    await axios.put("/api/pg-status", {
+      pgStatusID: pgStatus.id,
+      status: Status.BeingChecked,
+    });
+
+    await axios.post("/api/trigger", {
+      channelName: "sethdrums-queue",
+      eventName: "update-queue",
+      data: {},
     });
     openPGModal();
   };
@@ -126,7 +121,7 @@ const RequestCard: FC<Props> = ({
             <Image
               maxW={"100px"}
               rounded="lg"
-              src={request.video.thumbnail}
+              src={video.thumbnail}
               objectFit="cover"
               alt="video thumbnail"
             />
@@ -139,7 +134,7 @@ const RequestCard: FC<Props> = ({
               }}
               noOfLines={1}
             >
-              {request.video.title}
+              {video.title}
             </Text>
             <Text>{formatDuration(video.duration)}</Text>
             <Text fontSize="md" isTruncated>

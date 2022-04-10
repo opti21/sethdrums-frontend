@@ -3,35 +3,40 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getRequestByID } from "../../redis/handlers/Request";
 import { getVideo } from "../../redis/handlers/Video";
 import { getPgStatus } from "../../redis/handlers/PgStatus";
+import { prisma } from "../../utils/prisma";
+import { Status } from "@prisma/client";
 
 const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {
     try {
       const queue = await getQueue();
+      console.log(queue.order.map((requestID) => parseInt(requestID)));
 
       if (!queue) {
         res.status(500).json({ error: "Error getting queue" });
       }
       // console.log(queue);
 
+      const requestData = await prisma.request.findMany({
+        where: {
+          id: { in: queue.order.map((requestID) => parseInt(requestID)) },
+        },
+        include: {
+          Video: {
+            include: {
+              PG_Status: true,
+            },
+          },
+        },
+      });
+
       let requests = [];
 
       for (let i = 0; i < queue?.order?.length; i++) {
-        const requestEntity = await getRequestByID(queue.order[i]);
-        let requestData = requestEntity.entityData;
-        const videoEntity = await getVideo(requestData.video_id.toString());
-        const videoData = videoEntity.entityData;
-
-        const pgStatusData = await getPgStatus(videoEntity.entityId);
-
-        const request = {
-          id: requestEntity.entityId,
-          ...requestData,
-          video: videoData,
-          pgStatus: pgStatusData,
-        };
-
-        requests.push(request);
+        const requestIndex = requestData.findIndex(
+          (request) => request.id.toString() === queue?.order[i]
+        );
+        requests.push(requestData[requestIndex]);
       }
 
       const queueResponse = {
@@ -39,7 +44,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         is_updating: queue.is_updating,
         being_updated_by: queue.being_updated_by,
       };
-      // console.log(queueResponse);
+      console.log(queueResponse);
       res.status(200).json(queueResponse);
     } catch (err) {
       console.error(err);

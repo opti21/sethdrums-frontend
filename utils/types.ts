@@ -1,8 +1,5 @@
-import { Search } from "redis-om";
-import { PgStatus } from "../redis/handlers/PgStatus";
-import { Queue } from "../redis/handlers/Queue";
+import { PG_Status, Video } from "@prisma/client";
 import { Request } from "../redis/handlers/Request";
-import { Video } from "../redis/handlers/Video";
 
 export interface YTApiResponse {
   kind: string;
@@ -103,7 +100,7 @@ export interface PageInfo {
 export interface AlreadyRequestedResponse {
   request: Request | null;
   video: Video | null;
-  pgStatus: PgStatus | null;
+  pgStatus: PG_Status | null;
 }
 
 export interface IQueue {
@@ -112,14 +109,17 @@ export interface IQueue {
   being_updated_by: string;
 }
 
+export interface IAPiVideo extends Video {
+  PG_Status?: PG_Status;
+}
+
 export interface IApiRequest {
   id: string;
   requested_by: string;
   video_id: string;
   played: boolean;
   played_at: string;
-  video: Video;
-  pgStatus: PgStatus;
+  Video: IAPiVideo;
 }
 
 export enum Status {

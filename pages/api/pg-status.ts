@@ -11,18 +11,25 @@ const pgStatusApiHandler = async (
       const session = getSession(req, res);
       // TODO: validate body
       if (req.body.status != "NOT_CHECKED") {
-        updatePGStatus({
-          entityID: req.body.entityID,
-          checker: session?.user.preferred_username,
-          status: req.body.status,
+        await prisma.pG_Status.update({
+          where: {
+            id: req.body.pgStatusID,
+          },
+          data: {
+            checker: session?.user.preferred_username,
+            status: req.body.status,
+          },
         });
         return res.status(200).json({ success: true });
       }
-
-      updatePGStatus({
-        entityID: req.body.entityID,
-        checker: "",
-        status: req.body.status,
+      await prisma.pG_Status.update({
+        where: {
+          id: req.body.pgStatusID,
+        },
+        data: {
+          checker: "",
+          status: req.body.status,
+        },
       });
       return res.status(200).json({ success: true });
     } catch (error) {

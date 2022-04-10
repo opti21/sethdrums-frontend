@@ -11,6 +11,7 @@ specifiers:
   '@emotion/styled': '11'
   '@next-auth/mongodb-adapter': ^1.0.2
   '@next-auth/prisma-adapter': ^1.0.1
+  '@prisma/client': ^3.12.0
   '@react-forked/dnd': ^14.0.0
   '@types/node': 17.0.18
   '@types/react': 17.0.39
@@ -26,6 +27,7 @@ specifiers:
   next: 12.1.0
   next-auth: ^4.3.0
   next-transpile-modules: ^9.0.0
+  prisma: ^3.12.0
   pusher: ^5.0.1
   pusher-js: ^7.0.6
   react: 17.0.2
@@ -46,7 +48,8 @@ dependencies:
   '@emotion/react': 11.9.0_7d44507621da18754e65092d521ffb28
   '@emotion/styled': 11.8.1_cb5cd6e81cbe935e4e2e8eb7726fb850
   '@next-auth/mongodb-adapter': 1.0.3_mongodb@4.5.0+next-auth@4.3.1
-  '@next-auth/prisma-adapter': 1.0.3_next-auth@4.3.1
+  '@next-auth/prisma-adapter': 1.0.3_2b535bbfb604d219371c9582b52b11b1
+  '@prisma/client': 3.12.0_prisma@3.12.0
   '@react-forked/dnd': 14.0.1_react-dom@17.0.2+react@17.0.2
   axios: 0.26.1
   dayjs: 1.11.0
@@ -74,6 +77,7 @@ devDependencies:
   eslint: 8.9.0
   eslint-config-next: 12.1.0_05da38aa0d7c6b76490c613c98841282
   next-transpile-modules: 9.0.0
+  prisma: 3.12.0
   typescript: 4.5.5
 
 packages:
@@ -1350,12 +1354,13 @@ packages:
       next-auth: 4.3.1_react-dom@17.0.2+react@17.0.2
     dev: false
 
-  /@next-auth/prisma-adapter/1.0.3_next-auth@4.3.1:
+  /@next-auth/prisma-adapter/1.0.3_2b535bbfb604d219371c9582b52b11b1:
     resolution: {integrity: sha512-3Lq1cD3ytKM3EGKJZ4UZvlqshLtlPvYxLeCrUV9ifYwYlq51kmDaHjsIawlp8EbH5pE1UhlsvtlXMery7RghtA==}
     peerDependencies:
       '@prisma/client': '>=2.26.0 || >=3'
       next-auth: ^4.0.1
     dependencies:
+      '@prisma/client': 3.12.0_prisma@3.12.0
       next-auth: 4.3.1_react-dom@17.0.2+react@17.0.2
     dev: false
 
@@ -1551,6 +1556,29 @@ packages:
   /@popperjs/core/2.11.5:
     resolution: {integrity: sha512-9X2obfABZuDVLCgPK9aX0a/x4jaOEweTTWE2+9sr0Qqqevj2Uv5XorvusThmc9XGYpS9yI+fhh8RTafBtGposw==}
     dev: false
+
+  /@prisma/client/3.12.0_prisma@3.12.0:
+    resolution: {integrity: sha512-4NEQjUcWja/NVBvfuDFscWSk1/rXg3+wj+TSkqXCb1tKlx/bsUE00rxsvOvGg7VZ6lw1JFpGkwjwmsOIc4zvQw==}
+    engines: {node: '>=12.6'}
+    requiresBuild: true
+    peerDependencies:
+      prisma: '*'
+    peerDependenciesMeta:
+      prisma:
+        optional: true
+    dependencies:
+      '@prisma/engines-version': 3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980
+      prisma: 3.12.0
+    dev: false
+
+  /@prisma/engines-version/3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980:
+    resolution: {integrity: sha512-o+jo8d7ZEiVpcpNWUDh3fj2uPQpBxl79XE9ih9nkogJbhw6P33274SHnqheedZ7PyvPIK/mvU8MLNYgetgXPYw==}
+    dev: false
+
+  /@prisma/engines/3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980:
+    resolution: {integrity: sha512-zULjkN8yhzS7B3yeEz4aIym4E2w1ChrV12i14pht3ePFufvsAvBSoZ+tuXMvfSoNTgBS5E4bolRzLbMmbwkkMQ==}
+    requiresBuild: true
+    dev: true
 
   /@reach/alert/0.13.2_react-dom@17.0.2+react@17.0.2:
     resolution: {integrity: sha512-LDz83AXCrClyq/MWe+0vaZfHp1Ytqn+kgL5VxG7rirUvmluWaj/snxzfNPWn0Ma4K2YENmXXRC/iHt5X95SqIg==}
@@ -3663,6 +3691,15 @@ packages:
   /pretty-format/3.8.0:
     resolution: {integrity: sha1-v77VbV6ad2ZF9LH/eqGjrE+jw4U=}
     dev: false
+
+  /prisma/3.12.0:
+    resolution: {integrity: sha512-ltCMZAx1i0i9xuPM692Srj8McC665h6E5RqJom999sjtVSccHSD8Z+HSdBN2183h9PJKvC5dapkn78dd0NWMBg==}
+    engines: {node: '>=12.6'}
+    hasBin: true
+    requiresBuild: true
+    dependencies:
+      '@prisma/engines': 3.12.0-37.22b822189f46ef0dc5c5b503368d1bee01213980
+    dev: true
 
   /prop-types/15.8.1:
     resolution: {integrity: sha512-oj87CgZICdulUohogVAR7AjlC0327U4el4L6eAvOqCeudMDVU0NThNaV+b9Df4dXgSP1gXMTnPdhfe/2qDH5cg==}

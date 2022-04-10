@@ -58,6 +58,13 @@ import DragItem from "../components/DragItem";
 import DeleteModal from "../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
+import { Status } from "@prisma/client";
+
+type PGState = {
+  youtubeID: string;
+  pgStatusID: string;
+  currentStatus: string;
+};
 
 const Mod: NextPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -70,13 +77,10 @@ const Mod: NextPage = () => {
     request: null,
     video: null,
   });
-  const [pgData, setPGData] = useState<any>({
-    video: {
-      youtube_id: "",
-    },
-    pgStatus: {
-      entityId: "",
-    },
+  const [pgData, setPGData] = useState<PGState>({
+    youtubeID: "",
+    pgStatusID: "",
+    currentStatus: "",
   });
 
   const disableDrag =
@@ -116,6 +120,10 @@ const Mod: NextPage = () => {
 
     channel.bind("queue-add", (data: any) => {
       console.log("queue add");
+      toast.info("New Request Added", {
+        position: "bottom-center",
+        pauseOnFocusLoss: false,
+      });
       axios.get("/api/queue").then((res) => {
         setQueue(res.data);
         setQueueStatus("ready");
@@ -145,7 +153,7 @@ const Mod: NextPage = () => {
   // console.log(queue);
 
   const onDragStart = async (event: any) => {
-    // console.log("Drag Started");
+    console.log("Drag Started");
     const { active } = event;
 
     setActiveId(active.id);
@@ -194,13 +202,14 @@ const Mod: NextPage = () => {
     }
 
     if (active.id !== over.id) {
-      // console.log(active.id, over.id);
+      console.log(active.id, over.id);
       const oldIndex = queue.order.findIndex(
-        (request) => request.id === active.id
+        (request) => `sortable${request.id}` === active.id
       );
       const newIndex = queue.order.findIndex(
-        (request) => request.id === over.id
+        (request) => `sortable${request.id}` === over.id
       );
+
       const updatedOrder = reorder(queue.order, oldIndex, newIndex);
       const newQueue = { ...queue, order: updatedOrder };
 
@@ -262,16 +271,34 @@ const Mod: NextPage = () => {
     onOpen: openPGModal,
   } = useDisclosure();
 
-  const handlePGModalClose = (entityId: string) => {
-    closePGModal();
+  const handlePGModalClose = (pgStatusID: string) => {
+    axios
+      .put("/api/pg-status", {
+        pgStatusID,
+        status: pgData.currentStatus,
+      })
+      .then(async (res) => {
+        console.log("pg updated");
+        await axios.post("/api/trigger", {
+          channelName: "sethdrums-queue",
+          eventName: "update-queue",
+          data: {},
+        });
+        closePGModal();
+        setPGData({
+          youtubeID: "",
+          pgStatusID: "",
+          currentStatus: "",
+        });
+      });
   };
 
-  const updatePG = (status: string, entityId: string) => {
+  const updatePG = (status: string, pgStatusID: string) => {
     try {
       console.log("update pg");
       axios
         .put("/api/pg-status", {
-          entityID: entityId,
+          pgStatusID,
           status,
         })
         .then(async (res) => {
@@ -291,16 +318,23 @@ const Mod: NextPage = () => {
   const validateYTUrl = (value: string) => {
     let error;
     const parsed = urlParser.parse(value);
+    const alreadyRequested = queue.order.findIndex((request) => {
+      console.log(request);
+      return request.Video.youtube_id === parsed?.id;
+    });
+
     if (!value) {
       error = "Youtube link required";
     } else if (!parsed) {
       error = "Not valid youtube URL";
+    } else if (alreadyRequested != -1) {
+      error = "Video is already in the queue";
     }
 
     return error;
   };
 
-  const validateSubmittedBy = (value: string) => {
+  const validateRequestedBy = (value: string) => {
     let error;
 
     if (!value) {
@@ -339,6 +373,28 @@ const Mod: NextPage = () => {
     }
   };
 
+  const NotCountedAlert = () => {
+    let numOfPGNotChecked = 0;
+    const requestText =
+      numOfPGNotChecked > 1 ? "requests need" : "request needs";
+
+    for (let i = 0; i < queue?.order?.length; i++) {
+      if (queue.order[i].Video.PG_Status.status === Status.NOT_CHECKED) {
+        numOfPGNotChecked += 1;
+      }
+    }
+
+    if (queue.order.length > 0 && numOfPGNotChecked > 0) {
+      return (
+        <Alert mt={2} status="warning">
+          <AlertIcon />
+          {numOfPGNotChecked} {requestText} to be checked for PG status
+        </Alert>
+      );
+    }
+    return null;
+  };
+
   const handleDeleteModalOpen = (request: any, video: any) => {
     setDeleteModalData({
       request,
@@ -364,20 +420,27 @@ const Mod: NextPage = () => {
             <ModalCloseButton />
             <ModalBody>
               <Formik
-                initialValues={{ ytLink: "", submittedBy: "" }}
+                initialValues={{ ytLink: "", requestedBy: "" }}
                 onSubmit={(values, actions) => {
-                  axios.post("/api/request", values).then(async (res) => {
-                    // console.log(res.data);
-                    if (res.status === 200) {
-                      await axios.post("/api/trigger", {
-                        channelName: "sethdrums-queue",
-                        eventName: "update-queue",
-                        data: { beingUpdatedBy: user?.preferred_username },
-                      });
-                      closeAddModal();
-                      toast.success("Request added");
-                    }
-                  });
+                  axios
+                    .post("/api/request", values)
+                    .then(async (res) => {
+                      // console.log(res.data);
+                      if (res.status === 200) {
+                        await axios.post("/api/trigger", {
+                          channelName: "sethdrums-queue",
+                          eventName: "update-queue",
+                          data: { beingUpdatedBy: user?.preferred_username },
+                        });
+                        closeAddModal();
+                        toast.success("Request added");
+                      }
+                    })
+                    .catch((error) => {
+                      console.error(error);
+                      toast.error("Error submitting request");
+                      actions.setSubmitting(false);
+                    });
                 }}
               >
                 {(props: FormikProps<any>) => (
@@ -405,27 +468,27 @@ const Mod: NextPage = () => {
                     </Field>
                     <Field
                       mb={2}
-                      name="submittedBy"
-                      validate={validateSubmittedBy}
+                      name="requestedBy"
+                      validate={validateRequestedBy}
                     >
                       {({ field, form }: any) => (
                         <FormControl
                           isInvalid={
-                            form.errors.submittedBy && form.touched.submittedBy
+                            form.errors.requestedBy && form.touched.requestedBy
                           }
                           isRequired={true}
                         >
-                          <FormLabel mt={4} htmlFor="submitted-by">
-                            Submitted By
+                          <FormLabel mt={4} htmlFor="requested-by">
+                            Requested By
                           </FormLabel>
 
                           <Input
                             {...field}
-                            id="submitted-by"
+                            id="requested-by"
                             placeholder="username"
                           />
                           <FormErrorMessage>
-                            {form.errors.name}
+                            {form.errors.requestedBy}
                           </FormErrorMessage>
                         </FormControl>
                       )}
@@ -454,7 +517,11 @@ const Mod: NextPage = () => {
           </ModalContent>
         </Modal>
 
-        <Modal isOpen={isPGModalOpen} onClose={closePGModal} size="2xl">
+        <Modal
+          isOpen={isPGModalOpen}
+          onClose={() => handlePGModalClose(pgData.pgStatusID)}
+          size="2xl"
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>PG Status Checker</ModalHeader>
@@ -462,7 +529,7 @@ const Mod: NextPage = () => {
             <ModalBody>
               <AspectRatio maxW="100%" ratio={16 / 9}>
                 <ReactPlayer
-                  url={`https://www.youtube.com/watch?v=${pgData.video.youtube_id}`}
+                  url={`https://www.youtube.com/watch?v=${pgData.youtubeID}`}
                   height={"100%"}
                   width={"100%"}
                   controls={true}
@@ -470,14 +537,14 @@ const Mod: NextPage = () => {
               </AspectRatio>
               <HStack pt="4">
                 <Button
-                  onClick={() => updatePG("PG", pgData.pgStatus.entityId)}
+                  onClick={() => updatePG("PG", pgData.pgStatusID)}
                   bgColor="green"
                   w="100%"
                 >
                   PG
                 </Button>
                 <Button
-                  onClick={() => updatePG("NON_PG", pgData.pgStatus.entityId)}
+                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
                   bgColor="red"
                   w="100%"
                 >
@@ -506,7 +573,7 @@ const Mod: NextPage = () => {
               <SortableContext
                 items={
                   queue?.order.map((request) => {
-                    return request.id;
+                    return `sortable${request.id}`;
                   })!
                 }
                 strategy={verticalListSortingStrategy}
@@ -516,15 +583,16 @@ const Mod: NextPage = () => {
                     Add Request
                   </Button>
                   <QueueStatus />
+                  <NotCountedAlert />
                   {queue?.order.map((request) => {
                     return (
                       <RequestCard
-                        key={request.id}
+                        key={`key${request.id}`}
                         id={request.id}
                         request={request}
-                        video={request.video}
+                        video={request.Video}
                         cardBG={cardBG}
-                        pgStatus={request.pgStatus}
+                        pgStatus={request.Video.PG_Status}
                         onPgDataChange={setPGData}
                         openPGModal={openPGModal}
                         openDeleteModal={handleDeleteModalOpen}
@@ -543,7 +611,7 @@ const Mod: NextPage = () => {
           <Box w={"100%"} alignContent="center">
             <Image
               src="/loading.gif"
-              alt="loading seth's huge head"
+              alt="loading seth's huge forehead"
               width={384}
               height={96}
             />

@@ -1,0 +1,95 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider          = "postgresql"
+  url               = env("POSTGRES_URL")
+  shadowDatabaseUrl = env("POSTGRES_GHOST_URL")
+}
+
+model Request {
+  id             Int              @id @default(autoincrement())
+  requested_by   String
+  video_id       Int              @unique
+  queue_id       Int?             @default(2)
+  played         Boolean          @default(false)
+  played_at      DateTime?
+  priority       Boolean          @default(false)
+  Video          Video            @relation(fields: [video_id], references: [id])
+  TagsOnRequests TagsOnRequests[]
+}
+
+model RequestTag {
+  id             Int              @id @default(autoincrement())
+  name           String
+  TagsOnRequests TagsOnRequests[]
+}
+
+model TagsOnRequests {
+  request_id  Int
+  tag_id      Int
+  assigned_at DateTime   @default(now())
+  assigned_by String
+  Request     Request    @relation(fields: [request_id], references: [id])
+  RequestTag  RequestTag @relation(fields: [tag_id], references: [id])
+
+  @@id([request_id, tag_id])
+}
+
+model PG_Status {
+  id               Int     @id @default(autoincrement())
+  video_id         Int     @unique
+  status           Status  @default(NOT_CHECKED)
+  checker          String?
+  timestamp        Int?
+  previous_status  String?
+  previous_checker String?
+  Video            Video   @relation(fields: [video_id], references: [id])
+}
+
+model Video {
+  id             Int            @id @default(autoincrement())
+  youtube_id     String         @unique
+  title          String
+  channel        String
+  region_blocked Boolean?
+  embed_blocked  Boolean?
+  duration       Int?
+  notes          String         @default("")
+  banned         Boolean        @default(false)
+  thumbnail      String
+  PG_Status      PG_Status?
+  Request        Request?
+  TagsOnVideos   TagsOnVideos[]
+}
+
+model VideoTag {
+  id           Int            @id @default(autoincrement())
+  name         String
+  TagsOnVideos TagsOnVideos[]
+}
+
+model TagsOnVideos {
+  video_id    Int
+  tag_id      Int
+  assigned_at DateTime @default(now())
+  assigned_by String
+  VideoTag    VideoTag @relation(fields: [tag_id], references: [id])
+  Video       Video    @relation(fields: [video_id], references: [id])
+
+  @@id([video_id, tag_id])
+}
+
+model Mod {
+  id        Int    @id @default(autoincrement())
+  name      String
+  twitch_id String
+}
+
+enum Status {
+  NOT_CHECKED
+  BEING_CHECKED
+  PG
+  NON_PG
+}
