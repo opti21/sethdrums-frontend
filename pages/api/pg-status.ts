@@ -1,6 +1,7 @@
 import { getSession } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import { getPgStatus, updatePGStatus } from "../../redis/handlers/PgStatus";
+import prisma from "../../utils/prisma";
 
 const pgStatusApiHandler = async (
   req: NextApiRequest,
