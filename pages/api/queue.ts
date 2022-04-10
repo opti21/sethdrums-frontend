@@ -3,8 +3,8 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import { getRequestByID } from "../../redis/handlers/Request";
 import { getVideo } from "../../redis/handlers/Video";
 import { getPgStatus } from "../../redis/handlers/PgStatus";
-import { prisma } from "../../utils/prisma";
 import { Status } from "@prisma/client";
+import prisma from "../../utils/prisma";
 
 const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "GET") {

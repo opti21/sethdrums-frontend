@@ -68,7 +68,8 @@ type PGState = {
 
 const Mod: NextPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
-  const { user, error, isLoading } = useUser();
+  const { user, error: userError, isLoading } = useUser();
+  const [queueError, setQueueError] = useState<boolean>(false);
   const [queue, setQueue] = useState<IQueue | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
   const [queueStatus, setQueueStatus] = useState<string>("loading");

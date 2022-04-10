@@ -9,6 +9,7 @@ import axios from "axios";
 import { Request, Video } from "@prisma/client";
 import { YTApiResponse } from "../../utils/types";
 import { parseYTDuration } from "../../utils/utils";
+import prisma from "../../utils/prisma";
 
 const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
   const session = getSession(req, res);
