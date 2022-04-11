@@ -2,6 +2,7 @@ import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { read } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import Pusher from "pusher";
+import prisma from "../../../utils/prisma";
 
 if (
   !process.env.PUSHER_APP_ID ||
