@@ -15,10 +15,15 @@ import {
   VStack,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import { FC } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoMdMoon, IoMdSunny } from "react-icons/io";
 
-const Nav = () => {
+type NavProps = {
+  returnTo: string;
+};
+
+const Nav: FC<NavProps> = ({ returnTo }) => {
   const { user, error, isLoading } = useUser();
   const bg = useColorModeValue("pink", "pink.400");
   const mobileNav = useDisclosure();
@@ -77,7 +82,10 @@ const Nav = () => {
                   </Link>
                 </>
               ) : (
-                <Link passHref={true} href={"/api/auth/login"}>
+                <Link
+                  passHref={true}
+                  href={`/api/auth/login?returnTo=${returnTo}`}
+                >
                   <Button isLoading={isLoading} variant="ghost">
                     Sign in
                   </Button>

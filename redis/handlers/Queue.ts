@@ -177,6 +177,30 @@ async function updateOrder(updatedOrderData: any): Promise<boolean> {
   }
 }
 
+async function updateOrderPrio(updatedOrder: any): Promise<boolean> {
+  try {
+    console.log(updatedOrder);
+    lockQueue();
+
+    await connect();
+
+    const repository = client.fetchRepository(queueSchema);
+
+    const queue = await repository.fetch(QUEUE_ID);
+
+    queue.order = updatedOrder;
+
+    await repository.save(queue);
+
+    unLockQueue();
+
+    return true;
+  } catch (e) {
+    console.log(e);
+    return Promise.reject("Error updating queue");
+  }
+}
+
 export {
   Queue,
   getQueue,
@@ -186,4 +210,5 @@ export {
   addToQueue,
   removeFromOrder,
   updateOrder,
+  updateOrderPrio,
 };

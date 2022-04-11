@@ -6,11 +6,6 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const config = {
-    clientKey: process.env.NEXT_PUBLIC_PUSHER_KEY,
-    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
-    triggerEndpoint: "/api/trigger",
-  };
   return (
     <UserProvider>
       <SWRConfig

@@ -20,6 +20,7 @@ import {
   AlertTitle,
   HStack,
   useColorModeValue,
+  Text,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -69,7 +70,7 @@ type PGState = {
 const Mod: NextPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
   const { user, error: userError, isLoading } = useUser();
-  const [queueError, setQueueError] = useState<boolean>(false);
+  const [queueError, setQueueError] = useState<string | null>(null);
   const [queue, setQueue] = useState<IQueue | null>(null);
   const [connected, setConnected] = useState<boolean>(false);
   const [queueStatus, setQueueStatus] = useState<string>("loading");
@@ -87,14 +88,49 @@ const Mod: NextPage = () => {
   const disableDrag =
     queueStatus === "updating" && beingUpdatedBy !== user?.prefferred_username;
 
-  const cardBG = useColorModeValue("pink", "pink.900");
-
   useEffect(() => {
+    if (!user) {
+      console.log("no user?");
+      return;
+    }
+    console.log("connect pusher");
+
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
+      authEndpoint: "/api/pusher/auth",
     });
 
-    const channel = pusher.subscribe("sethdrums-queue");
+    const channel = pusher.subscribe("presence-sethdrums-queue");
+
+    channel.bind("pusher:subscription_error", (error) => {
+      console.error(error);
+      if (error.status === 403) {
+        setQueueError("Only mods can access this page");
+        return;
+      }
+    });
+
+    channel.bind("pusher:subscription_succeeded", () => {
+      console.log("succec");
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          setQueue(res.data);
+          setQueueStatus("ready");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          } else if (error.response.status === 403) {
+            setQueueError("Only mods can access this");
+            return;
+          }
+
+          setQueueError("Error Fetching queue");
+          console.error(error);
+        });
+    });
 
     channel.bind("lock-queue", (data: any) => {
       console.log("LOCKL QUEUE");
@@ -111,11 +147,20 @@ const Mod: NextPage = () => {
         return;
       }
 
-      axios.get("/api/queue").then((res) => {
-        setQueue(res.data);
-        setQueueStatus("ready");
-        setBeingUpdatedBy("");
-      });
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          setQueue(res.data);
+          setQueueStatus("ready");
+          setBeingUpdatedBy("");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+          console.error(error);
+        });
       // console.log(data);
     });
 
@@ -125,22 +170,30 @@ const Mod: NextPage = () => {
         position: "bottom-center",
         pauseOnFocusLoss: false,
       });
-      axios.get("/api/queue").then((res) => {
-        setQueue(res.data);
-        setQueueStatus("ready");
-      });
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          console.log(res.status);
+          if (res.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+
+          setQueue(res.data);
+          setQueueStatus("ready");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+          console.error(error);
+        });
     });
 
     channel.bind("update-queue", (data: any) => {
       console.log("update queue");
-      axios.get("/api/queue").then((res) => {
-        setQueue(res.data);
-        setQueueStatus("ready");
-      });
-    });
-
-    pusher.connection.bind("connected", () => {
-      axios.get("/api/queue").then((res) => {
+      axios.get("/api/mod/queue").then((res) => {
         setQueue(res.data);
         setQueueStatus("ready");
       });
@@ -149,7 +202,7 @@ const Mod: NextPage = () => {
     return () => {
       pusher.disconnect();
     };
-  }, []);
+  }, [user]);
 
   // console.log(queue);
 
@@ -158,8 +211,8 @@ const Mod: NextPage = () => {
     const { active } = event;
 
     setActiveId(active.id);
-    await axios.post("/api/trigger", {
-      channelName: "sethdrums-queue",
+    await axios.post("/api/mod/trigger", {
+      channelName: "presence-sethdrums-queue",
       eventName: "lock-queue",
       data: { beingUpdatedBy: user?.preferred_username },
     });
@@ -179,8 +232,8 @@ const Mod: NextPage = () => {
 
   const unlockQueue = async () => {
     console.log("unlock queue");
-    await axios.post("/api/trigger", {
-      channelName: "sethdrums-queue",
+    await axios.post("/api/mod/trigger", {
+      channelName: "presence-sethdrums-queue",
       eventName: "unlock-queue",
       data: { beingUpdatedBy: "" },
     });
@@ -217,7 +270,7 @@ const Mod: NextPage = () => {
       setQueue(newQueue);
 
       axios
-        .post("/api/queue", {
+        .post("/api/mod/queue", {
           updatedOrder,
         })
         .then((res) => {
@@ -274,14 +327,14 @@ const Mod: NextPage = () => {
 
   const handlePGModalClose = (pgStatusID: string) => {
     axios
-      .put("/api/pg-status", {
+      .put("/api/mod/pg-status", {
         pgStatusID,
         status: pgData.currentStatus,
       })
       .then(async (res) => {
         console.log("pg updated");
-        await axios.post("/api/trigger", {
-          channelName: "sethdrums-queue",
+        await axios.post("/api/mod/trigger", {
+          channelName: "presence-sethdrums-queue",
           eventName: "update-queue",
           data: {},
         });
@@ -298,14 +351,14 @@ const Mod: NextPage = () => {
     try {
       console.log("update pg");
       axios
-        .put("/api/pg-status", {
+        .put("/api/mod/pg-status", {
           pgStatusID,
           status,
         })
         .then(async (res) => {
           console.log("pg updated");
-          await axios.post("/api/trigger", {
-            channelName: "sethdrums-queue",
+          await axios.post("/api/mod/trigger", {
+            channelName: "presence-sethdrums-queue",
             eventName: "update-queue",
             data: {},
           });
@@ -404,6 +457,10 @@ const Mod: NextPage = () => {
     openDeleteModal();
   };
 
+  const numOfPrio = queue?.order.filter((request) => {
+    request.priority === true;
+  }).length;
+
   return (
     <>
       <Head>
@@ -412,7 +469,7 @@ const Mod: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxW={"container.xl"} p={0}>
-        <Nav />
+        <Nav returnTo="/mod" />
 
         <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
           <ModalOverlay />
@@ -424,12 +481,12 @@ const Mod: NextPage = () => {
                 initialValues={{ ytLink: "", requestedBy: "" }}
                 onSubmit={(values, actions) => {
                   axios
-                    .post("/api/request", values)
+                    .post("/api/mod/request", values)
                     .then(async (res) => {
                       // console.log(res.data);
                       if (res.status === 200) {
-                        await axios.post("/api/trigger", {
-                          channelName: "sethdrums-queue",
+                        await axios.post("/api/mod/trigger", {
+                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });
@@ -563,61 +620,74 @@ const Mod: NextPage = () => {
           setDeleteModalData={setDeleteModalData}
         />
 
-        {queue ? (
-          <>
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCorners}
-              onDragStart={onDragStart}
-              onDragEnd={onDragEnd}
-            >
-              <SortableContext
-                items={
-                  queue?.order.map((request) => {
-                    return `sortable${request.id}`;
-                  })!
-                }
-                strategy={verticalListSortingStrategy}
-              >
-                <Box p="10">
-                  <Button my={2} onClick={openAddModal}>
-                    Add Request
-                  </Button>
-                  <QueueStatus />
-                  <NotCountedAlert />
-                  {queue?.order.map((request) => {
-                    return (
-                      <RequestCard
-                        key={`key${request.id}`}
-                        id={request.id}
-                        request={request}
-                        video={request.Video}
-                        cardBG={cardBG}
-                        pgStatus={request.Video.PG_Status}
-                        onPgDataChange={setPGData}
-                        openPGModal={openPGModal}
-                        openDeleteModal={handleDeleteModalOpen}
-                        disabled={disableDrag}
-                      />
-                    );
-                  })}
-                </Box>
-              </SortableContext>
-              <DragOverlay>
-                {activeId ? <DragItem id={activeId} /> : null}
-              </DragOverlay>
-            </DndContext>
-          </>
-        ) : (
-          <Box w={"100%"} alignContent="center">
-            <Image
-              src="/loading.gif"
-              alt="loading seth's huge forehead"
-              width={384}
-              height={96}
-            />
-          </Box>
+        {queueError && (
+          <Alert mt={2} status="error">
+            {queueError}
+          </Alert>
         )}
+        {!user && !isLoading && (
+          <Alert mt={2} status="error">
+            You must be signed in and a mod to access this page
+          </Alert>
+        )}
+        {!queueError &&
+          user &&
+          (queue ? (
+            <>
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCorners}
+                onDragStart={onDragStart}
+                onDragEnd={onDragEnd}
+              >
+                <SortableContext
+                  items={
+                    queue?.order.map((request) => {
+                      return `sortable${request.id}`;
+                    })!
+                  }
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Box p={[4, 10]}>
+                    <Button my={2} onClick={openAddModal}>
+                      Add Request
+                    </Button>
+                    <QueueStatus />
+                    <NotCountedAlert />
+                    {queue?.order.map((request) => {
+                      return (
+                        <RequestCard
+                          key={`key${request.id}`}
+                          id={request.id}
+                          request={request}
+                          video={request.Video}
+                          pgStatus={request.Video.PG_Status}
+                          onPgDataChange={setPGData}
+                          openPGModal={openPGModal}
+                          openDeleteModal={handleDeleteModalOpen}
+                          disabled={disableDrag}
+                          numOfPrio={numOfPrio}
+                        />
+                      );
+                    })}
+                  </Box>
+                </SortableContext>
+                <DragOverlay>
+                  {activeId ? <DragItem id={activeId} /> : null}
+                </DragOverlay>
+              </DndContext>
+            </>
+          ) : (
+            <Box w={"100%"} alignContent="center">
+              <Text>Loading Queue...</Text>
+              <Image
+                src="/loading.gif"
+                alt="loading seth's huge forehead"
+                width={384}
+                height={96}
+              />
+            </Box>
+          ))}
       </Container>
     </>
   );

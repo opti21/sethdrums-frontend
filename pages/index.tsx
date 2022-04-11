@@ -14,10 +14,8 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxW={"container.xl"} p={0}>
-      <Nav />
-      <Flex h="100vh" py={20}>
-
-      </Flex>
+        <Nav returnTo="/" />
+        <Flex h="100vh" py={20}></Flex>
       </Container>
     </>
   );

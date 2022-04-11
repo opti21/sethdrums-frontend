@@ -119,6 +119,7 @@ export interface IApiRequest {
   video_id: string;
   played: boolean;
   played_at: string;
+  priority: boolean;
   Video: IAPiVideo;
 }
 

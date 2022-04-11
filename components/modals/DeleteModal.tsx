@@ -35,7 +35,7 @@ const DeleteModal: FC<Props> = ({
 
   const handleDelete = (requestID: string) => {
     axios
-      .delete("/api/request", {
+      .delete("/api/mod/request", {
         data: {
           requestID,
         },
@@ -43,8 +43,8 @@ const DeleteModal: FC<Props> = ({
       .then(async (res) => {
         console.log(res);
         toast.success("Request deleted");
-        await axios.post("/api/trigger", {
-          channelName: "sethdrums-queue",
+        await axios.post("/api/mod/trigger", {
+          channelName: "presence-sethdrums-queue",
           eventName: "update-queue",
           data: {},
         });
@@ -93,7 +93,7 @@ const DeleteModal: FC<Props> = ({
           </Button>
           <Button
             colorScheme="blue"
-            onClick={() => closeDeleteModal}
+            onClick={() => closeDeleteModal()}
             variant="ghost"
           >
             Cancel

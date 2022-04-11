@@ -12,7 +12,9 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Stack,
   Text,
+  useColorModeValue,
 } from "@chakra-ui/react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -22,17 +24,18 @@ import PGButton from "./PgButton";
 import { MdDragIndicator } from "react-icons/md";
 import { IApiRequest, IAPiVideo, Status } from "../utils/types";
 import { PG_Status } from "@prisma/client";
+import { toast } from "react-toastify";
 
 type Props = {
   id: string;
   request: IApiRequest;
   video: IAPiVideo;
   pgStatus: PG_Status;
-  cardBG: string;
   onPgDataChange: any;
   openPGModal: any;
   openDeleteModal: (request: any, video: any) => void;
   disabled: boolean;
+  numOfPrio: number;
 };
 
 const RequestCard: FC<Props> = ({
@@ -40,11 +43,11 @@ const RequestCard: FC<Props> = ({
   request,
   video,
   pgStatus,
-  cardBG,
   onPgDataChange,
   openPGModal,
   openDeleteModal,
   disabled,
+  numOfPrio,
 }) => {
   if (!request) return null;
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -52,6 +55,9 @@ const RequestCard: FC<Props> = ({
       id: `sortable${id}`,
       // disabled: disabled,
     });
+  const cardBG = request.priority
+    ? useColorModeValue("yellow.300", "yellow.500")
+    : useColorModeValue("pink", "pink.900");
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -65,13 +71,13 @@ const RequestCard: FC<Props> = ({
       currentStatus: pgStatus.status,
     });
 
-    await axios.put("/api/pg-status", {
+    await axios.put("/api/mod/pg-status", {
       pgStatusID: pgStatus.id,
       status: Status.BeingChecked,
     });
 
-    await axios.post("/api/trigger", {
-      channelName: "sethdrums-queue",
+    await axios.post("/api/mod/trigger", {
+      channelName: "presence-sethdrums-queue",
       eventName: "update-queue",
       data: {},
     });
@@ -100,7 +106,7 @@ const RequestCard: FC<Props> = ({
 
       <Box
         border="1px"
-        borderColor="pink.200"
+        borderColor={request.priority ? "yellow.100" : "pink.200"}
         bgColor={cardBG}
         rounded="lg"
         w={"100%"}
@@ -109,15 +115,15 @@ const RequestCard: FC<Props> = ({
         ref={setNodeRef}
         style={style}
       >
-        <HStack>
+        <Stack direction={["column", "row"]}>
           <Icon
             as={MdDragIndicator}
-            w={6}
-            h={6}
+            w={10}
+            h={10}
             {...attributes}
             {...listeners}
           />
-          <Box>
+          <Stack alignItems={"center"} direction={["row", "column"]}>
             <Image
               maxW={"100px"}
               rounded="lg"
@@ -125,18 +131,20 @@ const RequestCard: FC<Props> = ({
               objectFit="cover"
               alt="video thumbnail"
             />
-          </Box>
+            <Text fontSize={"xl"} style={{ fontWeight: "bold" }}>
+              {formatDuration(video.duration)}
+            </Text>
+          </Stack>
           <Box flex={1} ml={{ md: 2 }}>
             <Text
-              fontSize="xl"
+              fontSize={["md", "xl"]}
               style={{
                 fontWeight: "bold",
               }}
-              noOfLines={1}
+              noOfLines={2}
             >
               {video.title}
             </Text>
-            <Text>{formatDuration(video.duration)}</Text>
             <Text fontSize="md" isTruncated>
               Requested By: {request.requested_by}
             </Text>
@@ -145,7 +153,7 @@ const RequestCard: FC<Props> = ({
             <PGButton pgStatus={pgStatus} onClick={() => handlePGClick()} />
             <Popover>
               <PopoverTrigger>
-                <Button>Actions</Button>
+                <Button px={8}>Actions</Button>
               </PopoverTrigger>
               <PopoverContent>
                 <PopoverArrow />
@@ -160,11 +168,64 @@ const RequestCard: FC<Props> = ({
                   >
                     Delete
                   </Button>
+                  {!request.priority ? (
+                    <Button
+                      onClick={() => {
+                        axios
+                          .post(
+                            `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
+                          )
+                          .then(async (res) => {
+                            await axios.post("/api/mod/trigger", {
+                              channelName: "presence-sethdrums-queue",
+                              eventName: "update-queue",
+                              data: {},
+                            });
+                          })
+                          .catch((error) => {
+                            toast.error("Error updating prio status");
+                            console.error(error);
+                          });
+                      }}
+                      bgColor={"gold"}
+                      style={{ color: "black" }}
+                      mx={2}
+                      w={"30%"}
+                    >
+                      Make Prio
+                    </Button>
+                  ) : (
+                    <Button
+                      onClick={() => {
+                        axios
+                          .post(
+                            `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
+                          )
+                          .then(async (res) => {
+                            await axios.post("/api/mod/trigger", {
+                              channelName: "presence-sethdrums-queue",
+                              eventName: "update-queue",
+                              data: {},
+                            });
+                          })
+                          .catch((error) => {
+                            toast.error("Error updating prio status");
+                            console.error(error);
+                          });
+                      }}
+                      bgColor={"gold"}
+                      style={{ color: "black" }}
+                      mx={2}
+                      w={"40%"}
+                    >
+                      Remove Prio
+                    </Button>
+                  )}
                 </PopoverBody>
               </PopoverContent>
             </Popover>
           </Flex>
-        </HStack>
+        </Stack>
       </Box>
     </>
   );
