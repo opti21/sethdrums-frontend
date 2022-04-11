@@ -8,7 +8,7 @@ type Props = {
 };
 
 const PGButton: FC<Props> = ({ pgStatus, onClick }) => {
-  const width = ["100%", "100%"];
+  const width = ["100%", 150];
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (

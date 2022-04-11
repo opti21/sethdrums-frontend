@@ -182,7 +182,7 @@ const RequestCard: FC<Props> = ({
                   }}
                   bgColor={"gold"}
                   style={{ color: "black" }}
-                  w={["100%", 50]}
+                  w={["100%", "75%"]}
                 >
                   <Icon as={AiOutlineCrown} w={5} h={5} />
                 </Button>
@@ -207,7 +207,7 @@ const RequestCard: FC<Props> = ({
                   }}
                   bgColor={"gold"}
                   style={{ color: "black" }}
-                  w={["100%", 50]}
+                  w={["100%", "75%"]}
                 >
                   <Icon as={AiFillCrown} w={5} h={5} />
                 </Button>
@@ -215,7 +215,7 @@ const RequestCard: FC<Props> = ({
               <Button
                 onClick={() => openDeleteModal(request, video)}
                 bgColor={"red"}
-                w={50}
+                w={"25%"}
               >
                 <Icon as={IoMdTrash} w={5} h={5} />
               </Button>
