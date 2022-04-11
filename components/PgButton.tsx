@@ -8,34 +8,35 @@ type Props = {
 };
 
 const PGButton: FC<Props> = ({ pgStatus, onClick }) => {
+  const width = ["100%", "100%"];
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (
-        <Button mx={2} onClick={onClick} colorScheme={"blue"} w={"100%"}>
+        <Button onClick={onClick} colorScheme={"blue"} w={width}>
           PG: Not Checked
         </Button>
       );
     case Status.BeingChecked:
       return (
-        <Button mx={2} onClick={onClick} colorScheme={"yellow"} w={"100%"}>
+        <Button onClick={onClick} colorScheme={"yellow"} w={width}>
           Being Checked
         </Button>
       );
     case Status.PG:
       return (
-        <Button mx={2} onClick={onClick} bgColor={"green"} w={"100%"}>
+        <Button onClick={onClick} bgColor={"green"} w={width}>
           PG
         </Button>
       );
     case Status.NonPG:
       return (
-        <Button mx={2} onClick={onClick} bgColor={"red"} w={"100%"}>
+        <Button onClick={onClick} bgColor={"red"} w={width}>
           Non PG
         </Button>
       );
     default:
       return (
-        <Button mx={2} colorScheme={"grey"} w={"100%"} isDisabled={true}>
+        <Button colorScheme={"grey"} w={width} isDisabled={true}>
           PG Status
         </Button>
       );

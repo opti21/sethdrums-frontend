@@ -5,6 +5,7 @@ import {
   HStack,
   Icon,
   Image,
+  Link,
   Popover,
   PopoverArrow,
   PopoverBody,
@@ -15,6 +16,7 @@ import {
   Stack,
   Text,
   useColorModeValue,
+  VStack,
 } from "@chakra-ui/react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -25,6 +27,8 @@ import { MdDragIndicator } from "react-icons/md";
 import { IApiRequest, IAPiVideo, Status } from "../utils/types";
 import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
+import { IoMdTrash } from "react-icons/io";
+import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
 
 type Props = {
   id: string;
@@ -115,28 +119,33 @@ const RequestCard: FC<Props> = ({
         ref={setNodeRef}
         style={style}
       >
-        <Stack direction={["column", "row"]}>
-          <Icon
-            as={MdDragIndicator}
-            w={10}
-            h={10}
-            {...attributes}
-            {...listeners}
-          />
-          <Stack alignItems={"center"} direction={["row", "column"]}>
-            <Image
-              maxW={"100px"}
-              rounded="lg"
-              src={video.thumbnail}
-              objectFit="cover"
-              alt="video thumbnail"
+        <Flex direction={["column", "row"]}>
+          <Flex direction={"row"}>
+            <Icon
+              as={MdDragIndicator}
+              w={10}
+              h={100}
+              {...attributes}
+              {...listeners}
+              mr={2}
             />
-            <Text fontSize={"xl"} style={{ fontWeight: "bold" }}>
-              {formatDuration(video.duration)}
-            </Text>
-          </Stack>
-          <Box flex={1} ml={{ md: 2 }}>
-            <Text
+            <Stack alignItems={"center"} direction={["row", "column"]} pr={2}>
+              <Image
+                maxW={"100px"}
+                rounded="lg"
+                src={video.thumbnail}
+                objectFit="cover"
+                alt="video thumbnail"
+                mt={2}
+              />
+              <Text fontSize={"xl"} style={{ fontWeight: "bold" }}>
+                {formatDuration(video.duration)}
+              </Text>
+            </Stack>
+          </Flex>
+          <VStack align={"start"} w={"100%"}>
+            <Link
+              href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
               fontSize={["md", "xl"]}
               style={{
                 fontWeight: "bold",
@@ -144,88 +153,75 @@ const RequestCard: FC<Props> = ({
               noOfLines={2}
             >
               {video.title}
-            </Text>
+            </Link>
             <Text fontSize="md" isTruncated>
               Requested By: {request.requested_by}
             </Text>
-          </Box>
-          <Flex pt={2}>
+          </VStack>
+          <Stack direction={["row", "column"]} pt={2} spacing={2}>
             <PGButton pgStatus={pgStatus} onClick={() => handlePGClick()} />
-            <Popover>
-              <PopoverTrigger>
-                <Button px={8}>Actions</Button>
-              </PopoverTrigger>
-              <PopoverContent>
-                <PopoverArrow />
-                <PopoverCloseButton />
-                <PopoverHeader>Actions</PopoverHeader>
-                <PopoverBody>
-                  <Button
-                    onClick={() => openDeleteModal(request, video)}
-                    bgColor={"red"}
-                    mx={2}
-                    w={"25%"}
-                  >
-                    Delete
-                  </Button>
-                  {!request.priority ? (
-                    <Button
-                      onClick={() => {
-                        axios
-                          .post(
-                            `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
-                          )
-                          .then(async (res) => {
-                            await axios.post("/api/mod/trigger", {
-                              channelName: "presence-sethdrums-queue",
-                              eventName: "update-queue",
-                              data: {},
-                            });
-                          })
-                          .catch((error) => {
-                            toast.error("Error updating prio status");
-                            console.error(error);
-                          });
-                      }}
-                      bgColor={"gold"}
-                      style={{ color: "black" }}
-                      mx={2}
-                      w={"30%"}
-                    >
-                      Make Prio
-                    </Button>
-                  ) : (
-                    <Button
-                      onClick={() => {
-                        axios
-                          .post(
-                            `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
-                          )
-                          .then(async (res) => {
-                            await axios.post("/api/mod/trigger", {
-                              channelName: "presence-sethdrums-queue",
-                              eventName: "update-queue",
-                              data: {},
-                            });
-                          })
-                          .catch((error) => {
-                            toast.error("Error updating prio status");
-                            console.error(error);
-                          });
-                      }}
-                      bgColor={"gold"}
-                      style={{ color: "black" }}
-                      mx={2}
-                      w={"40%"}
-                    >
-                      Remove Prio
-                    </Button>
-                  )}
-                </PopoverBody>
-              </PopoverContent>
-            </Popover>
-          </Flex>
-        </Stack>
+            <HStack w={"100%"}>
+              {!request.priority ? (
+                <Button
+                  onClick={() => {
+                    axios
+                      .post(
+                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
+                      )
+                      .then(async (res) => {
+                        await axios.post("/api/mod/trigger", {
+                          channelName: "presence-sethdrums-queue",
+                          eventName: "update-queue",
+                          data: {},
+                        });
+                      })
+                      .catch((error) => {
+                        toast.error("Error updating prio status");
+                        console.error(error);
+                      });
+                  }}
+                  bgColor={"gold"}
+                  style={{ color: "black" }}
+                  w={["100%", 50]}
+                >
+                  <Icon as={AiOutlineCrown} w={5} h={5} />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    axios
+                      .post(
+                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
+                      )
+                      .then(async (res) => {
+                        await axios.post("/api/mod/trigger", {
+                          channelName: "presence-sethdrums-queue",
+                          eventName: "update-queue",
+                          data: {},
+                        });
+                      })
+                      .catch((error) => {
+                        toast.error("Error updating prio status");
+                        console.error(error);
+                      });
+                  }}
+                  bgColor={"gold"}
+                  style={{ color: "black" }}
+                  w={["100%", 50]}
+                >
+                  <Icon as={AiFillCrown} w={5} h={5} />
+                </Button>
+              )}
+              <Button
+                onClick={() => openDeleteModal(request, video)}
+                bgColor={"red"}
+                w={50}
+              >
+                <Icon as={IoMdTrash} w={5} h={5} />
+              </Button>
+            </HStack>
+          </Stack>
+        </Flex>
       </Box>
     </>
   );
