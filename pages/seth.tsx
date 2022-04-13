@@ -4,7 +4,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   useDisclosure,
@@ -16,81 +15,39 @@ import {
   FormErrorMessage,
   Box,
   Alert,
-  AlertIcon,
-  AlertTitle,
-  HStack,
-  useColorModeValue,
   Text,
   Stack,
+  StackDivider,
+  AlertIcon,
+  HStack,
   Avatar,
+  Divider,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
 import Head from "next/head";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
-import { IApiRequest, IQueue } from "../utils/types";
+import { IQueue } from "../utils/types";
 // import { useChannel, useEvent, useTrigger } from "@harelpls/use-pusher";
-import { DragDropContext, Droppable, Draggable } from "@react-forked/dnd";
-import { Video } from "../redis/handlers/Video";
-import {
-  closestCenter,
-  closestCorners,
-  DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  MouseSensor,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
 import ReactPlayer from "react-player";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { Field, Form, Formik, FormikProps } from "formik";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
-import DragItem from "../components/DragItem";
-import DeleteModal from "../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
-import { Status } from "@prisma/client";
-
-type PGState = {
-  youtubeID: string;
-  pgStatusID: string;
-  currentStatus: string;
-};
 
 const Mod: NextPage = () => {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const { user, error: userError, isLoading } = useUser();
   const [queueError, setQueueError] = useState<string | null>(null);
   const [queue, setQueue] = useState<IQueue | null>(null);
-  const [connected, setConnected] = useState<boolean>(false);
-  const [queueStatus, setQueueStatus] = useState<string>("loading");
+  const [queueStatusData, setQueueStatus] = useState<string>("loading");
   const [beingUpdatedBy, setBeingUpdatedBy] = useState<string>("");
-  const [deleteModalData, setDeleteModalData] = useState<any>({
-    request: null,
-    video: null,
-  });
-  const [pgData, setPGData] = useState<PGState>({
-    youtubeID: "",
-    pgStatusID: "",
-    currentStatus: "",
-  });
   const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
-
-  const disableDrag =
-    queueStatus === "updating" && beingUpdatedBy !== user?.prefferred_username;
 
   useEffect(() => {
     if (!user) {
@@ -234,167 +191,32 @@ const Mod: NextPage = () => {
   }, [user]);
 
   // console.log(queue);
-
-  const onDragStart = async (event: any) => {
-    console.log("Drag Started");
-    const { active } = event;
-
-    setActiveId(active.id);
-    await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
-      eventName: "lock-queue",
-      data: { beingUpdatedBy: user?.preferred_username },
-    });
-  };
-
-  const reorder = (
-    list: IApiRequest[],
-    startIndex: number,
-    endIndex: number
-  ) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-
-  const unlockQueue = async () => {
-    console.log("unlock queue");
-    await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
-      eventName: "unlock-queue",
-      data: { beingUpdatedBy: "" },
-    });
-  };
-
-  const onDragEnd = async (event: any) => {
-    if (!queue) {
-      unlockQueue();
-      return;
-    }
-    if (!queue.order) {
-      unlockQueue();
-      return;
-    }
-
-    const { active, over } = event;
-    if (!over) {
-      unlockQueue();
-      return;
-    }
-
-    if (active.id !== over.id) {
-      console.log(active.id, over.id);
-      const oldIndex = queue.order.findIndex(
-        (request) => `sortable${request.id}` === active.id
-      );
-      const newIndex = queue.order.findIndex(
-        (request) => `sortable${request.id}` === over.id
-      );
-
-      const updatedOrder = reorder(queue.order, oldIndex, newIndex);
-      const newQueue = { ...queue, order: updatedOrder };
-
-      setQueue(newQueue);
-
-      axios
-        .post("/api/mod/queue", {
-          updatedOrder,
-        })
-        .then((res) => {
-          // console.log(res);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-
-      unlockQueue();
-    }
-
-    unlockQueue();
-    setActiveId(null);
-  };
-
-  // console.log(queue);
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      // Require the mouse to move by 10 pixels before activating
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      // Press delay of 250ms, with tolerance of 5px of movement
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  // Modals
-  const {
-    isOpen: isAddModalOpen,
-    onClose: closeAddModal,
-    onOpen: openAddModal,
-  } = useDisclosure();
-  const {
-    isOpen: isDeleteModalOpen,
-    onOpen: openDeleteModal,
-    onClose: closeDeleteModal,
-  } = useDisclosure();
-  const {
-    isOpen: isPGModalOpen,
-    onClose: closePGModal,
-    onOpen: openPGModal,
-  } = useDisclosure();
-
-  const handlePGModalClose = (pgStatusID: string) => {
-    axios
-      .put("/api/mod/pg-status", {
-        pgStatusID,
-        status: pgData.currentStatus,
-      })
-      .then(async (res) => {
-        console.log("pg updated");
-        await axios.post("/api/mod/trigger", {
-          channelName: "presence-sethdrums-queue",
-          eventName: "update-queue",
-          data: {},
-        });
-        closePGModal();
-        setPGData({
-          youtubeID: "",
-          pgStatusID: "",
-          currentStatus: "",
-        });
-      });
-  };
-
-  const updatePG = (status: string, pgStatusID: string) => {
-    try {
-      console.log("update pg");
-      axios
-        .put("/api/mod/pg-status", {
-          pgStatusID,
-          status,
-        })
-        .then(async (res) => {
-          console.log("pg updated");
-          await axios.post("/api/mod/trigger", {
-            channelName: "presence-sethdrums-queue",
-            eventName: "update-queue",
-            data: {},
-          });
-          closePGModal();
-        });
-    } catch (error) {
-      console.error(error);
+  const QueueStatus = () => {
+    switch (queueStatusData) {
+      case "ready":
+        return (
+          <Alert status="info">
+            <AlertIcon />
+            Queue is up to date
+          </Alert>
+        );
+      case "updating":
+        return (
+          <Alert status="warning">
+            <AlertIcon />
+            {beingUpdatedBy === user?.preferred_username
+              ? "You're "
+              : beingUpdatedBy + ` is `}
+            updating the queue
+          </Alert>
+        );
+      default:
+        return (
+          <Alert status="warning">
+            <AlertIcon />
+            Loading
+          </Alert>
+        );
     }
   };
 
@@ -427,64 +249,14 @@ const Mod: NextPage = () => {
     return error;
   };
 
-  const QueueStatus = () => {
-    switch (queueStatus) {
-      case "ready":
-        return (
-          <Alert status="info">
-            <AlertIcon />
-            Queue is up to date
-          </Alert>
-        );
-      case "updating":
-        return (
-          <Alert status="warning">
-            <AlertIcon />
-            {beingUpdatedBy === user?.preferred_username
-              ? "You're "
-              : beingUpdatedBy + ` is `}
-            updating the queue
-          </Alert>
-        );
-      default:
-        return (
-          <Alert status="warning">
-            <AlertIcon />
-            Loading
-          </Alert>
-        );
-    }
-  };
+  // console.log(queue);
 
-  const NotCountedAlert = () => {
-    let numOfPGNotChecked = 0;
-    const requestText =
-      numOfPGNotChecked > 1 ? "requests need" : "request needs";
-
-    for (let i = 0; i < queue?.order?.length; i++) {
-      if (queue.order[i].Video.PG_Status.status === Status.NOT_CHECKED) {
-        numOfPGNotChecked += 1;
-      }
-    }
-
-    if (queue.order.length > 0 && numOfPGNotChecked > 0) {
-      return (
-        <Alert mt={2} status="warning">
-          <AlertIcon />
-          {numOfPGNotChecked} {requestText} to be checked for PG status
-        </Alert>
-      );
-    }
-    return null;
-  };
-
-  const handleDeleteModalOpen = (request: any, video: any) => {
-    setDeleteModalData({
-      request,
-      video,
-    });
-    openDeleteModal();
-  };
+  // Modals
+  const {
+    isOpen: isAddModalOpen,
+    onClose: closeAddModal,
+    onOpen: openAddModal,
+  } = useDisclosure();
 
   const numOfPrio = queue?.order.filter((request) => {
     request.priority === true;
@@ -493,12 +265,12 @@ const Mod: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Mod Panel</title>
-        <meta name="description" content="Mod Panel" />
+        <title>Seth View</title>
+        <meta name="description" content="Seth View" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxW={"container.xl"} p={0}>
-        <Nav returnTo="/mod" />
+        <Nav returnTo="/seth" />
 
         <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
           <ModalOverlay />
@@ -604,51 +376,6 @@ const Mod: NextPage = () => {
           </ModalContent>
         </Modal>
 
-        <Modal
-          isOpen={isPGModalOpen}
-          onClose={() => handlePGModalClose(pgData.pgStatusID)}
-          size="2xl"
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>PG Status Checker</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <AspectRatio maxW="100%" ratio={16 / 9}>
-                <ReactPlayer
-                  url={`https://www.youtube.com/watch?v=${pgData.youtubeID}`}
-                  height={"100%"}
-                  width={"100%"}
-                  controls={true}
-                />
-              </AspectRatio>
-              <HStack pt="4">
-                <Button
-                  onClick={() => updatePG("PG", pgData.pgStatusID)}
-                  bgColor="green"
-                  w="100%"
-                >
-                  PG
-                </Button>
-                <Button
-                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
-                  bgColor="red"
-                  w="100%"
-                >
-                  NON PG
-                </Button>
-              </HStack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-
-        <DeleteModal
-          isDeleteModalOpen={isDeleteModalOpen}
-          closeDeleteModal={closeDeleteModal}
-          deleteModalData={deleteModalData}
-          setDeleteModalData={setDeleteModalData}
-        />
-
         {queueError && (
           <Alert mt={2} status="error">
             {queueError}
@@ -662,67 +389,45 @@ const Mod: NextPage = () => {
         {!queueError &&
           user &&
           (queue ? (
-            <>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCorners}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              >
-                <SortableContext
-                  items={
-                    queue?.order.map((request) => {
-                      return `sortable${request.id}`;
-                    })!
-                  }
-                  strategy={verticalListSortingStrategy}
-                >
-                  <Stack direction={"row"} pt={5}>
-                    <Box px={[4, 5]} w={["100%", "70%"]}>
-                      <Button my={2} onClick={openAddModal}>
-                        Add Request
-                      </Button>
-                      <QueueStatus />
-                      <NotCountedAlert />
-                      {queue?.order.map((request) => {
-                        return (
-                          <RequestCard
-                            key={`key${request.id}`}
-                            id={request.id}
-                            request={request}
-                            video={request.Video}
-                            pgStatus={request.Video.PG_Status}
-                            onPgDataChange={setPGData}
-                            openPGModal={openPGModal}
-                            openDeleteModal={handleDeleteModalOpen}
-                            disabled={disableDrag}
-                            numOfPrio={numOfPrio}
-                          />
-                        );
-                      })}
-                    </Box>
-                    <Box display={["none", "block"]} ml={4}>
-                      <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                        Mods Online
-                      </Text>
-                      <Box>
-                        {modsOnline.map((mod) => {
-                          return (
-                            <HStack key={mod.id} my={2}>
-                              <Avatar src={mod.info.picture} />
-                              <Text>{mod.info.username}</Text>
-                            </HStack>
-                          );
-                        })}
-                      </Box>
-                    </Box>
-                  </Stack>
-                </SortableContext>
-                <DragOverlay>
-                  {activeId ? <DragItem id={activeId} /> : null}
-                </DragOverlay>
-              </DndContext>
-            </>
+            <Stack direction={"row"} pt={5}>
+              <Box px={[4, 5]} w={["100%", "70%"]}>
+                <Button my={2} onClick={openAddModal}>
+                  Add Request
+                </Button>
+                <QueueStatus />
+                {queue?.order.map((request) => {
+                  return (
+                    <RequestCard
+                      key={`key${request.id}`}
+                      id={request.id}
+                      request={request}
+                      video={request.Video}
+                      pgStatus={request.Video.PG_Status}
+                      sethView={true}
+                      numOfPrio={numOfPrio}
+                    />
+                  );
+                })}
+              </Box>
+              <Box display={["none", "block"]} ml={4}>
+                <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                  Mods Online
+                </Text>
+                {modsOnline.length > 0 && (
+                  <Box>
+                    {modsOnline.map((mod) => {
+                      console.log(mod);
+                      return (
+                        <HStack key={mod.id} my={2}>
+                          <Avatar src={mod.info.picture} />
+                          <Text>{mod.info.username}</Text>
+                        </HStack>
+                      );
+                    })}
+                  </Box>
+                )}
+              </Box>
+            </Stack>
           ) : (
             <Box w={"100%"} alignContent="center">
               <Text>Loading Queue...</Text>

@@ -28,16 +28,14 @@ const pusherAuth = async (req: NextApiRequest, res: NextApiResponse) => {
 
   const socketId = req.body.socket_id;
   const channel = req.body.channel_name;
-  const timestamp = new Date().toISOString();
   const presenceData = {
-    user_id: `user-${timestamp}`,
+    user_id: `user-${session.user.sub.split("|")[2]}`,
     user_info: {
       username: session.user.preferred_username,
       picture: session.user.picture,
     },
   };
   const auth = pusher.authenticate(socketId, channel, presenceData);
-  console.log(auth);
   return res.send(auth);
 };
 

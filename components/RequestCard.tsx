@@ -6,13 +6,6 @@ import {
   Icon,
   Image,
   Link,
-  Popover,
-  PopoverArrow,
-  PopoverBody,
-  PopoverCloseButton,
-  PopoverContent,
-  PopoverHeader,
-  PopoverTrigger,
   Stack,
   Text,
   useColorModeValue,
@@ -35,11 +28,12 @@ type Props = {
   request: IApiRequest;
   video: IAPiVideo;
   pgStatus: PG_Status;
-  onPgDataChange: any;
-  openPGModal: any;
-  openDeleteModal: (request: any, video: any) => void;
-  disabled: boolean;
+  onPgDataChange?: any;
+  openPGModal?: any;
+  openDeleteModal?: (request: any, video: any) => void;
+  disabled?: boolean;
   numOfPrio: number;
+  sethView?: boolean;
 };
 
 const RequestCard: FC<Props> = ({
@@ -52,6 +46,7 @@ const RequestCard: FC<Props> = ({
   openDeleteModal,
   disabled,
   numOfPrio,
+  sethView,
 }) => {
   if (!request) return null;
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -106,8 +101,6 @@ const RequestCard: FC<Props> = ({
 
   return (
     <>
-      {/* <DeleteModal /> */}
-
       <Box
         border="1px"
         borderColor={request.priority ? "yellow.100" : "pink.200"}
@@ -121,14 +114,16 @@ const RequestCard: FC<Props> = ({
       >
         <Flex direction={["column", "row"]}>
           <Flex direction={"row"}>
-            <Icon
-              as={MdDragIndicator}
-              w={10}
-              h={100}
-              {...attributes}
-              {...listeners}
-              mr={2}
-            />
+            {!sethView && (
+              <Icon
+                as={MdDragIndicator}
+                w={10}
+                h={100}
+                {...attributes}
+                {...listeners}
+                mr={2}
+              />
+            )}
             <Stack alignItems={"center"} direction={["row", "column"]} pr={2}>
               <Image
                 maxW={"100px"}
@@ -159,67 +154,73 @@ const RequestCard: FC<Props> = ({
             </Text>
           </VStack>
           <Stack direction={["row", "column"]} pt={2} spacing={2}>
-            <PGButton pgStatus={pgStatus} onClick={() => handlePGClick()} />
-            <HStack w={"100%"}>
-              {!request.priority ? (
-                <Button
-                  onClick={() => {
-                    axios
-                      .post(
-                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
-                      )
-                      .then(async (res) => {
-                        await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
-                          eventName: "update-queue",
-                          data: {},
+            <PGButton
+              pgStatus={pgStatus}
+              onClick={() => handlePGClick()}
+              sethView={sethView ? sethView : false}
+            />
+            {!sethView && (
+              <HStack w={"100%"}>
+                {!request.priority ? (
+                  <Button
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
+                        )
+                        .then(async (res) => {
+                          await axios.post("/api/mod/trigger", {
+                            channelName: "presence-sethdrums-queue",
+                            eventName: "update-queue",
+                            data: {},
+                          });
+                        })
+                        .catch((error) => {
+                          toast.error("Error updating prio status");
+                          console.error(error);
                         });
-                      })
-                      .catch((error) => {
-                        toast.error("Error updating prio status");
-                        console.error(error);
-                      });
-                  }}
-                  bgColor={"gold"}
-                  style={{ color: "black" }}
-                  w={["100%", "75%"]}
-                >
-                  <Icon as={AiOutlineCrown} w={5} h={5} />
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    axios
-                      .post(
-                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
-                      )
-                      .then(async (res) => {
-                        await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
-                          eventName: "update-queue",
-                          data: {},
+                    }}
+                    bgColor={"gold"}
+                    style={{ color: "black" }}
+                    w={["100%", "75%"]}
+                  >
+                    <Icon as={AiOutlineCrown} w={5} h={5} />
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
+                        )
+                        .then(async (res) => {
+                          await axios.post("/api/mod/trigger", {
+                            channelName: "presence-sethdrums-queue",
+                            eventName: "update-queue",
+                            data: {},
+                          });
+                        })
+                        .catch((error) => {
+                          toast.error("Error updating prio status");
+                          console.error(error);
                         });
-                      })
-                      .catch((error) => {
-                        toast.error("Error updating prio status");
-                        console.error(error);
-                      });
-                  }}
-                  bgColor={"gold"}
-                  style={{ color: "black" }}
-                  w={["100%", "75%"]}
+                    }}
+                    bgColor={"gold"}
+                    style={{ color: "black" }}
+                    w={["100%", "75%"]}
+                  >
+                    <Icon as={AiFillCrown} w={5} h={5} />
+                  </Button>
+                )}
+                <Button
+                  onClick={() => openDeleteModal(request, video)}
+                  bgColor={"red"}
+                  w={"25%"}
                 >
-                  <Icon as={AiFillCrown} w={5} h={5} />
+                  <Icon as={IoMdTrash} w={5} h={5} />
                 </Button>
-              )}
-              <Button
-                onClick={() => openDeleteModal(request, video)}
-                bgColor={"red"}
-                w={"25%"}
-              >
-                <Icon as={IoMdTrash} w={5} h={5} />
-              </Button>
-            </HStack>
+              </HStack>
+            )}
           </Stack>
         </Flex>
       </Box>
