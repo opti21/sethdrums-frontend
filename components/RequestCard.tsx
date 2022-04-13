@@ -27,13 +27,15 @@ type Props = {
   id: string;
   request: IApiRequest;
   video: IAPiVideo;
-  pgStatus: PG_Status;
+  pgStatus?: PG_Status;
   onPgDataChange?: any;
   openPGModal?: any;
   openDeleteModal?: (request: any, video: any) => void;
   disabled?: boolean;
-  numOfPrio: number;
+  numOfPrio?: number;
   sethView?: boolean;
+  publicView?: boolean;
+  user?: any;
 };
 
 const RequestCard: FC<Props> = ({
@@ -47,6 +49,8 @@ const RequestCard: FC<Props> = ({
   disabled,
   numOfPrio,
   sethView,
+  publicView,
+  user,
 }) => {
   if (!request) return null;
   const { attributes, listeners, setNodeRef, transform, transition } =
@@ -114,7 +118,7 @@ const RequestCard: FC<Props> = ({
       >
         <Flex direction={["column", "row"]}>
           <Flex direction={"row"}>
-            {!sethView && (
+            {!sethView && !publicView && (
               <Icon
                 as={MdDragIndicator}
                 w={10}
@@ -146,6 +150,7 @@ const RequestCard: FC<Props> = ({
                 fontWeight: "bold",
               }}
               noOfLines={2}
+              isExternal
             >
               {video.title}
             </Link>
@@ -154,14 +159,17 @@ const RequestCard: FC<Props> = ({
             </Text>
           </VStack>
           <Stack direction={["row", "column"]} pt={2} spacing={2}>
-            <PGButton
-              pgStatus={pgStatus}
-              onClick={() => handlePGClick()}
-              sethView={sethView ? sethView : false}
-            />
-            {!sethView && (
-              <HStack w={"100%"}>
-                {!request.priority ? (
+            {!publicView && (
+              <PGButton
+                pgStatus={pgStatus}
+                onClick={() => handlePGClick()}
+                sethView={sethView ? sethView : false}
+              />
+            )}
+            <HStack w={"100%"}>
+              {!sethView &&
+                !publicView &&
+                (!request.priority ? (
                   <Button
                     onClick={() => {
                       axios
@@ -211,7 +219,18 @@ const RequestCard: FC<Props> = ({
                   >
                     <Icon as={AiFillCrown} w={5} h={5} />
                   </Button>
-                )}
+                ))}
+              {user && publicView ? (
+                user.preferred_username === request.requested_by && (
+                  <Button
+                    onClick={() => openDeleteModal(request, video)}
+                    bgColor={"red"}
+                    w={"25%"}
+                  >
+                    <Icon as={IoMdTrash} w={5} h={5} />
+                  </Button>
+                )
+              ) : (
                 <Button
                   onClick={() => openDeleteModal(request, video)}
                   bgColor={"red"}
@@ -219,8 +238,8 @@ const RequestCard: FC<Props> = ({
                 >
                   <Icon as={IoMdTrash} w={5} h={5} />
                 </Button>
-              </HStack>
-            )}
+              )}
+            </HStack>
           </Stack>
         </Flex>
       </Box>

@@ -10,7 +10,7 @@ export default function App({ Component, pageProps }: AppProps) {
     <UserProvider>
       <SWRConfig
         value={{
-          refreshInterval: 1000,
+          refreshInterval: 5000,
           fetcher: (resource: any, init: any) =>
             fetch(resource, init).then((res) => res.json()),
         }}

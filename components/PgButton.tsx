@@ -57,25 +57,25 @@ const sethPGButtons: FC<SethProps> = ({ pgStatus, onClick }) => {
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (
-        <Button onClick={onClick} colorScheme={"blue"} w={width}>
+        <Button colorScheme={"blue"} w={width}>
           Not Checked
         </Button>
       );
     case Status.BeingChecked:
       return (
-        <Button onClick={onClick} colorScheme={"yellow"} w={width}>
+        <Button colorScheme={"yellow"} w={width}>
           Being Checked
         </Button>
       );
     case Status.PG:
       return (
-        <Button onClick={onClick} bgColor={"green"} w={width}>
+        <Button bgColor={"green"} w={width}>
           PG
         </Button>
       );
     case Status.NonPG:
       return (
-        <Button onClick={onClick} bgColor={"red"} w={width}>
+        <Button bgColor={"red"} w={width}>
           Non PG
         </Button>
       );

@@ -22,6 +22,7 @@ type Props = {
     video: any;
   };
   setDeleteModalData: Dispatch<any>;
+  publicView?: boolean;
 };
 
 const DeleteModal: FC<Props> = ({
@@ -29,13 +30,14 @@ const DeleteModal: FC<Props> = ({
   closeDeleteModal,
   deleteModalData,
   setDeleteModalData,
+  publicView,
 }: any) => {
   const request = deleteModalData.request;
   const video = deleteModalData.video;
 
   const handleDelete = (requestID: string) => {
     axios
-      .delete("/api/mod/request", {
+      .delete(!publicView ? "/api/mod/request" : "/api/public/request", {
         data: {
           requestID,
         },
@@ -43,11 +45,13 @@ const DeleteModal: FC<Props> = ({
       .then(async (res) => {
         console.log(res);
         toast.success("Request deleted");
-        await axios.post("/api/mod/trigger", {
-          channelName: "presence-sethdrums-queue",
-          eventName: "update-queue",
-          data: {},
-        });
+        if (!publicView) {
+          await axios.post("/api/mod/trigger", {
+            channelName: "presence-sethdrums-queue",
+            eventName: "update-queue",
+            data: {},
+          });
+        }
         closeDeleteModal();
         setDeleteModalData({
           request: null,
@@ -56,6 +60,10 @@ const DeleteModal: FC<Props> = ({
       })
       .catch((err) => {
         closeDeleteModal();
+        setDeleteModalData({
+          request: null,
+          video: null,
+        });
         toast.error("Error deleting request");
         console.error(err);
       });

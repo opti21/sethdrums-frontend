@@ -40,7 +40,7 @@ import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
 
-const Mod: NextPage = () => {
+const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
   const [queueError, setQueueError] = useState<string | null>(null);
   const [queue, setQueue] = useState<IQueue | null>(null);
@@ -390,7 +390,7 @@ const Mod: NextPage = () => {
           user &&
           (queue ? (
             <Stack direction={"row"} pt={5}>
-              <Box px={[4, 5]} w={["100%", "70%"]}>
+              <Box px={[4, 5]} w={["100%", "80%"]}>
                 <Button my={2} onClick={openAddModal}>
                   Add Request
                 </Button>
@@ -409,7 +409,7 @@ const Mod: NextPage = () => {
                   );
                 })}
               </Box>
-              <Box display={["none", "block"]} ml={4}>
+              <Box display={["none", "block"]} w={"20%"} ml={2}>
                 <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                   Mods Online
                 </Text>
@@ -444,4 +444,4 @@ const Mod: NextPage = () => {
   );
 };
 
-export default Mod;
+export default SethView;
