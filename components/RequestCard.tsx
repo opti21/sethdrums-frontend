@@ -80,7 +80,6 @@ const RequestCard: FC<Props> = ({
     });
 
     await axios.post("/api/mod/trigger", {
-      channelName: process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
       eventName: "update-queue",
       data: {},
     });
@@ -180,7 +179,6 @@ const RequestCard: FC<Props> = ({
                         )
                         .then(async (res) => {
                           await axios.post("/api/mod/trigger", {
-                            channelName: process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
                             eventName: "update-queue",
                             data: {},
                           });
@@ -205,7 +203,6 @@ const RequestCard: FC<Props> = ({
                         )
                         .then(async (res) => {
                           await axios.post("/api/mod/trigger", {
-                            channelName: process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
                             eventName: "update-queue",
                             data: {},
                           });

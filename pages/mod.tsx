@@ -102,7 +102,7 @@ const Mod: NextPage = () => {
       authEndpoint: "/api/pusher/auth",
     });
 
-    let channel = pusher.subscribe("presence-sethdrums-queue");
+    let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
     if (!pusherConnected) {
       channel.bind("pusher:subscription_error", (error) => {
@@ -629,6 +629,14 @@ const Mod: NextPage = () => {
                   w="100%"
                 >
                   NON PG
+                </Button>
+                <Button
+                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
+                  w="25%"
+                  colorScheme={"red"}
+                  variant={"link"}
+                >
+                  BAN
                 </Button>
               </HStack>
             </ModalBody>

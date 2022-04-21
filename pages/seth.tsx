@@ -60,7 +60,7 @@ const SethView: NextPage = () => {
       authEndpoint: "/api/pusher/auth",
     });
 
-    let channel = pusher.subscribe("presence-sethdrums-queue");
+    let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
     if (!pusherConnected) {
       channel.bind("pusher:subscription_error", (error) => {
