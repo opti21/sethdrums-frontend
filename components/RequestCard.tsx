@@ -102,6 +102,8 @@ const RequestCard: FC<Props> = ({
 
     return formatted;
   };
+  const test = typeof user != undefined;
+  console.log(test);
 
   return (
     <>
@@ -220,25 +222,25 @@ const RequestCard: FC<Props> = ({
                     <Icon as={AiFillCrown} w={5} h={5} />
                   </Button>
                 ))}
-              {user && publicView ? (
-                user.preferred_username === request.requested_by && (
-                  <Button
-                    onClick={() => openDeleteModal(request, video)}
-                    bgColor={"red"}
-                    w={"25%"}
-                  >
-                    <Icon as={IoMdTrash} w={5} h={5} />
-                  </Button>
-                )
-              ) : (
-                <Button
-                  onClick={() => openDeleteModal(request, video)}
-                  bgColor={"red"}
-                  w={"25%"}
-                >
-                  <Icon as={IoMdTrash} w={5} h={5} />
-                </Button>
-              )}
+              {typeof user != undefined && publicView
+                ? user?.preferred_username === request.requested_by && (
+                    <Button
+                      onClick={() => openDeleteModal(request, video)}
+                      bgColor={"red"}
+                      w={"25%"}
+                    >
+                      <Icon as={IoMdTrash} w={5} h={5} />
+                    </Button>
+                  )
+                : !sethView && (
+                    <Button
+                      onClick={() => openDeleteModal(request, video)}
+                      bgColor={"red"}
+                      w={"25%"}
+                    >
+                      <Icon as={IoMdTrash} w={5} h={5} />
+                    </Button>
+                  )}
             </HStack>
           </Stack>
         </Flex>

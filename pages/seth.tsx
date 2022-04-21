@@ -262,6 +262,8 @@ const SethView: NextPage = () => {
     request.priority === true;
   }).length;
 
+  console.log(queue);
+
   return (
     <>
       <Head>
@@ -389,45 +391,69 @@ const SethView: NextPage = () => {
         {!queueError &&
           user &&
           (queue ? (
-            <Stack direction={"row"} pt={5}>
-              <Box px={[4, 5]} w={["100%", "80%"]}>
-                <Button my={2} onClick={openAddModal}>
-                  Add Request
-                </Button>
-                <QueueStatus />
-                {queue?.order.map((request) => {
-                  return (
-                    <RequestCard
-                      key={`key${request.id}`}
-                      id={request.id}
-                      request={request}
-                      video={request.Video}
-                      pgStatus={request.Video.PG_Status}
-                      sethView={true}
-                      numOfPrio={numOfPrio}
-                    />
-                  );
-                })}
-              </Box>
-              <Box display={["none", "block"]} w={"20%"} ml={2}>
-                <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                  Mods Online
-                </Text>
-                {modsOnline.length > 0 && (
-                  <Box>
-                    {modsOnline.map((mod) => {
-                      console.log(mod);
-                      return (
-                        <HStack key={mod.id} my={2}>
-                          <Avatar src={mod.info.picture} />
-                          <Text>{mod.info.username}</Text>
-                        </HStack>
-                      );
-                    })}
+            <>
+              <Stack direction={"row"} pt={5}>
+                <Box px={[4, 5]} w={["100%", "80%"]}>
+                  <Box width={"100%"}>
+                    <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                      Currently Playing
+                    </Text>
+                    {queue.currently_playing.length > 0 ? (
+                      <Box></Box>
+                    ) : (
+                      <Container
+                        my={2}
+                        p={2}
+                        h={100}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        maxW={"100%"}
+                        centerContent
+                      >
+                        <Box mt={6}>
+                          <Text>Nothing playing</Text>
+                        </Box>
+                      </Container>
+                    )}
                   </Box>
-                )}
-              </Box>
-            </Stack>
+                  <Button my={2} onClick={openAddModal}>
+                    Add Request
+                  </Button>
+                  <QueueStatus />
+                  {queue?.order.map((request) => {
+                    return (
+                      <RequestCard
+                        key={`key${request.id}`}
+                        id={request.id}
+                        request={request}
+                        video={request.Video}
+                        pgStatus={request.Video.PG_Status}
+                        sethView={true}
+                        numOfPrio={numOfPrio}
+                      />
+                    );
+                  })}
+                </Box>
+                <Box display={["none", "block"]} w={"20%"} ml={2}>
+                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Mods Online
+                  </Text>
+                  {modsOnline.length > 0 && (
+                    <Box>
+                      {modsOnline.map((mod) => {
+                        console.log(mod);
+                        return (
+                          <HStack key={mod.id} my={2}>
+                            <Avatar src={mod.info.picture} />
+                            <Text>{mod.info.username}</Text>
+                          </HStack>
+                        );
+                      })}
+                    </Box>
+                  )}
+                </Box>
+              </Stack>
+            </>
           ) : (
             <Box w={"100%"} alignContent="center">
               <Text>Loading Queue...</Text>

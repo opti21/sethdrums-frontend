@@ -44,13 +44,16 @@ const queueApiHandler = withApiAuthRequired(
           const requestIndex = requestData.findIndex(
             (request) => request.id.toString() === queue?.order[i]
           );
-          requests.push(requestData[requestIndex]);
+          if (requestIndex != -1) {
+            requests.push(requestData[requestIndex]);
+          }
         }
 
         const queueResponse = {
           order: requests,
           is_updating: queue.is_updating,
           being_updated_by: queue.being_updated_by,
+          currently_playing: queue.currently_playing,
         };
         // console.log(queueResponse);
         res.status(200).json(queueResponse);
