@@ -31,7 +31,6 @@ import { useCallback, useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
 import { IApiRequest, IQueue } from "../utils/types";
-// import { useChannel, useEvent, useTrigger } from "@harelpls/use-pusher";
 import { DragDropContext, Droppable, Draggable } from "@react-forked/dnd";
 import { Video } from "../redis/handlers/Video";
 import {
@@ -240,7 +239,6 @@ const Mod: NextPage = () => {
 
     setActiveId(active.id);
     await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
       eventName: "lock-queue",
       data: { beingUpdatedBy: user?.preferred_username },
     });
@@ -261,7 +259,6 @@ const Mod: NextPage = () => {
   const unlockQueue = async () => {
     console.log("unlock queue");
     await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
       eventName: "unlock-queue",
       data: { beingUpdatedBy: "" },
     });
@@ -362,7 +359,6 @@ const Mod: NextPage = () => {
       .then(async (res) => {
         console.log("pg updated");
         await axios.post("/api/mod/trigger", {
-          channelName: "presence-sethdrums-queue",
           eventName: "update-queue",
           data: {},
         });
@@ -386,7 +382,6 @@ const Mod: NextPage = () => {
         .then(async (res) => {
           console.log("pg updated");
           await axios.post("/api/mod/trigger", {
-            channelName: "presence-sethdrums-queue",
             eventName: "update-queue",
             data: {},
           });
@@ -514,7 +509,6 @@ const Mod: NextPage = () => {
                       // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });

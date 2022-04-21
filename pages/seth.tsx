@@ -30,7 +30,6 @@ import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
 import { IQueue } from "../utils/types";
-// import { useChannel, useEvent, useTrigger } from "@harelpls/use-pusher";
 import ReactPlayer from "react-player";
 import { Field, Form, Formik, FormikProps } from "formik";
 import urlParser from "js-video-url-parser";
@@ -289,7 +288,6 @@ const SethView: NextPage = () => {
                       // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });
