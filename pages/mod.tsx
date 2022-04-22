@@ -230,7 +230,7 @@ const Mod: NextPage = () => {
     return () => {
       pusher.disconnect();
     };
-  }, [user, beingUpdatedBy, pusherConnected]);
+  }, [user]);
 
   // console.log(queue);
 
