@@ -188,7 +188,7 @@ const SethView: NextPage = () => {
     return () => {
       pusher.disconnect();
     };
-  }, [user, beingUpdatedBy, pusherConnected]);
+  }, [user]);
 
   // console.log(queue);
   const QueueStatus = () => {
