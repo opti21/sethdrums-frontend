@@ -157,7 +157,6 @@ const SethView: NextPage = () => {
         axios
           .get("/api/mod/queue")
           .then((res) => {
-            console.log(res.status);
             if (res.status === 401) {
               setQueueError("You are unauthorized please Sign In.");
               return;
@@ -190,7 +189,6 @@ const SethView: NextPage = () => {
     };
   }, [user]);
 
-  // console.log(queue);
   const QueueStatus = () => {
     switch (queueStatusData) {
       case "ready":
@@ -224,7 +222,6 @@ const SethView: NextPage = () => {
     let error;
     const parsed = urlParser.parse(value);
     const alreadyRequested = queue.order.findIndex((request) => {
-      console.log(request);
       return request.Video.youtube_id === parsed?.id;
     });
 
@@ -249,8 +246,6 @@ const SethView: NextPage = () => {
     return error;
   };
 
-  // console.log(queue);
-
   // Modals
   const {
     isOpen: isAddModalOpen,
@@ -261,8 +256,6 @@ const SethView: NextPage = () => {
   const numOfPrio = queue?.order.filter((request) => {
     request.priority === true;
   }).length;
-
-  console.log(queue);
 
   return (
     <>
@@ -286,7 +279,6 @@ const SethView: NextPage = () => {
                   axios
                     .post("/api/mod/request", values)
                     .then(async (res) => {
-                      // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
                           eventName: "update-queue",
@@ -445,7 +437,6 @@ const SethView: NextPage = () => {
                   {modsOnline.length > 0 && (
                     <Box>
                       {modsOnline.map((mod) => {
-                        console.log(mod);
                         return (
                           <HStack key={mod.id} my={2}>
                             <Avatar src={mod.info.picture} />

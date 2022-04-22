@@ -36,8 +36,6 @@ const pusherTriggerHandler = withApiAuthRequired(
     if (req.method === "POST") {
       try {
         const { eventName, data } = req.body;
-        console.log(eventName);
-        console.log(data);
         pusher.trigger(process.env.NEXT_PUBLIC_PUSHER_CHANNEL, eventName, data);
         return res.status(200).json({ statusCode: 200 });
       } catch (error) {

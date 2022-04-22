@@ -73,7 +73,6 @@ async function updatePGStatus(data: any) {
   await connect();
 
   const repository = client.fetchRepository(pgStatusSchema);
-  console.log(data);
 
   let pgStatus = await repository.fetch(data.entityID);
 

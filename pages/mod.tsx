@@ -93,7 +93,6 @@ const Mod: NextPage = () => {
 
   useEffect(() => {
     if (!user) {
-      console.log("no user?");
       return;
     }
     console.log("connect pusher");
@@ -116,7 +115,6 @@ const Mod: NextPage = () => {
 
       channel.bind("pusher:subscription_succeeded", (members) => {
         console.log("succec");
-        console.log(members);
 
         members.each((member) => {
           setModsOnline((currModsOnline) => [...currModsOnline, member]);
@@ -199,7 +197,6 @@ const Mod: NextPage = () => {
         axios
           .get("/api/mod/queue")
           .then((res) => {
-            console.log(res.status);
             if (res.status === 401) {
               setQueueError("You are unauthorized please Sign In.");
               return;
@@ -282,7 +279,6 @@ const Mod: NextPage = () => {
     }
 
     if (active.id !== over.id) {
-      console.log(active.id, over.id);
       const oldIndex = queue.order.findIndex(
         (request) => `sortable${request.id}` === active.id
       );
@@ -300,7 +296,9 @@ const Mod: NextPage = () => {
           updatedOrder,
         })
         .then((res) => {
-          // console.log(res);
+          if (res.status === 200) {
+            toast.success("Queue updated");
+          }
         })
         .catch((err) => {
           console.error(err);
@@ -312,8 +310,6 @@ const Mod: NextPage = () => {
     unlockQueue();
     setActiveId(null);
   };
-
-  // console.log(queue);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {

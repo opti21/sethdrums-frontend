@@ -31,8 +31,6 @@ const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
       // TODO: validation
-      // console.log(session);
-      console.log(req.body);
       const parsed = urlParser.parse(req.body.ytLink);
       const youtubeID = parsed?.id;
 
@@ -81,9 +79,6 @@ const requestApiHandler = withApiAuthRequired(
         },
       });
 
-      console.log("VIDEO IN DB?");
-      console.log(youtubeID);
-
       if (!videoInDB) {
         // Video doesn't exist on database
         // Make new video then request
@@ -114,7 +109,6 @@ const requestApiHandler = withApiAuthRequired(
       }
 
       // If video is already in DB just create a request
-      console.log("video in db");
       const createdRequest = await createRequest(
         videoInDB.id,
         req.body.requestedBy
@@ -149,7 +143,6 @@ const requestApiHandler = withApiAuthRequired(
             id: req.body.requestID,
           },
         });
-        console.log("Removed db request: ", removedRequest);
 
         await removeFromOrder(req.body.requestID.toString());
 
@@ -183,7 +176,6 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
       const apiData: YTApiResponse = axiosResponse.data;
       const video = apiData.items[0];
       const duration = parseYTDuration(video.contentDetails.duration);
-      console.log(video);
 
       const createdVideo = await prisma.video.create({
         data: {
@@ -213,8 +205,6 @@ async function createRequest(
   videoID: number,
   username: string
 ): Promise<Request | undefined> {
-  console.log("CREATE REQUEST");
-  console.log({ videoID, username });
   try {
     return await prisma.request.create({
       data: {

@@ -88,8 +88,6 @@ const SethView: NextPage = () => {
     return error;
   };
 
-  // console.log(queue);
-
   // Modals
   const {
     isOpen: isAddModalOpen,
@@ -122,7 +120,6 @@ const SethView: NextPage = () => {
     });
     openDeleteModal();
   };
-  console.log(queue);
 
   return (
     <>
@@ -150,7 +147,6 @@ const SethView: NextPage = () => {
                   axios
                     .post("/api/mod/request", values)
                     .then(async (res) => {
-                      // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
                           eventName: "update-queue",

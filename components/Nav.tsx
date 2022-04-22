@@ -28,11 +28,9 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   const bg = useColorModeValue("pink", "pink.400");
   const mobileNav = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
-  // console.log(user);
   // Until Auth0 fixes their twitch integration or rules
   // @ts-ignore
   const username: string = user?.preferred_username;
-  console.log(user);
 
   return (
     <>

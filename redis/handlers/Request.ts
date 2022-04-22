@@ -65,8 +65,6 @@ async function updateRequest(
   videoID: string | undefined
 ): Promise<boolean> {
   try {
-    console.log("UPDATE REQUEST ", requestID);
-
     if (!requestID || !videoID) {
       console.error("No requestID or videoID specified");
       return false;
@@ -96,8 +94,6 @@ async function removeRequest(requestID: string | undefined): Promise<boolean> {
 
       return false;
     }
-
-    console.log("REMOVING REQUEST ", requestID);
 
     await connect();
 

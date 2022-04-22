@@ -43,7 +43,6 @@ const DeleteModal: FC<Props> = ({
         },
       })
       .then(async (res) => {
-        console.log(res);
         toast.success("Request deleted");
         if (!publicView) {
           await axios.post("/api/mod/trigger", {

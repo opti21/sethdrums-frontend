@@ -59,8 +59,6 @@ async function createQueue(data: EntityCreationData) {
 async function lockQueue() {
   await connect();
 
-  console.log("lock");
-
   const repository = client.fetchRepository(queueSchema);
 
   const queue = await repository.fetch(QUEUE_ID);
@@ -75,8 +73,6 @@ async function lockQueue() {
 
 async function unLockQueue() {
   await connect();
-
-  console.log("unlock");
 
   const repository = client.fetchRepository(queueSchema);
 
@@ -98,9 +94,6 @@ async function addToQueue(
       console.error("No requestID passed");
       return;
     }
-
-    console.log("UPDATING QUEUE");
-    console.log("adding ", requestID);
 
     lockQueue();
 
@@ -126,7 +119,6 @@ async function addToQueue(
 async function removeFromOrder(
   requestID: string | undefined
 ): Promise<boolean> {
-  console.log(requestID);
   try {
     lockQueue();
 
@@ -135,20 +127,16 @@ async function removeFromOrder(
     const repository = client.fetchRepository(queueSchema);
 
     const queue = await repository.fetch(QUEUE_ID);
-    console.log(queue.order);
 
     if (queue.order) {
       for (let i = 0; i < queue.order.length; i++) {
         if (queue.order[i] === requestID) {
-          console.log("request found");
           queue.order.splice(i, 1);
         }
       }
     }
 
-    console.log(queue.order);
     await repository.save(queue);
-    console.log("removed from queue");
 
     unLockQueue();
 
@@ -186,7 +174,6 @@ async function updateOrder(updatedOrderData: any): Promise<boolean> {
 
 async function updateOrderPrio(updatedOrder: string[]): Promise<boolean> {
   try {
-    console.log(updatedOrder);
     lockQueue();
 
     await connect();
@@ -203,7 +190,7 @@ async function updateOrderPrio(updatedOrder: string[]): Promise<boolean> {
 
     return true;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return Promise.reject("Error updating queue");
   }
 }
@@ -226,7 +213,7 @@ async function updateNowPlaying(requestID: string): Promise<boolean> {
 
     return true;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return Promise.reject("Error updating now playing");
   }
 }
