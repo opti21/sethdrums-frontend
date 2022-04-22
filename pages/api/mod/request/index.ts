@@ -10,6 +10,9 @@ import { Request, Video } from "@prisma/client";
 import { YTApiResponse } from "../../../../utils/types";
 import { parseYTDuration } from "../../../../utils/utils";
 import prisma from "../../../../utils/prisma";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+dayjs.extend(utc);
 
 const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -79,22 +82,44 @@ const requestApiHandler = withApiAuthRequired(
       );
 
       if (!createRequest) {
-        res
+        return res
           .status(500)
           .json({ success: false, error: "Error creating request" });
-        return;
       }
 
       const addedToQueue = await addToQueue(createdRequest?.id.toString());
 
       if (!addedToQueue) {
-        res
+        return res
           .status(500)
           .json({ success: false, error: "Error adding to queue" });
-        return;
       }
 
       res.status(200).json({ success: true, message: "Request added" });
+    } else if (req.method === "PUT") {
+      if (!req.body.requestID) {
+        console.error("Missing requestID in body");
+        return res.status(422).send("Body missing reuquestID");
+      }
+      try {
+        await prisma.request.update({
+          where: {
+            id: parseInt(req.body.requestID),
+          },
+          data: {
+            played: req.body.played,
+            played_at: dayjs.utc().format(),
+          },
+        });
+        return res
+          .status(200)
+          .json({ success: true, message: "Request updated" });
+      } catch (error) {
+        console.error(error);
+        return res
+          .status(500)
+          .json({ success: false, message: "error updating request" });
+      }
     } else if (req.method === "DELETE") {
       try {
         const removedRequest = await prisma.request.delete({
@@ -106,15 +131,15 @@ const requestApiHandler = withApiAuthRequired(
 
         await removeFromOrder(req.body.requestID.toString());
 
-        res.status(200).json({ success: true });
+        return res.status(200).json({ success: true });
       } catch (err) {
         console.error(err);
-        res
+        return res
           .status(500)
           .json({ success: false, message: "error deleting request" });
       }
     } else {
-      res.status(405).send(`${req.method} is not a valid method`);
+      return res.status(405).send(`${req.method} is not a valid method`);
     }
   }
 );

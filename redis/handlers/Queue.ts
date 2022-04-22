@@ -7,6 +7,7 @@ interface Queue {
   order: string[];
   is_updating: boolean;
   being_updated_by: string;
+  now_playing: string;
 }
 
 class Queue extends Entity {}
@@ -18,6 +19,7 @@ const queueSchema = new Schema(
     prioOrder: { type: "string[]" },
     is_updating: { type: "boolean" },
     being_updated_by: { type: "string" },
+    now_playing: { type: "string" },
   },
   {
     dataStructure: "JSON",
@@ -124,6 +126,7 @@ async function addToQueue(
 async function removeFromOrder(
   requestID: string | undefined
 ): Promise<boolean> {
+  console.log(requestID);
   try {
     lockQueue();
 
@@ -132,16 +135,20 @@ async function removeFromOrder(
     const repository = client.fetchRepository(queueSchema);
 
     const queue = await repository.fetch(QUEUE_ID);
+    console.log(queue.order);
 
     if (queue.order) {
       for (let i = 0; i < queue.order.length; i++) {
         if (queue.order[i] === requestID) {
+          console.log("request found");
           queue.order.splice(i, 1);
         }
       }
     }
 
+    console.log(queue.order);
     await repository.save(queue);
+    console.log("removed from queue");
 
     unLockQueue();
 
@@ -177,7 +184,7 @@ async function updateOrder(updatedOrderData: any): Promise<boolean> {
   }
 }
 
-async function updateOrderPrio(updatedOrder: any): Promise<boolean> {
+async function updateOrderPrio(updatedOrder: string[]): Promise<boolean> {
   try {
     console.log(updatedOrder);
     lockQueue();
@@ -201,6 +208,29 @@ async function updateOrderPrio(updatedOrder: any): Promise<boolean> {
   }
 }
 
+async function updateNowPlaying(requestID: string): Promise<boolean> {
+  try {
+    lockQueue();
+
+    await connect();
+
+    const repository = client.fetchRepository(queueSchema);
+
+    const queue = await repository.fetch(QUEUE_ID);
+
+    queue.now_playing = requestID;
+
+    await repository.save(queue);
+
+    unLockQueue();
+
+    return true;
+  } catch (e) {
+    console.log(e);
+    return Promise.reject("Error updating now playing");
+  }
+}
+
 export {
   Queue,
   getQueue,
@@ -211,4 +241,5 @@ export {
   removeFromOrder,
   updateOrder,
   updateOrderPrio,
+  updateNowPlaying,
 };

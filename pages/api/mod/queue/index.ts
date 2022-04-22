@@ -1,6 +1,6 @@
-import { getQueue, updateOrder } from "../../../redis/handlers/Queue";
+import { getQueue, updateOrder } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
-import prisma from "../../../utils/prisma";
+import prisma from "../../../../utils/prisma";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 
 const queueApiHandler = withApiAuthRequired(
@@ -44,11 +44,32 @@ const queueApiHandler = withApiAuthRequired(
           const requestIndex = requestData.findIndex(
             (request) => request.id.toString() === queue?.order[i]
           );
-          requests.push(requestData[requestIndex]);
+          if (requestIndex != -1) {
+            requests.push(requestData[requestIndex]);
+          }
+        }
+
+        let nowPlaying = null;
+
+        if (queue.now_playing.length > 0) {
+          const nowPlayingRequest = await prisma.request.findFirst({
+            where: {
+              id: parseInt(queue.now_playing),
+            },
+            include: {
+              Video: {
+                include: {
+                  PG_Status: true,
+                },
+              },
+            },
+          });
+          nowPlaying = nowPlayingRequest;
         }
 
         const queueResponse = {
           order: requests,
+          now_playing: nowPlaying,
           is_updating: queue.is_updating,
           being_updated_by: queue.being_updated_by,
         };

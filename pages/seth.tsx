@@ -30,7 +30,6 @@ import { useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
 import { IQueue } from "../utils/types";
-// import { useChannel, useEvent, useTrigger } from "@harelpls/use-pusher";
 import ReactPlayer from "react-player";
 import { Field, Form, Formik, FormikProps } from "formik";
 import urlParser from "js-video-url-parser";
@@ -39,6 +38,7 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
+import NowPlayingCard from "../components/NowPlayingCard";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -61,7 +61,7 @@ const SethView: NextPage = () => {
       authEndpoint: "/api/pusher/auth",
     });
 
-    let channel = pusher.subscribe("presence-sethdrums-queue");
+    let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
     if (!pusherConnected) {
       channel.bind("pusher:subscription_error", (error) => {
@@ -262,6 +262,8 @@ const SethView: NextPage = () => {
     request.priority === true;
   }).length;
 
+  console.log(queue);
+
   return (
     <>
       <Head>
@@ -287,7 +289,6 @@ const SethView: NextPage = () => {
                       // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });
@@ -389,45 +390,74 @@ const SethView: NextPage = () => {
         {!queueError &&
           user &&
           (queue ? (
-            <Stack direction={"row"} pt={5}>
-              <Box px={[4, 5]} w={["100%", "80%"]}>
-                <Button my={2} onClick={openAddModal}>
-                  Add Request
-                </Button>
-                <QueueStatus />
-                {queue?.order.map((request) => {
-                  return (
-                    <RequestCard
-                      key={`key${request.id}`}
-                      id={request.id}
-                      request={request}
-                      video={request.Video}
-                      pgStatus={request.Video.PG_Status}
-                      sethView={true}
-                      numOfPrio={numOfPrio}
-                    />
-                  );
-                })}
-              </Box>
-              <Box display={["none", "block"]} w={"20%"} ml={2}>
-                <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                  Mods Online
-                </Text>
-                {modsOnline.length > 0 && (
-                  <Box>
-                    {modsOnline.map((mod) => {
-                      console.log(mod);
-                      return (
-                        <HStack key={mod.id} my={2}>
-                          <Avatar src={mod.info.picture} />
-                          <Text>{mod.info.username}</Text>
-                        </HStack>
-                      );
-                    })}
+            <>
+              <Stack direction={"row"} pt={5}>
+                <Box px={[4, 5]} w={["100%", "80%"]}>
+                  <Box width={"100%"}>
+                    <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                      Now Playing
+                    </Text>
+                    {queue.now_playing ? (
+                      <NowPlayingCard
+                        request={queue.now_playing}
+                        video={queue.now_playing.Video}
+                        pgStatus={queue.now_playing.Video.PG_Status}
+                        sethView={true}
+                      />
+                    ) : (
+                      <Container
+                        my={2}
+                        p={2}
+                        h={100}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        maxW={"100%"}
+                        centerContent
+                      >
+                        <Box mt={6}>
+                          <Text>Nothing playing</Text>
+                        </Box>
+                      </Container>
+                    )}
                   </Box>
-                )}
-              </Box>
-            </Stack>
+                  <Button my={2} onClick={openAddModal}>
+                    Add Request
+                  </Button>
+                  <QueueStatus />
+                  {queue?.order.map((request) => {
+                    return (
+                      <RequestCard
+                        key={`key${request.id}`}
+                        id={request.id}
+                        request={request}
+                        video={request.Video}
+                        pgStatus={request.Video.PG_Status}
+                        sethView={true}
+                        numOfPrio={numOfPrio}
+                      />
+                    );
+                  })}
+                </Box>
+                <Box display={["none", "block"]} w={"20%"} ml={2}>
+                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Mods Online
+                  </Text>
+                  {modsOnline.length > 0 && (
+                    <Box>
+                      {modsOnline.map((mod) => {
+                        console.log(mod);
+                        return (
+                          <HStack key={mod.id} my={2}>
+                            <Avatar src={mod.info.picture} />
+                            <Text>{mod.info.username}</Text>
+                          </HStack>
+                        );
+                      })}
+                    </Box>
+                  )}
+                </Box>
+              </Stack>
+            </>
           ) : (
             <Box w={"100%"} alignContent="center">
               <Text>Loading Queue...</Text>

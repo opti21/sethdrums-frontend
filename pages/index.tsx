@@ -102,10 +102,6 @@ const SethView: NextPage = () => {
     onClose: closeDeleteModal,
   } = useDisclosure();
 
-  const numOfPrio = queue?.order.filter((request) => {
-    request.priority === true;
-  }).length;
-
   const handleAddModalOpen = () => {
     mutate();
     const alreadyRequested = queue.order.findIndex((request) => {
@@ -126,6 +122,7 @@ const SethView: NextPage = () => {
     });
     openDeleteModal();
   };
+  console.log(queue);
 
   return (
     <>
@@ -135,7 +132,7 @@ const SethView: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Container maxW={"container.xl"} p={0}>
-        <Nav returnTo="/seth" />
+        <Nav returnTo="/" />
 
         <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
           <ModalOverlay />
@@ -156,7 +153,6 @@ const SethView: NextPage = () => {
                       // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });
@@ -277,19 +273,21 @@ const SethView: NextPage = () => {
                     Add Request
                   </Button>
                 )}
-                {queue?.order.map((request) => {
-                  return (
-                    <RequestCard
-                      key={`key${request.id}`}
-                      id={request.id}
-                      request={request}
-                      video={request.Video}
-                      publicView={true}
-                      openDeleteModal={handleDeleteModalOpen}
-                      user={user}
-                    />
-                  );
-                })}
+                {!queueError &&
+                  queue &&
+                  queue?.order.map((request) => {
+                    return (
+                      <RequestCard
+                        key={`key${request.id}`}
+                        id={request.id}
+                        request={request}
+                        video={request.Video}
+                        publicView={true}
+                        openDeleteModal={handleDeleteModalOpen}
+                        user={user}
+                      />
+                    );
+                  })}
               </Box>
             </Stack>
           ) : (

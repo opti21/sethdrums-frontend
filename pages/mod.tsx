@@ -31,7 +31,6 @@ import { useCallback, useEffect, useState } from "react";
 import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
 import { IApiRequest, IQueue } from "../utils/types";
-// import { useChannel, useEvent, useTrigger } from "@harelpls/use-pusher";
 import { DragDropContext, Droppable, Draggable } from "@react-forked/dnd";
 import { Video } from "../redis/handlers/Video";
 import {
@@ -62,6 +61,7 @@ import DeleteModal from "../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
 import { Status } from "@prisma/client";
+import NowPlayingCard from "../components/NowPlayingCard";
 
 type PGState = {
   youtubeID: string;
@@ -103,7 +103,7 @@ const Mod: NextPage = () => {
       authEndpoint: "/api/pusher/auth",
     });
 
-    let channel = pusher.subscribe("presence-sethdrums-queue");
+    let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
     if (!pusherConnected) {
       channel.bind("pusher:subscription_error", (error) => {
@@ -240,7 +240,6 @@ const Mod: NextPage = () => {
 
     setActiveId(active.id);
     await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
       eventName: "lock-queue",
       data: { beingUpdatedBy: user?.preferred_username },
     });
@@ -261,7 +260,6 @@ const Mod: NextPage = () => {
   const unlockQueue = async () => {
     console.log("unlock queue");
     await axios.post("/api/mod/trigger", {
-      channelName: "presence-sethdrums-queue",
       eventName: "unlock-queue",
       data: { beingUpdatedBy: "" },
     });
@@ -362,7 +360,6 @@ const Mod: NextPage = () => {
       .then(async (res) => {
         console.log("pg updated");
         await axios.post("/api/mod/trigger", {
-          channelName: "presence-sethdrums-queue",
           eventName: "update-queue",
           data: {},
         });
@@ -386,7 +383,6 @@ const Mod: NextPage = () => {
         .then(async (res) => {
           console.log("pg updated");
           await axios.post("/api/mod/trigger", {
-            channelName: "presence-sethdrums-queue",
             eventName: "update-queue",
             data: {},
           });
@@ -514,7 +510,6 @@ const Mod: NextPage = () => {
                       // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
-                          channelName: "presence-sethdrums-queue",
                           eventName: "update-queue",
                           data: { beingUpdatedBy: user?.preferred_username },
                         });
@@ -636,6 +631,14 @@ const Mod: NextPage = () => {
                 >
                   NON PG
                 </Button>
+                <Button
+                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
+                  w="25%"
+                  colorScheme={"red"}
+                  variant={"link"}
+                >
+                  BAN
+                </Button>
               </HStack>
             </ModalBody>
           </ModalContent>
@@ -678,6 +681,32 @@ const Mod: NextPage = () => {
                 >
                   <Stack direction={"row"} pt={5}>
                     <Box px={[4, 5]} w={["100%", "80%"]}>
+                      <Box width={"100%"}>
+                        <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                          Now Playing
+                        </Text>
+                        {queue.now_playing ? (
+                          <NowPlayingCard
+                            request={queue.now_playing}
+                            video={queue.now_playing.Video}
+                            pgStatus={queue.now_playing.Video.PG_Status}
+                          />
+                        ) : (
+                          <Container
+                            my={2}
+                            p={2}
+                            h={100}
+                            borderWidth="1px"
+                            borderRadius="lg"
+                            maxW={"100%"}
+                            centerContent
+                          >
+                            <Box mt={6}>
+                              <Text>Nothing playing</Text>
+                            </Box>
+                          </Container>
+                        )}
+                      </Box>
                       <Button my={2} onClick={openAddModal}>
                         Add Request
                       </Button>

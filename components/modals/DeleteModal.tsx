@@ -47,7 +47,6 @@ const DeleteModal: FC<Props> = ({
         toast.success("Request deleted");
         if (!publicView) {
           await axios.post("/api/mod/trigger", {
-            channelName: "presence-sethdrums-queue",
             eventName: "update-queue",
             data: {},
           });

@@ -32,6 +32,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   // Until Auth0 fixes their twitch integration or rules
   // @ts-ignore
   const username: string = user?.preferred_username;
+  console.log(user);
 
   return (
     <>
@@ -109,6 +110,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 left={0}
                 right={0}
                 display={mobileNav.isOpen ? "flex" : "none"}
+                zIndex={1}
                 flexDirection="column"
                 p={2}
                 pb={4}

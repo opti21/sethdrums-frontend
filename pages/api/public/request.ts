@@ -103,7 +103,11 @@ const requestApiHandler = withApiAuthRequired(
               .json({ success: false, error: "Error adding to queue" });
           }
 
-          pusher.trigger("presence-sethdrums-queue", "update-queue", {});
+          pusher.trigger(
+            process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+            "update-queue",
+            {}
+          );
           return res.status(200).json({ success: true });
         }
         return;
@@ -132,7 +136,11 @@ const requestApiHandler = withApiAuthRequired(
         return;
       }
 
-      pusher.trigger("presence-sethdrums-queue", "update-queue", {});
+      pusher.trigger(
+        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+        "update-queue",
+        {}
+      );
       res.status(200).json({ success: true, message: "Request added" });
     } else if (req.method === "DELETE") {
       try {
@@ -145,7 +153,11 @@ const requestApiHandler = withApiAuthRequired(
 
         await removeFromOrder(req.body.requestID.toString());
 
-        pusher.trigger("presence-sethdrums-queue", "update-queue", {});
+        pusher.trigger(
+          process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+          "update-queue",
+          {}
+        );
         res.status(200).json({ success: true });
       } catch (err) {
         console.error(err);
