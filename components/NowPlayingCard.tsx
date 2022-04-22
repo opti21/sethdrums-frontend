@@ -35,15 +35,11 @@ const NowPlayingCard: FC<Props> = ({
   publicView,
 }) => {
   if (!request) return null;
-  const cardBG = request.priority
-    ? useColorModeValue(
-        "linear(to-r, #7303c0, #C89416, #7303c0)",
-        "linear(to-r, #7303c0, #C89416, #7303c0)"
-      )
-    : useColorModeValue(
-        "linear(to-r, #24243e, #302b63, #24243e)",
-        "linear(to-r, #24243e, #302b63, #24243e)"
-      );
+  const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
+
+  const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
+
+  const cardBG = request.priority ? prioGradient : regularGradient;
 
   const formatDuration = (duration: number) => {
     let hrs = ~~(duration / 3600);
