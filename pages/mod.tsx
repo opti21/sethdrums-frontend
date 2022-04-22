@@ -61,6 +61,7 @@ import DeleteModal from "../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
 import { Status } from "@prisma/client";
+import NowPlayingCard from "../components/NowPlayingCard";
 
 type PGState = {
   youtubeID: string;
@@ -680,6 +681,32 @@ const Mod: NextPage = () => {
                 >
                   <Stack direction={"row"} pt={5}>
                     <Box px={[4, 5]} w={["100%", "80%"]}>
+                      <Box width={"100%"}>
+                        <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                          Now Playing
+                        </Text>
+                        {queue.now_playing ? (
+                          <NowPlayingCard
+                            request={queue.now_playing}
+                            video={queue.now_playing.Video}
+                            pgStatus={queue.now_playing.Video.PG_Status}
+                          />
+                        ) : (
+                          <Container
+                            my={2}
+                            p={2}
+                            h={100}
+                            borderWidth="1px"
+                            borderRadius="lg"
+                            maxW={"100%"}
+                            centerContent
+                          >
+                            <Box mt={6}>
+                              <Text>Nothing playing</Text>
+                            </Box>
+                          </Container>
+                        )}
+                      </Box>
                       <Button my={2} onClick={openAddModal}>
                         Add Request
                       </Button>

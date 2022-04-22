@@ -59,8 +59,14 @@ const RequestCard: FC<Props> = ({
       // disabled: disabled,
     });
   const cardBG = request.priority
-    ? useColorModeValue("yellow.300", "yellow.500")
-    : useColorModeValue("pink", "pink.900");
+    ? useColorModeValue(
+        "linear(to-r, #7303c0, #C89416, #7303c0)",
+        "linear(to-r, #7303c0, #C89416, #7303c0)"
+      )
+    : useColorModeValue(
+        "linear(to-r, #24243e, #302b63, #24243e)",
+        "linear(to-r, #24243e, #302b63, #24243e)"
+      );
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -101,148 +107,192 @@ const RequestCard: FC<Props> = ({
 
     return formatted;
   };
-  const test = typeof user != undefined;
-  console.log(test);
+
+  const markNowPlaying = () => {
+    axios
+      .post("/api/mod/queue/nowPlaying", {
+        requestID: id,
+      })
+      .then(async (res) => {
+        if (res.status === 200) {
+          toast.success("song now playing");
+          await axios.post("/api/mod/trigger", {
+            eventName: "update-queue",
+            data: {},
+          });
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        toast.error("Error setting now playing");
+      });
+  };
 
   return (
-    <>
-      <Box
-        border="1px"
-        borderColor={request.priority ? "yellow.100" : "pink.200"}
-        bgColor={cardBG}
-        rounded="lg"
-        w={"100%"}
-        p={2}
-        my={2}
-        ref={setNodeRef}
-        style={style}
-      >
-        <Flex direction={["column", "row"]}>
-          <Flex direction={"row"}>
-            {!sethView && !publicView && (
-              <Icon
-                as={MdDragIndicator}
-                w={10}
-                h={100}
-                {...attributes}
-                {...listeners}
-                mr={2}
-              />
-            )}
-            <Stack alignItems={"center"} direction={["row", "column"]} pr={2}>
-              <Image
-                maxW={"100px"}
-                rounded="lg"
-                src={video.thumbnail}
-                objectFit="cover"
-                alt="video thumbnail"
-                mt={2}
-              />
-              <Text fontSize={"xl"} style={{ fontWeight: "bold" }}>
-                {formatDuration(video.duration)}
-              </Text>
-            </Stack>
-          </Flex>
-          <VStack align={"start"} w={"100%"}>
-            <Link
-              href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
-              fontSize={["md", "xl"]}
+    <Box
+      border="1px"
+      borderColor={request.priority ? "orange.300" : "purple.700"}
+      bgGradient={cardBG}
+      rounded="lg"
+      w={"100%"}
+      p={2}
+      my={2}
+      ref={setNodeRef}
+      style={style}
+    >
+      <Flex direction={["column", "row"]}>
+        <Flex direction={"row"}>
+          {!sethView && !publicView && (
+            <Icon
+              as={MdDragIndicator}
+              w={10}
+              h={100}
+              {...attributes}
+              {...listeners}
+              mr={2}
+              color="white"
+            />
+          )}
+          <Stack alignItems={"center"} direction={["row", "column"]} pr={2}>
+            <Image
+              maxW={"100px"}
+              rounded="lg"
+              src={video.thumbnail}
+              objectFit="cover"
+              alt="video thumbnail"
+              mt={2}
+              style={{
+                filter: "drop-shadow(0px 5px 3px rgba(0, 0, 0, 0.3))",
+              }}
+            />
+            <Text
+              fontSize={"xl"}
               style={{
                 fontWeight: "bold",
+                textShadow: "0px 2px 6px #000000",
+                color: "white",
               }}
-              noOfLines={2}
-              isExternal
             >
-              {video.title}
-            </Link>
-            <Text fontSize="md" isTruncated>
-              Requested By: {request.requested_by}
+              {formatDuration(video.duration)}
             </Text>
-          </VStack>
-          <Stack direction={["row", "column"]} pt={2} spacing={2}>
-            {!publicView && (
-              <PGButton
-                pgStatus={pgStatus}
-                onClick={() => handlePGClick()}
-                sethView={sethView ? sethView : false}
-              />
-            )}
-            <HStack w={"100%"}>
-              {!sethView &&
-                !publicView &&
-                (!request.priority ? (
-                  <Button
-                    onClick={() => {
-                      axios
-                        .post(
-                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
-                        )
-                        .then(async (res) => {
-                          await axios.post("/api/mod/trigger", {
-                            eventName: "update-queue",
-                            data: {},
-                          });
-                        })
-                        .catch((error) => {
-                          toast.error("Error updating prio status");
-                          console.error(error);
-                        });
-                    }}
-                    bgColor={"gold"}
-                    style={{ color: "black" }}
-                    w={["100%", "75%"]}
-                  >
-                    <Icon as={AiOutlineCrown} w={5} h={5} />
-                  </Button>
-                ) : (
-                  <Button
-                    onClick={() => {
-                      axios
-                        .post(
-                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
-                        )
-                        .then(async (res) => {
-                          await axios.post("/api/mod/trigger", {
-                            eventName: "update-queue",
-                            data: {},
-                          });
-                        })
-                        .catch((error) => {
-                          toast.error("Error updating prio status");
-                          console.error(error);
-                        });
-                    }}
-                    bgColor={"gold"}
-                    style={{ color: "black" }}
-                    w={["100%", "75%"]}
-                  >
-                    <Icon as={AiFillCrown} w={5} h={5} />
-                  </Button>
-                ))}
-              {typeof user != undefined && publicView
-                ? user?.preferred_username === request.requested_by && (
-                    <Button
-                      onClick={() => openDeleteModal(request, video)}
-                      bgColor={"red"}
-                      w={"25%"}
-                    >
-                      <Icon as={IoMdTrash} w={5} h={5} />
-                    </Button>
-                  )
-                : !sethView && (
-                    <Button
-                      onClick={() => openDeleteModal(request, video)}
-                      bgColor={"red"}
-                      w={"25%"}
-                    >
-                      <Icon as={IoMdTrash} w={5} h={5} />
-                    </Button>
-                  )}
-            </HStack>
           </Stack>
         </Flex>
-      </Box>
-    </>
+        <VStack align={"start"} w={"100%"}>
+          <Link
+            href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
+            onClick={() => {
+              if (sethView) {
+                markNowPlaying();
+              }
+            }}
+            fontSize={["md", "xl"]}
+            style={{
+              fontWeight: "bold",
+              textShadow: "0px 2px 5px #000000",
+              color: "white",
+            }}
+            noOfLines={2}
+            p={1}
+            isExternal
+          >
+            {video.title}
+          </Link>
+
+          <Text
+            fontSize="md"
+            style={{
+              textShadow: "0px 1px 3px #000000",
+              color: "white",
+            }}
+            p={0.5}
+            isTruncated
+          >
+            Requested By: <b>{request.requested_by}</b>
+          </Text>
+        </VStack>
+        <Stack direction={["row", "column"]} pt={2} spacing={2}>
+          {!publicView && (
+            <PGButton
+              pgStatus={pgStatus}
+              onClick={() => handlePGClick()}
+              sethView={sethView ? sethView : false}
+            />
+          )}
+          <HStack w={"100%"}>
+            {!sethView &&
+              !publicView &&
+              (!request.priority ? (
+                <Button
+                  onClick={() => {
+                    axios
+                      .post(
+                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
+                      )
+                      .then(async (res) => {
+                        await axios.post("/api/mod/trigger", {
+                          eventName: "update-queue",
+                          data: {},
+                        });
+                      })
+                      .catch((error) => {
+                        toast.error("Error updating prio status");
+                        console.error(error);
+                      });
+                  }}
+                  bgColor={"gold"}
+                  style={{ color: "black" }}
+                  w={["100%", "75%"]}
+                >
+                  <Icon as={AiOutlineCrown} w={5} h={5} />
+                </Button>
+              ) : (
+                <Button
+                  onClick={() => {
+                    axios
+                      .post(
+                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
+                      )
+                      .then(async (res) => {
+                        await axios.post("/api/mod/trigger", {
+                          eventName: "update-queue",
+                          data: {},
+                        });
+                      })
+                      .catch((error) => {
+                        toast.error("Error updating prio status");
+                        console.error(error);
+                      });
+                  }}
+                  bgColor={"gold"}
+                  style={{ color: "black" }}
+                  w={["100%", "75%"]}
+                >
+                  <Icon as={AiFillCrown} w={5} h={5} />
+                </Button>
+              ))}
+            {typeof user != undefined && publicView
+              ? user?.preferred_username === request.requested_by && (
+                  <Button
+                    onClick={() => openDeleteModal(request, video)}
+                    bgColor={"red"}
+                    w={"25%"}
+                  >
+                    <Icon as={IoMdTrash} w={5} h={5} />
+                  </Button>
+                )
+              : !sethView && (
+                  <Button
+                    onClick={() => openDeleteModal(request, video)}
+                    bgColor={"red"}
+                    w={"25%"}
+                  >
+                    <Icon as={IoMdTrash} w={5} h={5} />
+                  </Button>
+                )}
+          </HStack>
+        </Stack>
+      </Flex>
+    </Box>
   );
 };
 

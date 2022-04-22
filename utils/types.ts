@@ -107,7 +107,7 @@ export interface IQueue {
   order: IApiRequest[];
   is_updating: boolean;
   being_updated_by: string;
-  currently_playing: string;
+  now_playing: IApiRequest | null;
 }
 
 export interface IAPiVideo extends Video {

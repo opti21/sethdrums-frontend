@@ -38,6 +38,7 @@ import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
+import NowPlayingCard from "../components/NowPlayingCard";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -394,10 +395,15 @@ const SethView: NextPage = () => {
                 <Box px={[4, 5]} w={["100%", "80%"]}>
                   <Box width={"100%"}>
                     <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                      Currently Playing
+                      Now Playing
                     </Text>
-                    {queue.currently_playing.length > 0 ? (
-                      <Box></Box>
+                    {queue.now_playing ? (
+                      <NowPlayingCard
+                        request={queue.now_playing}
+                        video={queue.now_playing.Video}
+                        pgStatus={queue.now_playing.Video.PG_Status}
+                        sethView={true}
+                      />
                     ) : (
                       <Container
                         my={2}

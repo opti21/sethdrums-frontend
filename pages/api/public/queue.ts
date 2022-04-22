@@ -34,7 +34,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       const queueResponse = {
         order: requests,
         is_updating: queue.is_updating,
-        currently_playing: queue.currently_playing,
+        currently_playing: queue.now_playing,
       };
       // console.log(queueResponse);
       res.status(200).json(queueResponse);
