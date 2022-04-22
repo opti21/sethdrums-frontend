@@ -52,21 +52,17 @@ const RequestCard: FC<Props> = ({
   publicView,
   user,
 }) => {
-  if (!request) return null;
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: `sortable${id}`,
       // disabled: disabled,
     });
-  const cardBG = request.priority
-    ? useColorModeValue(
-        "linear(to-r, #7303c0, #C89416, #7303c0)",
-        "linear(to-r, #7303c0, #C89416, #7303c0)"
-      )
-    : useColorModeValue(
-        "linear(to-r, #24243e, #302b63, #24243e)",
-        "linear(to-r, #24243e, #302b63, #24243e)"
-      );
+
+  const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
+
+  const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
+
+  const cardBG = request.priority ? prioGradient : regularGradient;
 
   const style = {
     transform: CSS.Transform.toString(transform),
