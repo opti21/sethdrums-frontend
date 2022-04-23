@@ -62,6 +62,8 @@ import Pusher from "pusher-js";
 import Image from "next/image";
 import { Status } from "@prisma/client";
 import NowPlayingCard from "../components/NowPlayingCard";
+import PGConfirmModal from "../components/modals/PGConfirmModal";
+import PGCheckerModal from "../components/modals/PGCheckerModal";
 
 type PGState = {
   youtubeID: string;
@@ -79,11 +81,6 @@ const Mod: NextPage = () => {
   const [deleteModalData, setDeleteModalData] = useState<any>({
     request: null,
     video: null,
-  });
-  const [pgData, setPGData] = useState<PGState>({
-    youtubeID: "",
-    pgStatusID: "",
-    currentStatus: "",
   });
   const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
@@ -347,48 +344,6 @@ const Mod: NextPage = () => {
     onOpen: openPGModal,
   } = useDisclosure();
 
-  const handlePGModalClose = (pgStatusID: string) => {
-    axios
-      .put("/api/mod/pg-status", {
-        pgStatusID,
-        status: pgData.currentStatus,
-      })
-      .then(async (res) => {
-        console.log("pg updated");
-        await axios.post("/api/mod/trigger", {
-          eventName: "update-queue",
-          data: {},
-        });
-        closePGModal();
-        setPGData({
-          youtubeID: "",
-          pgStatusID: "",
-          currentStatus: "",
-        });
-      });
-  };
-
-  const updatePG = (status: string, pgStatusID: string) => {
-    try {
-      console.log("update pg");
-      axios
-        .put("/api/mod/pg-status", {
-          pgStatusID,
-          status,
-        })
-        .then(async (res) => {
-          console.log("pg updated");
-          await axios.post("/api/mod/trigger", {
-            eventName: "update-queue",
-            data: {},
-          });
-          closePGModal();
-        });
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
   const validateYTUrl = (value: string) => {
     let error;
     const parsed = urlParser.parse(value);
@@ -507,7 +462,7 @@ const Mod: NextPage = () => {
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
                           eventName: "update-queue",
-                          data: { beingUpdatedBy: user?.preferred_username },
+                          data: {},
                         });
                         closeAddModal();
                         toast.success("Request added");
@@ -594,58 +549,16 @@ const Mod: NextPage = () => {
           </ModalContent>
         </Modal>
 
-        <Modal
-          isOpen={isPGModalOpen}
-          onClose={() => handlePGModalClose(pgData.pgStatusID)}
-          size="2xl"
-        >
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>PG Status Checker</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <AspectRatio maxW="100%" ratio={16 / 9}>
-                <ReactPlayer
-                  url={`https://www.youtube.com/watch?v=${pgData.youtubeID}`}
-                  height={"100%"}
-                  width={"100%"}
-                  controls={true}
-                />
-              </AspectRatio>
-              <HStack pt="4">
-                <Button
-                  onClick={() => updatePG("PG", pgData.pgStatusID)}
-                  bgColor="green"
-                  w="100%"
-                >
-                  PG
-                </Button>
-                <Button
-                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
-                  bgColor="red"
-                  w="100%"
-                >
-                  NON PG
-                </Button>
-                <Button
-                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
-                  w="25%"
-                  colorScheme={"red"}
-                  variant={"link"}
-                >
-                  BAN
-                </Button>
-              </HStack>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-
         <DeleteModal
           isDeleteModalOpen={isDeleteModalOpen}
           closeDeleteModal={closeDeleteModal}
           deleteModalData={deleteModalData}
           setDeleteModalData={setDeleteModalData}
         />
+
+        <PGCheckerModal />
+
+        <PGConfirmModal />
 
         {queueError && (
           <Alert mt={2} status="error">
@@ -716,8 +629,6 @@ const Mod: NextPage = () => {
                             request={request}
                             video={request.Video}
                             pgStatus={request.Video.PG_Status}
-                            onPgDataChange={setPGData}
-                            openPGModal={openPGModal}
                             openDeleteModal={handleDeleteModalOpen}
                             disabled={disableDrag}
                             numOfPrio={numOfPrio}
