@@ -13,7 +13,6 @@ type Props = {
   pgStatus: any;
   video: Video;
   sethView?: boolean;
-  width?: any;
 };
 
 type SethProps = {
@@ -21,16 +20,7 @@ type SethProps = {
   width?: any;
 };
 
-const PGButton: FC<Props> = ({
-  requestID,
-  pgStatus,
-  video,
-  sethView,
-  width,
-}) => {
-  if (sethView) {
-    return sethPGButtons({ pgStatus, width });
-  }
+const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
   const buttonWidth = ["100%", 150];
   const openPGConfirmModal = usePGConfirmModalStore((state) => state.open);
   const setPGData = usePGCheckerModalStore((state) => state.setPGData);
@@ -143,7 +133,7 @@ const PGButton: FC<Props> = ({
   }
 };
 
-const sethPGButtons: FC<SethProps> = ({ pgStatus, width }) => {
+const SethPGButtons: FC<SethProps> = ({ pgStatus, width }) => {
   const buttonWidth = width ? width : ["100%", 120];
   switch (pgStatus.status) {
     case Status.NotChecked:
@@ -212,4 +202,4 @@ const sethPGButtons: FC<SethProps> = ({ pgStatus, width }) => {
   }
 };
 
-export default PGButton;
+export { PGButton, SethPGButtons };

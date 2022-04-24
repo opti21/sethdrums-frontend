@@ -22,14 +22,13 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import axios from "axios";
 import { FC } from "react";
-import PGButton from "./PgButton";
+import { PGButton, SethPGButtons } from "./PgButtons";
 import { MdDragIndicator } from "react-icons/md";
 import { IApiRequest, IAPiVideo, Status } from "../utils/types";
 import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
-import { usePGCheckerModalStore } from "../stateStore/modalState";
 
 type Props = {
   id: string;
@@ -212,14 +211,14 @@ const RequestCard: FC<Props> = ({
           )}
         </VStack>
         <Stack direction={["row", "column"]} pt={2} spacing={2}>
-          {!publicView && (
+          {!publicView && !sethView && (
             <PGButton
-              requestID={request.id}
               pgStatus={pgStatus}
+              requestID={request.id}
               video={video}
-              sethView={sethView ? sethView : false}
             />
           )}
+          {sethView && <SethPGButtons pgStatus={pgStatus} />}
           <HStack w={"100%"}>
             {!sethView &&
               !publicView &&

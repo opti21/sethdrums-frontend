@@ -13,7 +13,7 @@ import {
 } from "@chakra-ui/react";
 import axios from "axios";
 import { FC } from "react";
-import PGButton from "./PgButton";
+import { PGButton, SethPGButtons } from "./PgButtons";
 import { IApiRequest, IAPiVideo, Status } from "../utils/types";
 import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
@@ -146,16 +146,16 @@ const NowPlayingCard: FC<Props> = ({
           </Text>
         </VStack>
         <Stack direction={["row", "column"]} pt={2} spacing={2}>
-          {!publicView && (
+          {!publicView && !sethView && (
             <PGButton
               pgStatus={pgStatus}
-              onClick={() => {}}
-              sethView={sethView ? sethView : false}
-              width={"100%"}
+              requestID={request.id}
+              video={video}
             />
           )}
           {sethView && (
             <>
+              <SethPGButtons pgStatus={pgStatus} />
               <Button
                 onClick={() => markAsPlayed()}
                 w={"100%"}
