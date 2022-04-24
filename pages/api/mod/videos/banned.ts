@@ -41,7 +41,6 @@ const videoBanApiHandler = withApiAuthRequired(
       return res.status(200).json(bannedVideos);
     } else if (req.method === "POST") {
       // TODO: validate body
-      console.log(session.user);
       if (req.body.requestID) {
         const requestExists = await prisma.request.findFirst({
           where: {

@@ -51,7 +51,6 @@ const SethView: NextPage = () => {
 
   useEffect(() => {
     if (!user) {
-      console.log("no user?");
       return;
     }
     console.log("connect pusher");
@@ -74,7 +73,6 @@ const SethView: NextPage = () => {
 
       channel.bind("pusher:subscription_succeeded", (members) => {
         console.log("succec");
-        console.log(members);
 
         members.each((member) => {
           setModsOnline((currModsOnline) => [...currModsOnline, member]);
@@ -120,7 +118,6 @@ const SethView: NextPage = () => {
         console.log("LOCKL QUEUE");
         setQueueStatus("updating");
         setBeingUpdatedBy(data.beingUpdatedBy);
-        // console.log(data);
       });
 
       channel.bind("unlock-queue", (data: any) => {
@@ -145,7 +142,6 @@ const SethView: NextPage = () => {
             }
             console.error(error);
           });
-        // console.log(data);
       });
 
       channel.bind("queue-add", (data: any) => {

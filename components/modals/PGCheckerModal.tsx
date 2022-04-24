@@ -42,14 +42,12 @@ const PGCheckerModal: FC = ({}: any) => {
 
   const updatePG = (status: string, pgStatusID: string) => {
     try {
-      console.log("update pg");
       axios
         .put("/api/mod/pg-status", {
           pgStatusID,
           status,
         })
         .then(async (res) => {
-          console.log("pg updated");
           await axios.post("/api/mod/trigger", {
             eventName: "update-queue",
             data: {},
@@ -68,7 +66,6 @@ const PGCheckerModal: FC = ({}: any) => {
         status: pgData.currentStatus,
       })
       .then(async (res) => {
-        console.log("pg updated");
         await axios.post("/api/mod/trigger", {
           eventName: "update-queue",
           data: {},
@@ -146,7 +143,6 @@ const PGCheckerModal: FC = ({}: any) => {
               axios
                 .post("/api/mod/videos/notes", values)
                 .then(async (res) => {
-                  // console.log(res.data);
                   if (res.status === 200) {
                     toast.success("Video notes updated");
                     actions.setSubmitting(false);
