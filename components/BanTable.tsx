@@ -151,22 +151,32 @@ const BanTable: FC<Props> = ({ data }) => {
     <>
       <Table {...getTableProps()}>
         <Thead>
-          {headerGroups.map((headerGroup) => (
-            <Tr {...headerGroup.getHeaderGroupProps()}>
-              {headerGroup.headers.map((column) => (
-                <Th {...column.getHeaderProps()}>{column.render("Header")}</Th>
+          {headerGroups.map((headerGroup, headerGroupIndex) => (
+            <Tr
+              key={`headerGroup${headerGroupIndex}`}
+              {...headerGroup.getHeaderGroupProps()}
+            >
+              {headerGroup.headers.map((column, columnIndex) => (
+                <Th
+                  key={`headerColumn${columnIndex}`}
+                  {...column.getHeaderProps()}
+                >
+                  {column.render("Header")}
+                </Th>
               ))}
             </Tr>
           ))}
         </Thead>
         <Tbody {...getTableBodyProps()}>
-          {page.map((row, i) => {
+          {page.map((row, rowIndex) => {
             prepareRow(row);
             return (
-              <Tr {...row.getRowProps()}>
-                {row.cells.map((cell) => {
+              <Tr key={`row${rowIndex}`} {...row.getRowProps()}>
+                {row.cells.map((cell, cellIndex) => {
                   return (
-                    <Td {...cell.getCellProps()}>{cell.render("Cell")}</Td>
+                    <Td key={`cell${cellIndex}`} {...cell.getCellProps()}>
+                      {cell.render("Cell")}
+                    </Td>
                   );
                 })}
               </Tr>
