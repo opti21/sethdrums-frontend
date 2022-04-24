@@ -6,6 +6,13 @@ import {
   Icon,
   Image,
   Link,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Stack,
   Text,
   useColorModeValue,
@@ -118,7 +125,7 @@ const RequestCard: FC<Props> = ({
             <Icon
               as={MdDragIndicator}
               w={10}
-              h={100}
+              h={"100%"}
               {...attributes}
               {...listeners}
               mr={2}
@@ -181,13 +188,35 @@ const RequestCard: FC<Props> = ({
           >
             Requested By: <b>{request.requested_by}</b>
           </Text>
+          {!publicView && video.notes.length > 0 && (
+            <>
+              <Text noOfLines={2} overflowWrap={"break-word"}>
+                Mod Notes: {video.notes}{" "}
+              </Text>
+              {video.notes.length > 50 && (
+                <Popover>
+                  <PopoverTrigger>
+                    <Button variant={"link"}>Show More</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverHeader>Notes</PopoverHeader>
+                    <PopoverBody maxH={300} overflowY="scroll">
+                      {video.notes}
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </>
+          )}
         </VStack>
         <Stack direction={["row", "column"]} pt={2} spacing={2}>
           {!publicView && (
             <PGButton
               requestID={request.id}
               pgStatus={pgStatus}
-              youtubeID={video.youtube_id}
+              video={video}
               sethView={sethView ? sethView : false}
             />
           )}

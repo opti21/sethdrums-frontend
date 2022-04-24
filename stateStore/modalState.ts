@@ -1,5 +1,7 @@
+import { Video } from "@prisma/client";
 import create from "zustand";
 
+// PG Confirm Modal
 type TPGConfirmModalState = {
   isOpen: boolean;
   open: () => void;
@@ -12,19 +14,20 @@ export const usePGConfirmModalStore = create<TPGConfirmModalState>((set) => ({
   close: () => set(() => ({ isOpen: false })),
 }));
 
-type PGData = {
+// PG Checker Modal
+interface PGData {
   requestID: string;
   pgStatusID: string;
-  youtubeID: string;
+  video: Video | null;
   currentStatus: string;
-};
+}
 
 type TPGCheckerModalState = {
   isOpen: boolean;
   open: () => void;
   close: () => void;
   pgData: PGData;
-  setPGData: (PGData) => void;
+  setPGData: (PGData: PGData) => void;
 };
 
 export const usePGCheckerModalStore = create<TPGCheckerModalState>((set) => ({
@@ -32,17 +35,17 @@ export const usePGCheckerModalStore = create<TPGCheckerModalState>((set) => ({
   pgData: {
     requestID: "",
     pgStatusID: "",
-    youtubeID: "",
+    video: null,
     currentStatus: "",
   },
   open: () => set(() => ({ isOpen: true })),
   close: () => set(() => ({ isOpen: false })),
-  setPGData: ({ requestID, pgStatusID, youtubeID, currentStatus }) =>
+  setPGData: ({ requestID, pgStatusID, video, currentStatus }) =>
     set(() => ({
       pgData: {
         requestID,
         pgStatusID,
-        youtubeID,
+        video,
         currentStatus,
       },
     })),

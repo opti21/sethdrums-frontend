@@ -23,6 +23,13 @@ import {
   Text,
   Stack,
   Avatar,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverHeader,
+  PopoverBody,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -84,6 +91,7 @@ const Mod: NextPage = () => {
   });
   const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
+  const [clearQueueLoading, setClearQueueLoading] = useState(false);
 
   const disableDrag =
     queueStatus === "updating" && beingUpdatedBy !== user?.prefferred_username;
@@ -338,11 +346,6 @@ const Mod: NextPage = () => {
     onOpen: openDeleteModal,
     onClose: closeDeleteModal,
   } = useDisclosure();
-  const {
-    isOpen: isPGModalOpen,
-    onClose: closePGModal,
-    onOpen: openPGModal,
-  } = useDisclosure();
 
   const validateYTUrl = (value: string) => {
     let error;
@@ -435,6 +438,28 @@ const Mod: NextPage = () => {
   const numOfPrio = queue?.order.filter((request) => {
     request.priority === true;
   }).length;
+  console.log(queue);
+
+  const clearNonPrio = () => {
+    setClearQueueLoading(true);
+    axios
+      .post("/api/mod/queue/clearQueue")
+      .then(async (res) => {
+        if (res.status === 200) {
+          await axios.post("/api/mod/trigger", {
+            eventName: "update-queue",
+            data: {},
+          });
+          toast.success("Non-prio requests cleared");
+          setClearQueueLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Error clearing non-prio requests");
+        setClearQueueLoading(false);
+      });
+  };
 
   return (
     <>
@@ -619,6 +644,33 @@ const Mod: NextPage = () => {
                       <Button my={2} onClick={openAddModal}>
                         Add Request
                       </Button>
+                      <Popover placement="top">
+                        <PopoverTrigger>
+                          <Button colorScheme={"red"} w="25%" variant={"link"}>
+                            Clear Non-Prio
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent color="white" bg="red.900">
+                          <PopoverArrow bg="red.900" />
+                          <PopoverCloseButton />
+                          <PopoverHeader>
+                            Are you sure you want to clear the non-prio queue?
+                          </PopoverHeader>
+                          <PopoverBody>
+                            <Button
+                              my={2}
+                              onClick={() => {
+                                clearNonPrio();
+                              }}
+                              colorScheme="red"
+                              w="100%"
+                              isLoading={clearQueueLoading}
+                            >
+                              CLEAR NON-PRIO
+                            </Button>
+                          </PopoverBody>
+                        </PopoverContent>
+                      </Popover>
                       <QueueStatus />
                       <NotCountedAlert />
                       {queue?.order.map((request) => {

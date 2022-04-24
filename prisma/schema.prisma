@@ -11,7 +11,7 @@ datasource db {
 model Request {
   id             Int              @id @default(autoincrement())
   requested_by   String
-  video_id       Int              @unique
+  video_id       Int
   queue_id       Int?             @default(2)
   played         Boolean          @default(false)
   played_at      DateTime?
@@ -60,7 +60,7 @@ model Video {
   banned         Boolean        @default(false)
   thumbnail      String
   PG_Status      PG_Status?
-  Request        Request?
+  Requests       Request[]
   TagsOnVideos   TagsOnVideos[]
 }
 
