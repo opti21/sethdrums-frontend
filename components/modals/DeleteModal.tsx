@@ -75,8 +75,8 @@ const DeleteModal: FC<Props> = ({
         <ModalCloseButton />
         <ModalBody>
           <Text pb={4}>
-            Are you sure you want to delete {publicView ? "your" : "this"}{" "}
-            request?{" "}
+            Are you sure you want to delete {publicView ? "your " : "this "}
+            request?
           </Text>
           <Text
             fontSize="md"
