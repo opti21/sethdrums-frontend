@@ -6,6 +6,13 @@ import {
   Icon,
   Image,
   Link,
+  Popover,
+  PopoverArrow,
+  PopoverBody,
+  PopoverCloseButton,
+  PopoverContent,
+  PopoverHeader,
+  PopoverTrigger,
   Stack,
   Text,
   useColorModeValue,
@@ -22,14 +29,13 @@ import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
+import { usePGCheckerModalStore } from "../stateStore/modalState";
 
 type Props = {
   id: string;
   request: IApiRequest;
   video: IAPiVideo;
   pgStatus?: PG_Status;
-  onPgDataChange?: any;
-  openPGModal?: any;
   openDeleteModal?: (request: any, video: any) => void;
   disabled?: boolean;
   numOfPrio?: number;
@@ -43,8 +49,6 @@ const RequestCard: FC<Props> = ({
   request,
   video,
   pgStatus,
-  onPgDataChange,
-  openPGModal,
   openDeleteModal,
   disabled,
   numOfPrio,
@@ -59,33 +63,12 @@ const RequestCard: FC<Props> = ({
     });
 
   const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
-
   const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
-
   const cardBG = request.priority ? prioGradient : regularGradient;
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  };
-
-  const handlePGClick = async () => {
-    onPgDataChange({
-      youtubeID: video.youtube_id,
-      pgStatusID: pgStatus.id,
-      currentStatus: pgStatus.status,
-    });
-
-    await axios.put("/api/mod/pg-status", {
-      pgStatusID: pgStatus.id,
-      status: Status.BeingChecked,
-    });
-
-    await axios.post("/api/mod/trigger", {
-      eventName: "update-queue",
-      data: {},
-    });
-    openPGModal();
   };
 
   const formatDuration = (duration: number) => {
@@ -142,7 +125,7 @@ const RequestCard: FC<Props> = ({
             <Icon
               as={MdDragIndicator}
               w={10}
-              h={100}
+              h={"100%"}
               {...attributes}
               {...listeners}
               mr={2}
@@ -205,12 +188,35 @@ const RequestCard: FC<Props> = ({
           >
             Requested By: <b>{request.requested_by}</b>
           </Text>
+          {!publicView && video.notes.length > 0 && (
+            <>
+              <Text noOfLines={2} overflowWrap={"break-word"}>
+                Mod Notes: {video.notes}{" "}
+              </Text>
+              {video.notes.length > 50 && (
+                <Popover>
+                  <PopoverTrigger>
+                    <Button variant={"link"}>Show More</Button>
+                  </PopoverTrigger>
+                  <PopoverContent>
+                    <PopoverArrow />
+                    <PopoverCloseButton />
+                    <PopoverHeader>Notes</PopoverHeader>
+                    <PopoverBody maxH={300} overflowY="scroll">
+                      {video.notes}
+                    </PopoverBody>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </>
+          )}
         </VStack>
         <Stack direction={["row", "column"]} pt={2} spacing={2}>
           {!publicView && (
             <PGButton
+              requestID={request.id}
               pgStatus={pgStatus}
-              onClick={() => handlePGClick()}
+              video={video}
               sethView={sethView ? sethView : false}
             />
           )}
@@ -225,10 +231,13 @@ const RequestCard: FC<Props> = ({
                         `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
                       )
                       .then(async (res) => {
-                        await axios.post("/api/mod/trigger", {
-                          eventName: "update-queue",
-                          data: {},
-                        });
+                        if (res.status === 200) {
+                          await axios.post("/api/mod/trigger", {
+                            eventName: "update-queue",
+                            data: {},
+                          });
+                          toast.success("Request marked Priority");
+                        }
                       })
                       .catch((error) => {
                         toast.error("Error updating prio status");
@@ -269,8 +278,10 @@ const RequestCard: FC<Props> = ({
             {typeof user != undefined && publicView
               ? user?.preferred_username === request.requested_by && (
                   <Button
-                    onClick={() => openDeleteModal(request, video)}
-                    bgColor={"red"}
+                    onClick={() => {
+                      openDeleteModal(request, video);
+                    }}
+                    bgColor={"#BD0000"}
                     w={"25%"}
                   >
                     <Icon as={IoMdTrash} w={5} h={5} />
@@ -278,8 +289,10 @@ const RequestCard: FC<Props> = ({
                 )
               : !sethView && (
                   <Button
-                    onClick={() => openDeleteModal(request, video)}
-                    bgColor={"red"}
+                    onClick={() => {
+                      openDeleteModal(request, video);
+                    }}
+                    bgColor={"#BD0000"}
                     w={"25%"}
                   >
                     <Icon as={IoMdTrash} w={5} h={5} />
