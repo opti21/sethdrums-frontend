@@ -72,21 +72,21 @@ const queueApiHandler = withApiAuthRequired(
           is_updating: queue.is_updating,
           being_updated_by: queue.being_updated_by,
         };
-        return res.status(200).json(queueResponse);
+        res.status(200).json(queueResponse);
       } catch (err) {
         console.error(err);
-        return res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: "Server error" });
       }
     } else if (req.method === "POST") {
-      // TODO: validate body
+      //   // TODO: validate body
       const newQueue = req.body;
       const didUpdateQueue = await updateOrder(newQueue.updatedOrder);
       if (!didUpdateQueue) {
-        return res.status(500).json({ error: "Error updating order" });
+        res.status(500).json({ error: "Error updating order" });
       }
       return res.status(200).json({ success: true });
     } else {
-      return res.status(405).send(`${req.method} is not a valid`);
+      res.status(405).send(`${req.method} is not a valid`);
     }
   }
 );

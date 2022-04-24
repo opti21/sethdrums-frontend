@@ -23,13 +23,6 @@ import {
   Text,
   Stack,
   Avatar,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
-  PopoverBody,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -69,8 +62,6 @@ import Pusher from "pusher-js";
 import Image from "next/image";
 import { Status } from "@prisma/client";
 import NowPlayingCard from "../components/NowPlayingCard";
-import PGConfirmModal from "../components/modals/PGConfirmModal";
-import PGCheckerModal from "../components/modals/PGCheckerModal";
 
 type PGState = {
   youtubeID: string;
@@ -89,9 +80,13 @@ const Mod: NextPage = () => {
     request: null,
     video: null,
   });
+  const [pgData, setPGData] = useState<PGState>({
+    youtubeID: "",
+    pgStatusID: "",
+    currentStatus: "",
+  });
   const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
-  const [clearQueueLoading, setClearQueueLoading] = useState(false);
 
   const disableDrag =
     queueStatus === "updating" && beingUpdatedBy !== user?.prefferred_username;
@@ -346,6 +341,53 @@ const Mod: NextPage = () => {
     onOpen: openDeleteModal,
     onClose: closeDeleteModal,
   } = useDisclosure();
+  const {
+    isOpen: isPGModalOpen,
+    onClose: closePGModal,
+    onOpen: openPGModal,
+  } = useDisclosure();
+
+  const handlePGModalClose = (pgStatusID: string) => {
+    axios
+      .put("/api/mod/pg-status", {
+        pgStatusID,
+        status: pgData.currentStatus,
+      })
+      .then(async (res) => {
+        console.log("pg updated");
+        await axios.post("/api/mod/trigger", {
+          eventName: "update-queue",
+          data: {},
+        });
+        closePGModal();
+        setPGData({
+          youtubeID: "",
+          pgStatusID: "",
+          currentStatus: "",
+        });
+      });
+  };
+
+  const updatePG = (status: string, pgStatusID: string) => {
+    try {
+      console.log("update pg");
+      axios
+        .put("/api/mod/pg-status", {
+          pgStatusID,
+          status,
+        })
+        .then(async (res) => {
+          console.log("pg updated");
+          await axios.post("/api/mod/trigger", {
+            eventName: "update-queue",
+            data: {},
+          });
+          closePGModal();
+        });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const validateYTUrl = (value: string) => {
     let error;
@@ -438,28 +480,6 @@ const Mod: NextPage = () => {
   const numOfPrio = queue?.order.filter((request) => {
     request.priority === true;
   }).length;
-  console.log(queue);
-
-  const clearNonPrio = () => {
-    setClearQueueLoading(true);
-    axios
-      .post("/api/mod/queue/clearQueue")
-      .then(async (res) => {
-        if (res.status === 200) {
-          await axios.post("/api/mod/trigger", {
-            eventName: "update-queue",
-            data: {},
-          });
-          toast.success("Non-prio requests cleared");
-          setClearQueueLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Error clearing non-prio requests");
-        setClearQueueLoading(false);
-      });
-  };
 
   return (
     <>
@@ -487,7 +507,7 @@ const Mod: NextPage = () => {
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
                           eventName: "update-queue",
-                          data: {},
+                          data: { beingUpdatedBy: user?.preferred_username },
                         });
                         closeAddModal();
                         toast.success("Request added");
@@ -574,16 +594,58 @@ const Mod: NextPage = () => {
           </ModalContent>
         </Modal>
 
+        <Modal
+          isOpen={isPGModalOpen}
+          onClose={() => handlePGModalClose(pgData.pgStatusID)}
+          size="2xl"
+        >
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader>PG Status Checker</ModalHeader>
+            <ModalCloseButton />
+            <ModalBody>
+              <AspectRatio maxW="100%" ratio={16 / 9}>
+                <ReactPlayer
+                  url={`https://www.youtube.com/watch?v=${pgData.youtubeID}`}
+                  height={"100%"}
+                  width={"100%"}
+                  controls={true}
+                />
+              </AspectRatio>
+              <HStack pt="4">
+                <Button
+                  onClick={() => updatePG("PG", pgData.pgStatusID)}
+                  bgColor="green"
+                  w="100%"
+                >
+                  PG
+                </Button>
+                <Button
+                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
+                  bgColor="red"
+                  w="100%"
+                >
+                  NON PG
+                </Button>
+                <Button
+                  onClick={() => updatePG("NON_PG", pgData.pgStatusID)}
+                  w="25%"
+                  colorScheme={"red"}
+                  variant={"link"}
+                >
+                  BAN
+                </Button>
+              </HStack>
+            </ModalBody>
+          </ModalContent>
+        </Modal>
+
         <DeleteModal
           isDeleteModalOpen={isDeleteModalOpen}
           closeDeleteModal={closeDeleteModal}
           deleteModalData={deleteModalData}
           setDeleteModalData={setDeleteModalData}
         />
-
-        <PGCheckerModal />
-
-        <PGConfirmModal />
 
         {queueError && (
           <Alert mt={2} status="error">
@@ -644,33 +706,6 @@ const Mod: NextPage = () => {
                       <Button my={2} onClick={openAddModal}>
                         Add Request
                       </Button>
-                      <Popover placement="top">
-                        <PopoverTrigger>
-                          <Button colorScheme={"red"} w="25%" variant={"link"}>
-                            Clear Non-Prio
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent color="white" bg="red.900">
-                          <PopoverArrow bg="red.900" />
-                          <PopoverCloseButton />
-                          <PopoverHeader>
-                            Are you sure you want to clear the non-prio queue?
-                          </PopoverHeader>
-                          <PopoverBody>
-                            <Button
-                              my={2}
-                              onClick={() => {
-                                clearNonPrio();
-                              }}
-                              colorScheme="red"
-                              w="100%"
-                              isLoading={clearQueueLoading}
-                            >
-                              CLEAR NON-PRIO
-                            </Button>
-                          </PopoverBody>
-                        </PopoverContent>
-                      </Popover>
                       <QueueStatus />
                       <NotCountedAlert />
                       {queue?.order.map((request) => {
@@ -681,6 +716,8 @@ const Mod: NextPage = () => {
                             request={request}
                             video={request.Video}
                             pgStatus={request.Video.PG_Status}
+                            onPgDataChange={setPGData}
+                            openPGModal={openPGModal}
                             openDeleteModal={handleDeleteModalOpen}
                             disabled={disableDrag}
                             numOfPrio={numOfPrio}

@@ -1,92 +1,44 @@
 import { Box, Button } from "@chakra-ui/react";
-import { Video } from "@prisma/client";
-import axios from "axios";
 import { FC } from "react";
-import {
-  usePGCheckerModalStore,
-  usePGConfirmModalStore,
-} from "../stateStore/modalState";
 import { Status } from "../utils/types";
 
 type Props = {
-  requestID: string;
   pgStatus: any;
-  video: Video;
+  onClick: any;
   sethView?: boolean;
   width?: any;
 };
 
 type SethProps = {
   pgStatus: any;
+  onClick: any;
   width?: any;
 };
 
-const PGButton: FC<Props> = ({
-  requestID,
-  pgStatus,
-  video,
-  sethView,
-  width,
-}) => {
+const PGButton: FC<Props> = ({ pgStatus, onClick, sethView, width }) => {
   if (sethView) {
-    return sethPGButtons({ pgStatus, width });
+    return sethPGButtons({ pgStatus, onClick, width });
   }
   const buttonWidth = ["100%", 150];
-  const openPGConfirmModal = usePGConfirmModalStore((state) => state.open);
-  const setPGData = usePGCheckerModalStore((state) => state.setPGData);
-  const openPGModal = usePGCheckerModalStore((state) => state.open);
-
-  const handlePGClick = async () => {
-    setPGData({
-      video: video,
-      requestID: requestID,
-      pgStatusID: pgStatus.id,
-      currentStatus: pgStatus.status,
-    });
-
-    await axios.put("/api/mod/pg-status", {
-      pgStatusID: pgStatus.id,
-      status: Status.BeingChecked,
-    });
-
-    await axios.post("/api/mod/trigger", {
-      eventName: "update-queue",
-      data: {},
-    });
-    openPGModal();
-  };
-
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (
-        <Box
-          as="button"
-          onClick={handlePGClick}
-          fontWeight="bold"
-          p={2}
+        <Button
+          onClick={onClick}
           w={buttonWidth}
-          borderRadius="md"
           bgGradient={"linear(to-r, #00c6ff, #0072ff)"}
           _hover={{
             bgGradient: "linear(to-l, #00c6ff, #0072ff)",
           }}
         >
           PG: Not Checked
-        </Box>
+        </Button>
       );
     case Status.BeingChecked:
       return (
         <Box
           as="button"
-          onClick={() => {
-            openPGConfirmModal();
-            setPGData({
-              requestID: requestID,
-              video: video,
-              pgStatusID: pgStatus.id,
-              currentStatus: pgStatus.status,
-            });
-          }}
+          onClick={onClick}
           fontWeight="bold"
           p={2}
           w={buttonWidth}
@@ -104,7 +56,7 @@ const PGButton: FC<Props> = ({
       return (
         <Box
           as="button"
-          onClick={handlePGClick}
+          onClick={onClick}
           fontWeight="bold"
           p={2}
           w={buttonWidth}
@@ -121,7 +73,7 @@ const PGButton: FC<Props> = ({
       return (
         <Box
           as="button"
-          onClick={handlePGClick}
+          onClick={onClick}
           fontWeight="bold"
           p={2}
           w={buttonWidth}
@@ -148,19 +100,9 @@ const sethPGButtons: FC<SethProps> = ({ pgStatus, width }) => {
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (
-        <Box
-          as="button"
-          fontWeight="bold"
-          p={2}
-          w={buttonWidth}
-          borderRadius="md"
-          bgGradient={"linear(to-r, #00c6ff, #0072ff)"}
-          _hover={{
-            bgGradient: "linear(to-l, #00c6ff, #0072ff)",
-          }}
-        >
+        <Button colorScheme={"blue"} w={buttonWidth}>
           Not Checked
-        </Box>
+        </Button>
       );
     case Status.BeingChecked:
       return (
