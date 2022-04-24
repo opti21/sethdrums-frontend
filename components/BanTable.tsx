@@ -19,6 +19,13 @@ import {
   NumberDecrementStepper,
   Link as ChakraLink,
   Button,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  PopoverArrow,
+  PopoverCloseButton,
+  PopoverHeader,
+  PopoverBody,
 } from "@chakra-ui/react";
 import {
   ArrowRightIcon,
@@ -85,6 +92,25 @@ const BanTable: FC<Props> = ({ data }) => {
           {
             Header: "Notes",
             accessor: "notes",
+            Cell: ({ value }) => {
+              return (
+                <>
+                  <Popover>
+                    <PopoverTrigger>
+                      <Button variant={"link"}>Show Notes</Button>
+                    </PopoverTrigger>
+                    <PopoverContent>
+                      <PopoverArrow />
+                      <PopoverCloseButton />
+                      <PopoverHeader>Notes</PopoverHeader>
+                      <PopoverBody maxH={300} overflowY="auto">
+                        {value}
+                      </PopoverBody>
+                    </PopoverContent>
+                  </Popover>
+                </>
+              );
+            },
           },
           {
             Header: "Banned By",
@@ -189,6 +215,7 @@ const BanTable: FC<Props> = ({ data }) => {
         <Flex>
           <Tooltip label="First Page">
             <IconButton
+              display={["none", "block"]}
               aria-label="Go to first page"
               onClick={() => gotoPage(0)}
               isDisabled={!canPreviousPage}
@@ -262,6 +289,7 @@ const BanTable: FC<Props> = ({ data }) => {
           </Tooltip>
           <Tooltip label="Last Page">
             <IconButton
+              display={["none", "block"]}
               aria-label="Go to last page"
               onClick={() => gotoPage(pageCount - 1)}
               isDisabled={!canNextPage}
