@@ -147,11 +147,20 @@ const NowPlayingCard: FC<Props> = ({
         </VStack>
         <Stack direction={["row", "column"]} pt={2} spacing={2}>
           {!publicView && !sethView && (
-            <PGButton
-              pgStatus={pgStatus}
-              requestID={request.id}
-              video={video}
-            />
+            <>
+              <PGButton
+                pgStatus={pgStatus}
+                requestID={request.id}
+                video={video}
+              />
+              <Button
+                onClick={() => markAsPlayed()}
+                w={"100%"}
+                colorScheme={"blue"}
+              >
+                Mark Played
+              </Button>
+            </>
           )}
           {sethView && (
             <>
