@@ -59,6 +59,8 @@ model Video {
   notes          String         @default("")
   banned         Boolean        @default(false)
   thumbnail      String
+  banned_by      String?
+  banned_time    DateTime?
   PG_Status      PG_Status?
   Requests       Request[]
   TagsOnVideos   TagsOnVideos[]

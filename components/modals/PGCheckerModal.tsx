@@ -24,6 +24,7 @@ import {
   PopoverHeader,
   PopoverBody,
 } from "@chakra-ui/react";
+import { Status } from "@prisma/client";
 import axios from "axios";
 import { Field, Form, Formik, FormikProps } from "formik";
 import { request } from "https";
@@ -81,15 +82,20 @@ const PGCheckerModal: FC = ({}: any) => {
         });
       });
   };
-  const handleBan = () => {
+  const handleBan = (pgStatusID: string) => {
     setBanLoading(true);
     axios
-      .post("/api/mod/video/ban", {
+      .post("/api/mod/videos/banned", {
         requestID: pgData.requestID,
         videoID: pgData.video.id,
       })
       .then(async (res) => {
         if (res.status === 200) {
+          axios.put("/api/mod/pg-status", {
+            pgStatusID,
+            status: Status.NON_PG,
+          });
+
           await axios.post("/api/mod/trigger", {
             eventName: "update-queue",
             data: {},
@@ -123,7 +129,6 @@ const PGCheckerModal: FC = ({}: any) => {
         <ModalHeader>PG Status Checker</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          {/* TODO: Handle PG/ban notes */}
           <AspectRatio maxW="100%" ratio={16 / 9}>
             <ReactPlayer
               url={`https://www.youtube.com/watch?v=${pgData.video?.youtube_id}`}
@@ -139,7 +144,7 @@ const PGCheckerModal: FC = ({}: any) => {
             }}
             onSubmit={(values, actions) => {
               axios
-                .post("/api/mod/video/notes", values)
+                .post("/api/mod/videos/notes", values)
                 .then(async (res) => {
                   // console.log(res.data);
                   if (res.status === 200) {
@@ -214,7 +219,7 @@ const PGCheckerModal: FC = ({}: any) => {
                   <Button
                     my={2}
                     onClick={() => {
-                      handleBan();
+                      handleBan(pgData.pgStatusID);
                     }}
                     colorScheme="red"
                     w="100%"

@@ -17,9 +17,7 @@ import {
   Box,
   Alert,
   AlertIcon,
-  AlertTitle,
   HStack,
-  useColorModeValue,
   Text,
   Stack,
   Avatar,
@@ -34,20 +32,16 @@ import {
 import axios from "axios";
 import { NextPage } from "next";
 import Head from "next/head";
-import { useCallback, useEffect, useState } from "react";
-import Nav from "../components/Nav";
-import RequestCard from "../components/RequestCard";
-import { IApiRequest, IQueue } from "../utils/types";
-import { DragDropContext, Droppable, Draggable } from "@react-forked/dnd";
-import { Video } from "../redis/handlers/Video";
+import { useEffect, useState } from "react";
+import Nav from "../../components/Nav";
+import RequestCard from "../../components/RequestCard";
+import { IApiRequest, IQueue } from "../../utils/types";
 import {
-  closestCenter,
   closestCorners,
   DndContext,
   DragOverlay,
   KeyboardSensor,
   MouseSensor,
-  PointerSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -63,20 +57,15 @@ import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
-import DragItem from "../components/DragItem";
-import DeleteModal from "../components/modals/DeleteModal";
+import DragItem from "../../components/DragItem";
+import DeleteModal from "../../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
 import { Status } from "@prisma/client";
-import NowPlayingCard from "../components/NowPlayingCard";
-import PGConfirmModal from "../components/modals/PGConfirmModal";
-import PGCheckerModal from "../components/modals/PGCheckerModal";
-
-type PGState = {
-  youtubeID: string;
-  pgStatusID: string;
-  currentStatus: string;
-};
+import NowPlayingCard from "../../components/NowPlayingCard";
+import PGConfirmModal from "../../components/modals/PGConfirmModal";
+import PGCheckerModal from "../../components/modals/PGCheckerModal";
+import Link from "next/link";
 
 const Mod: NextPage = () => {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -645,7 +634,12 @@ const Mod: NextPage = () => {
                       </Button>
                       <Popover placement="top">
                         <PopoverTrigger>
-                          <Button colorScheme={"red"} variant={"link"} ml={4}>
+                          <Button
+                            colorScheme={"red"}
+                            variant={"ghost"}
+                            p={2}
+                            ml={2}
+                          >
                             Clear Non-Prio
                           </Button>
                         </PopoverTrigger>
@@ -670,6 +664,11 @@ const Mod: NextPage = () => {
                           </PopoverBody>
                         </PopoverContent>
                       </Popover>
+                      <Link passHref href={"/mod/banned-videos"}>
+                        <Button variant={"ghost"} ml={2}>
+                          Banned Videos
+                        </Button>
+                      </Link>
                       <QueueStatus />
                       <NotCountedAlert />
                       {queue.order.length > 0 ? (
