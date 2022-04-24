@@ -42,6 +42,7 @@ import { IoLogoTwitch } from "react-icons/io";
 import useSWR from "swr";
 import Link from "next/link";
 import DeleteModal from "../components/modals/DeleteModal";
+import NowPlayingCard from "../components/NowPlayingCard";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -254,6 +255,33 @@ const SethView: NextPage = () => {
           (queue ? (
             <Stack direction={"row"} pt={5}>
               <Box px={[4, 5]} w={["100%", "80%"]}>
+                <Box width={"100%"}>
+                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Now Playing
+                  </Text>
+                  {queue.now_playing ? (
+                    <NowPlayingCard
+                      request={queue.now_playing}
+                      video={queue.now_playing.Video}
+                      pgStatus={queue.now_playing.Video.PG_Status}
+                      publicView={true}
+                    />
+                  ) : (
+                    <Container
+                      my={2}
+                      p={2}
+                      h={100}
+                      borderWidth="1px"
+                      borderRadius="lg"
+                      maxW={"100%"}
+                      centerContent
+                    >
+                      <Box mt={6}>
+                        <Text>Nothing playing</Text>
+                      </Box>
+                    </Container>
+                  )}
+                </Box>
                 {!user ? (
                   <Link passHref={true} href={"/api/auth/login"}>
                     <Button

@@ -31,10 +31,24 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         }
       }
 
+      let nowPlaying = null;
+
+      if (queue.now_playing.length > 0) {
+        const nowPlayingRequest = await prisma.request.findFirst({
+          where: {
+            id: parseInt(queue.now_playing),
+          },
+          include: {
+            Video: true,
+          },
+        });
+        nowPlaying = nowPlayingRequest;
+      }
+
       const queueResponse = {
         order: requests,
         is_updating: queue.is_updating,
-        currently_playing: queue.now_playing,
+        now_playing: nowPlaying,
       };
       res.status(200).json(queueResponse);
     } catch (err) {
