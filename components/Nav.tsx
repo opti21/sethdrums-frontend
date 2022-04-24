@@ -13,9 +13,13 @@ import {
   useDisclosure,
   VisuallyHidden,
   VStack,
+  Link as ChakraLink,
+  Text,
+  Image,
 } from "@chakra-ui/react";
 import Link from "next/link";
-import { FC } from "react";
+import axios from "axios";
+import { FC, useEffect, useState } from "react";
 import { AiOutlineMenu } from "react-icons/ai";
 import { IoMdMoon, IoMdSunny } from "react-icons/io";
 
@@ -29,8 +33,22 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   const mobileNav = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   // Until Auth0 fixes their twitch integration or rules
-  // @ts-ignore
-  const username: string = user?.preferred_username;
+  const username = user?.preferred_username as string;
+  const [isMod, setIsMod] = useState(false);
+  const [isSeth, setIsSeth] = useState(false);
+
+  useEffect(() => {
+    if (user && !isLoading) {
+      axios.get("/api/mod/isMod").then((res) => {
+        if (res.status === 200) {
+          setIsMod(true);
+        }
+        if (res.status === 201) {
+          setIsSeth(true);
+        }
+      });
+    }
+  }, [user, isLoading]);
 
   return (
     <>
@@ -49,11 +67,15 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
               display="flex"
               alignItems="center"
             >
-              <VisuallyHidden>Pepega Panel</VisuallyHidden>
+              <VisuallyHidden>SethDrums Song Panel</VisuallyHidden>
             </chakra.a>
-            <chakra.h1 fontSize="xl" fontWeight="medium" ml="2">
-              Pepega Panel
-            </chakra.h1>
+            <Link href="/" passHref>
+              <ChakraLink style={{ textDecoration: "none" }}>
+                <Text p={1} fontWeight="bold">
+                  SethDrums Song Panel
+                </Text>
+              </ChakraLink>
+            </Link>
           </Flex>
           <HStack display="flex" alignItems="center" spacing={1}>
             <HStack
@@ -65,26 +87,38 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
               <IconButton
                 aria-label="Toggle Light Mode"
                 onClick={toggleColorMode}
+                size="sm"
               >
                 {colorMode === "light" ? <IoMdMoon /> : <IoMdSunny />}
               </IconButton>
               {user ? (
                 <>
-                  <chakra.h1 fontSize="xl" fontWeight="medium" ml="2">
+                  {isMod && (
+                    <Link href="/seth" passHref>
+                      <Button mx={2} size="sm" p={2} variant="ghost">
+                        Mod View
+                      </Button>
+                    </Link>
+                  )}
+                  {isSeth && (
+                    <Link href="/seth" passHref>
+                      <Button mx={2} size="sm" p={2} variant="ghost">
+                        Seth View
+                      </Button>
+                    </Link>
+                  )}
+                  <Avatar size="sm" src={user?.picture ? user.picture : ""} />
+                  <chakra.h1 fontSize="md" fontWeight="medium" px={1}>
                     {username}
                   </chakra.h1>
-                  <Avatar size="md" src={user?.picture ? user.picture : ""} />
-                  <Link passHref={true} href={"/api/auth/logout"}>
-                    <Button isLoading={isLoading} variant="ghost">
+                  <Link href={"/api/auth/logout"} passHref>
+                    <Button size={"sm"} isLoading={isLoading} variant="ghost">
                       Sign out
                     </Button>
                   </Link>
                 </>
               ) : (
-                <Link
-                  passHref={true}
-                  href={`/api/auth/login?returnTo=${returnTo}`}
-                >
+                <Link href={`/api/auth/login?returnTo=${returnTo}`} passHref>
                   <Button isLoading={isLoading} variant="ghost">
                     Sign in
                   </Button>
@@ -122,9 +156,16 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   aria-label="Close menu"
                   onClick={mobileNav.onClose}
                 />
+                {isMod && (
+                  <Link href="/mod" passHref>
+                    <Button mx={2} p={2} variant="ghost">
+                      Mod View
+                    </Button>
+                  </Link>
+                )}
                 {user ? (
                   <>
-                    <Link passHref={true} href={"/api/auth/logout"}>
+                    <Link href={"/api/auth/logout"} passHref>
                       <Button isLoading={isLoading} variant="ghost">
                         Sign out
                       </Button>
@@ -132,7 +173,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     <Avatar size="sm" src={user?.picture ? user.picture : ""} />
                   </>
                 ) : (
-                  <Link passHref={true} href={"/api/auth/login"}>
+                  <Link href={"/api/auth/login"} passHref>
                     <Button isLoading={isLoading} variant="ghost">
                       Sign in
                     </Button>
