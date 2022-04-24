@@ -74,7 +74,10 @@ const DeleteModal: FC<Props> = ({
         <ModalHeader>Delete Request?</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
-          <Text pb={4}>Are you sure you want to delete this request? </Text>
+          <Text pb={4}>
+            Are you sure you want to delete {publicView ? "your " : "this "}
+            request?
+          </Text>
           <Text
             fontSize="md"
             style={{
@@ -84,9 +87,11 @@ const DeleteModal: FC<Props> = ({
           >
             {video?.title}
           </Text>
-          <Text fontSize="md" isTruncated>
-            Requested By: {request?.requested_by}
-          </Text>
+          {!publicView && (
+            <Text fontSize="md" isTruncated>
+              Requested By: {request?.requested_by}
+            </Text>
+          )}
         </ModalBody>
 
         <ModalFooter>

@@ -146,21 +146,32 @@ const SethView: NextPage = () => {
                 enableReinitialize={true}
                 onSubmit={(values, actions) => {
                   axios
-                    .post("/api/mod/request", values)
+                    .post("/api/public/request", values)
                     .then(async (res) => {
+                      actions.setSubmitting(false);
                       if (res.status === 200) {
-                        await axios.post("/api/mod/trigger", {
-                          eventName: "update-queue",
-                          data: { beingUpdatedBy: user?.preferred_username },
-                        });
+                        mutate();
                         closeAddModal();
                         toast.success("Request added");
                       }
                     })
                     .catch((error) => {
-                      console.error(error);
-                      toast.error("Error submitting request");
                       actions.setSubmitting(false);
+                      if (error.response.status === 401) {
+                        toast.error("You already have a request in the queue");
+                        return;
+                      } else if (error.response.status === 402) {
+                        toast.error("Video has already been requested");
+                        return;
+                      } else if (error.response.status === 422) {
+                        toast.error(
+                          "That video is not allowed, please request another."
+                        );
+                        return;
+                      } else {
+                        toast.error("Error adding request");
+                        return;
+                      }
                     });
                 }}
               >

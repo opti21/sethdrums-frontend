@@ -129,7 +129,6 @@ const BanTable: FC<Props> = ({ data }) => {
           {
             Header: "Unban",
             Cell: ({ row }) => {
-              console.log(row.original);
               return (
                 <Button
                   onClick={() => handleUnban(row.original.id)}

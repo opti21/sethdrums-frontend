@@ -69,6 +69,12 @@ const requestApiHandler = withApiAuthRequired(
         return;
       }
 
+      if (videoInDB.banned) {
+        return res
+          .status(422)
+          .json({ success: false, message: "Video is banned" });
+      }
+
       // If video is already in DB just create a request
       const createdRequest = await createRequest(
         videoInDB.id,

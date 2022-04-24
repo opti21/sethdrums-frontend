@@ -179,7 +179,6 @@ const Mod: NextPage = () => {
             }
             console.error(error);
           });
-        // console.log(data);
       });
 
       channel.bind("queue-add", (data: any) => {
@@ -222,8 +221,6 @@ const Mod: NextPage = () => {
       pusher.disconnect();
     };
   }, [user]);
-
-  // console.log(queue);
 
   const onDragStart = async (event: any) => {
     console.log("Drag Started");
@@ -340,7 +337,6 @@ const Mod: NextPage = () => {
     let error;
     const parsed = urlParser.parse(value);
     const alreadyRequested = queue.order.findIndex((request) => {
-      console.log(request);
       return request.Video.youtube_id === parsed?.id;
     });
 
@@ -471,20 +467,26 @@ const Mod: NextPage = () => {
                   axios
                     .post("/api/mod/request", values)
                     .then(async (res) => {
-                      // console.log(res.data);
                       if (res.status === 200) {
                         await axios.post("/api/mod/trigger", {
                           eventName: "update-queue",
                           data: {},
                         });
                         closeAddModal();
+                        actions.setSubmitting(false);
                         toast.success("Request added");
                       }
                     })
                     .catch((error) => {
-                      console.error(error);
-                      toast.error("Error submitting request");
                       actions.setSubmitting(false);
+                      console.error(error);
+                      if (error.response.status === 422) {
+                        toast.error("Video is banned, uban it if you dare...");
+                        return;
+                      } else {
+                        toast.error("Error adding request");
+                        return;
+                      }
                     });
                 }}
               >
