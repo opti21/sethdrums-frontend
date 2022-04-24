@@ -438,7 +438,6 @@ const Mod: NextPage = () => {
   const numOfPrio = queue?.order.filter((request) => {
     request.priority === true;
   }).length;
-  console.log(queue);
 
   const clearNonPrio = () => {
     setClearQueueLoading(true);
@@ -646,7 +645,7 @@ const Mod: NextPage = () => {
                       </Button>
                       <Popover placement="top">
                         <PopoverTrigger>
-                          <Button colorScheme={"red"} w="25%" variant={"link"}>
+                          <Button colorScheme={"red"} variant={"link"} ml={4}>
                             Clear Non-Prio
                           </Button>
                         </PopoverTrigger>
@@ -673,21 +672,29 @@ const Mod: NextPage = () => {
                       </Popover>
                       <QueueStatus />
                       <NotCountedAlert />
-                      {queue?.order.map((request) => {
-                        return (
-                          <RequestCard
-                            key={`key${request.id}`}
-                            id={request.id}
-                            request={request}
-                            video={request.Video}
-                            pgStatus={request.Video.PG_Status}
-                            openDeleteModal={handleDeleteModalOpen}
-                            disabled={disableDrag}
-                            numOfPrio={numOfPrio}
-                            user={user}
-                          />
-                        );
-                      })}
+                      {queue.order.length > 0 ? (
+                        queue?.order.map((request) => {
+                          return (
+                            <RequestCard
+                              key={`key${request.id}`}
+                              id={request.id}
+                              request={request}
+                              video={request.Video}
+                              pgStatus={request.Video.PG_Status}
+                              openDeleteModal={handleDeleteModalOpen}
+                              disabled={disableDrag}
+                              numOfPrio={numOfPrio}
+                              user={user}
+                            />
+                          );
+                        })
+                      ) : (
+                        <Box w={"100%"} textAlign="center">
+                          <Text fontSize="2xl" fontWeight="bold">
+                            No Requests In Queue
+                          </Text>
+                        </Box>
+                      )}
                     </Box>
                     <Box display={["none", "block"]} w={"20%"} ml={2}>
                       <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>

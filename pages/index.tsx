@@ -253,8 +253,8 @@ const SethView: NextPage = () => {
         )}
         {!queueError &&
           (queue ? (
-            <Stack direction={"row"} pt={5}>
-              <Box px={[4, 5]} w={["100%", "80%"]}>
+            <Stack direction={["column", "row"]} pt={5}>
+              <Box px={[4, 5]} w={["100%", "50%"]}>
                 <Box width={"100%"}>
                   <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                     Now Playing
@@ -282,6 +282,9 @@ const SethView: NextPage = () => {
                     </Container>
                   )}
                 </Box>
+                <Text mr={4} as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                  Queue
+                </Text>
                 {!user ? (
                   <Link passHref={true} href={"/api/auth/login"}>
                     <Button
@@ -297,9 +300,30 @@ const SethView: NextPage = () => {
                     Add Request
                   </Button>
                 )}
-                {!queueError &&
-                  queue &&
-                  queue?.order.map((request) => {
+                <Box maxH={[500, 1000]} overflowY={"auto"}>
+                  {!queueError &&
+                    queue &&
+                    queue?.order.map((request) => {
+                      return (
+                        <RequestCard
+                          key={`key${request.id}`}
+                          id={request.id}
+                          request={request}
+                          video={request.Video}
+                          publicView={true}
+                          openDeleteModal={handleDeleteModalOpen}
+                          user={user}
+                        />
+                      );
+                    })}
+                </Box>
+              </Box>
+              <Box px={[4, 5]} w={["100%", "50%"]}>
+                <Box width={"100%"}>
+                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Recently Played
+                  </Text>
+                  {queue?.recentlyPlayed.map((request) => {
                     return (
                       <RequestCard
                         key={`key${request.id}`}
@@ -312,6 +336,7 @@ const SethView: NextPage = () => {
                       />
                     );
                   })}
+                </Box>
               </Box>
             </Stack>
           ) : (

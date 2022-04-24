@@ -16,7 +16,38 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           id: { in: queue.order.map((requestID) => parseInt(requestID)) },
         },
         include: {
-          Video: true,
+          Video: {
+            select: {
+              id: true,
+              youtube_id: true,
+              title: true,
+              channel: true,
+              duration: true,
+              thumbnail: true,
+            },
+          },
+        },
+      });
+
+      const recentlyPlayed = await prisma.request.findMany({
+        take: 5,
+        where: {
+          played: true,
+        },
+        orderBy: {
+          played_at: "desc",
+        },
+        include: {
+          Video: {
+            select: {
+              id: true,
+              youtube_id: true,
+              title: true,
+              channel: true,
+              duration: true,
+              thumbnail: true,
+            },
+          },
         },
       });
 
@@ -39,7 +70,16 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
             id: parseInt(queue.now_playing),
           },
           include: {
-            Video: true,
+            Video: {
+              select: {
+                id: true,
+                youtube_id: true,
+                title: true,
+                channel: true,
+                duration: true,
+                thumbnail: true,
+              },
+            },
           },
         });
         nowPlaying = nowPlayingRequest;
@@ -49,6 +89,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         order: requests,
         is_updating: queue.is_updating,
         now_playing: nowPlaying,
+        recentlyPlayed,
       };
       res.status(200).json(queueResponse);
     } catch (err) {
