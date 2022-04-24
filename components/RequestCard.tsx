@@ -201,7 +201,7 @@ const RequestCard: FC<Props> = ({
                     <PopoverArrow />
                     <PopoverCloseButton />
                     <PopoverHeader>Notes</PopoverHeader>
-                    <PopoverBody maxH={300} overflowY="scroll">
+                    <PopoverBody maxH={300} overflowY="auto">
                       {video.notes}
                     </PopoverBody>
                   </PopoverContent>

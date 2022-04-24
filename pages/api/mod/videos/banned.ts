@@ -79,6 +79,18 @@ const videoBanApiHandler = withApiAuthRequired(
           return res.status(500).json({ error: "Server error" });
         }
 
+        await prisma.request
+          .delete({
+            where: {
+              id: req.body.requestID,
+            },
+          })
+          .catch((err) => {
+            console.error("Prisma error deleting banned video request");
+            console.error(err);
+            return res.status(500).json({ error: "Server error" });
+          });
+
         return res.status(200).json({ success: true });
       } else {
         console.error("Missing query params for now playing");

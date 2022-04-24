@@ -78,7 +78,11 @@ const Mod: NextPage = () => {
               </Link>
               <Box p={4}>
                 <FormLabel htmlFor="titleSearch">Search By Title</FormLabel>
-                <Input w={"25%"} id="titleSearch" onChange={handleSearch} />
+                <Input
+                  w={["50%", "25%"]}
+                  id="titleSearch"
+                  onChange={handleSearch}
+                />
               </Box>
               <BanTable
                 data={bannedVideos.filter((video) => {
