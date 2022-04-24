@@ -28,7 +28,7 @@ const PGConfirmModal: FC = ({}: any) => {
     closePGConfirmModal();
     setPGData({
       requestID: "",
-      youtubeID: "",
+      video: null,
       pgStatusID: "",
       currentStatus: "",
     });
