@@ -163,13 +163,13 @@ const RequestCard: FC<Props> = ({
                 markNowPlaying();
               }
             }}
-            fontSize={["md", "xl"]}
+            fontSize={publicView ? ["md", "md"] : ["md", "xl"]}
             style={{
               fontWeight: "bold",
               textShadow: "0px 2px 5px #000000",
               color: "white",
             }}
-            noOfLines={2}
+            noOfLines={publicView ? 3 : 2}
             p={1}
             isExternal
           >
@@ -190,7 +190,7 @@ const RequestCard: FC<Props> = ({
           {!publicView && video.notes.length > 0 && (
             <>
               <Text noOfLines={2} overflowWrap={"break-word"}>
-                Mod Notes: {video.notes}{" "}
+                Mod Notes: {video.notes}
               </Text>
               {video.notes.length > 50 && (
                 <Popover>

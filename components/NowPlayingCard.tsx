@@ -129,7 +129,7 @@ const NowPlayingCard: FC<Props> = ({
               textShadow: "0px 2px 5px #000000",
             }}
             padding={1}
-            noOfLines={2}
+            noOfLines={publicView ? 3 : 2}
             isExternal
           >
             {video.title}

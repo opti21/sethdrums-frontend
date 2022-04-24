@@ -94,7 +94,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
               {user ? (
                 <>
                   {isMod && (
-                    <Link href="/seth" passHref>
+                    <Link href="/mod" passHref>
                       <Button mx={2} size="sm" p={2} variant="ghost">
                         Mod View
                       </Button>
