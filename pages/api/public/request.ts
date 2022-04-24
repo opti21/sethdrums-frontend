@@ -1,6 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";
@@ -27,142 +26,138 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-const requestApiHandler = withApiAuthRequired(
-  async (req: NextApiRequest, res: NextApiResponse) => {
-    if (req.method === "POST") {
-      // TODO: validation
-      const parsed = urlParser.parse(req.body.ytLink);
-      const youtubeID = parsed?.id;
+const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
+  if (req.method === "POST") {
+    // TODO: validation
+    const parsed = urlParser.parse(req.body.ytLink);
+    const youtubeID = parsed?.id;
 
-      if (!youtubeID) {
-        return res
-          .status(400)
-          .json({ success: false, error: "not a valid youtube URL" });
-      }
+    if (!youtubeID) {
+      return res
+        .status(400)
+        .json({ success: false, error: "not a valid youtube URL" });
+    }
 
-      const userAlreadyRequested = await prisma.request.findFirst({
-        where: {
-          requested_by: req.body.requestedBy,
-          played: false,
+    const userAlreadyRequested = await prisma.request.findFirst({
+      where: {
+        requested_by: req.body.requestedBy,
+        played: false,
+      },
+      include: {
+        Video: true,
+      },
+    });
+
+    const videoAlreadyRequested = await prisma.request.findFirst({
+      where: {
+        Video: {
+          youtube_id: parsed?.id,
         },
-        include: {
-          Video: true,
-        },
-      });
+        played: false,
+      },
+      include: {
+        Video: true,
+      },
+    });
 
-      const videoAlreadyRequested = await prisma.request.findFirst({
-        where: {
-          Video: {
-            youtube_id: parsed?.id,
-          },
-          played: false,
-        },
-        include: {
-          Video: true,
-        },
-      });
+    if (userAlreadyRequested) {
+      return res.status(401).send("User Already requested");
+    }
 
-      if (userAlreadyRequested) {
-        res.status(401).send("User Already requested");
-        return;
-      }
+    if (videoAlreadyRequested) {
+      return res.status(402).send("Video Already requested");
+    }
 
-      if (videoAlreadyRequested) {
-        res.status(401).send("Video Already requested");
-        return;
-      }
+    // Check if video is in database
+    const videoInDB = await prisma.video.findFirst({
+      where: {
+        youtube_id: parsed.id,
+      },
+    });
 
-      // Check if video is in database
-      const videoInDB = await prisma.video.findUnique({
-        where: {
-          youtube_id: parsed.id,
-        },
-      });
+    if (!videoInDB) {
+      // Video doesn't exist on database
+      // Make new video then request
+      const createdVideo = await createVideo(youtubeID);
 
-      if (!videoInDB) {
-        // Video doesn't exist on database
-        // Make new video then request
-        const createdVideo = await createVideo(youtubeID);
+      if (createdVideo) {
+        const createdRequest = await createRequest(
+          createdVideo.id,
+          req.body.requestedBy
+        );
 
-        if (createdVideo) {
-          const createdRequest = await createRequest(
-            createdVideo.id,
-            req.body.requestedBy
-          );
+        const addedToQueue = await addToQueue(createdRequest?.id.toString());
 
-          const addedToQueue = await addToQueue(createdRequest?.id.toString());
-
-          if (!addedToQueue) {
-            return res
-              .status(500)
-              .json({ success: false, error: "Error adding to queue" });
-          }
-
-          pusher.trigger(
-            process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
-            "update-queue",
-            {}
-          );
-          return res.status(200).json({ success: true });
+        if (!addedToQueue) {
+          return res
+            .status(500)
+            .json({ success: false, error: "Error adding to queue" });
         }
-        return;
-      }
-
-      // If video is already in DB just create a request
-      const createdRequest = await createRequest(
-        videoInDB.id,
-        req.body.requestedBy
-      );
-
-      if (!createRequest) {
-        res
-          .status(500)
-          .json({ success: false, error: "Error creating request" });
-        return;
-      }
-
-      const addedToQueue = await addToQueue(createdRequest?.id.toString());
-
-      if (!addedToQueue) {
-        res
-          .status(500)
-          .json({ success: false, error: "Error adding to queue" });
-        return;
-      }
-
-      pusher.trigger(
-        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
-        "update-queue",
-        {}
-      );
-      res.status(200).json({ success: true, message: "Request added" });
-    } else if (req.method === "DELETE") {
-      try {
-        const removedRequest = await prisma.request.delete({
-          where: {
-            id: req.body.requestID,
-          },
-        });
-
-        await removeFromOrder(req.body.requestID.toString());
 
         pusher.trigger(
           process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
           "update-queue",
           {}
         );
-        res.status(200).json({ success: true });
-      } catch (err) {
-        console.error(err);
-        res
-          .status(500)
-          .json({ success: false, message: "error deleting request" });
+        return res.status(200).json({ success: true });
       }
-    } else {
-      res.status(405).send(`${req.method} is not a valid method`);
+      return;
     }
+
+    if (videoInDB.banned) {
+      return res
+        .status(422)
+        .json({ success: false, message: "Video is banned" });
+    }
+
+    // If video is already in DB just create a request
+    const createdRequest = await createRequest(
+      videoInDB.id,
+      req.body.requestedBy
+    );
+
+    if (!createRequest) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Error creating request" });
+    }
+
+    const addedToQueue = await addToQueue(createdRequest?.id.toString());
+
+    if (!addedToQueue) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Error adding to queue" });
+    }
+
+    pusher.trigger(process.env.NEXT_PUBLIC_PUSHER_CHANNEL, "update-queue", {});
+    return res.status(200).json({ success: true, message: "Request added" });
+  } else if (req.method === "DELETE") {
+    try {
+      const removedRequest = await prisma.request.delete({
+        where: {
+          id: req.body.requestID,
+        },
+      });
+
+      await removeFromOrder(req.body.requestID.toString());
+
+      pusher.trigger(
+        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+        "update-queue",
+        {}
+      );
+      return res.status(200).json({ success: true });
+    } catch (err) {
+      console.error(err);
+      return res
+        .status(500)
+        .json({ success: false, message: "error deleting request" });
+    }
+  } else {
+    return res.status(405).send(`${req.method} is not a valid method`);
   }
-);
+};
 
 export default requestApiHandler;
 
