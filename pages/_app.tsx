@@ -4,8 +4,19 @@ import { SWRConfig } from "swr";
 import { UserProvider } from "@auth0/nextjs-auth0";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
+import { useEffect } from "react";
 
-export default function App({ Component, pageProps }: AppProps) {
+const growthbook = new GrowthBook({
+  trackingCallback: (experiment, result) => {
+    console.log({
+      experimentId: experiment.key,
+      variationId: result.variationId,
+    });
+  },
+});
+
+function App({ Component, pageProps }: AppProps) {
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -24,6 +35,15 @@ export default function App({ Component, pageProps }: AppProps) {
     return res.json();
   };
 
+  useEffect(() => {
+    // Load feature definitions from API
+    fetch(process.env.NEXT_PUBLIC_GROWTHBOOK_ENDPOINT)
+      .then((res) => res.json())
+      .then((json) => {
+        growthbook.setFeatures(json.features);
+      });
+  }, []);
+
   return (
     <UserProvider>
       <SWRConfig
@@ -33,10 +53,14 @@ export default function App({ Component, pageProps }: AppProps) {
         }}
       >
         <ToastContainer />
-        <ChakraProvider>
-          <Component {...pageProps} />
-        </ChakraProvider>
+        <GrowthBookProvider growthbook={growthbook}>
+          <ChakraProvider>
+            <Component {...pageProps} />
+          </ChakraProvider>
+        </GrowthBookProvider>
       </SWRConfig>
     </UserProvider>
   );
 }
+
+export default App;

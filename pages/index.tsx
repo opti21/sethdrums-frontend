@@ -43,6 +43,7 @@ import useSWR from "swr";
 import Link from "next/link";
 import DeleteModal from "../components/modals/DeleteModal";
 import NowPlayingCard from "../components/NowPlayingCard";
+import { useFeature } from "@growthbook/growthbook-react";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -55,6 +56,8 @@ const SethView: NextPage = () => {
     error: queueError,
     mutate,
   } = useSWR("/api/public/queue");
+  const comingSoon = useFeature("coming-soon").on;
+  console.log(comingSoon);
 
   const validateYTUrl = (value: string) => {
     let error;
@@ -121,6 +124,24 @@ const SethView: NextPage = () => {
     });
     openDeleteModal();
   };
+
+  if (comingSoon) {
+    return (
+      <>
+        <Head>
+          <title>SethDrums Song Panel</title>
+          <meta name="description" content="SethDrums Song Panel" />
+          <link rel="icon" href="/favicon.ico" />
+        </Head>
+        <Container maxW={"container.xl"} p={0}>
+          <Box w={"100%"} textAlign="center">
+            <Image src="/SD_Logo_Neon.png" width={391} height={200} />
+            <Text>Coming Soon...</Text>
+          </Box>
+        </Container>
+      </>
+    );
+  }
 
   return (
     <>
