@@ -6,6 +6,8 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { useEffect } from "react";
+import { ColorModeScript } from "@chakra-ui/react";
+import theme from "../utils/theme";
 
 const growthbook = new GrowthBook({
   trackingCallback: (experiment, result) => {
@@ -55,6 +57,8 @@ function App({ Component, pageProps }: AppProps) {
         <ToastContainer />
         <GrowthBookProvider growthbook={growthbook}>
           <ChakraProvider>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+
             <Component {...pageProps} />
           </ChakraProvider>
         </GrowthBookProvider>
