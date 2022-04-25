@@ -185,7 +185,7 @@ const RequestCard: FC<Props> = ({
             p={0.5}
             isTruncated
           >
-            Requested By: <b>{request.requested_by}</b>
+            Requested By: <b>{request.requested_by.slice(0, 25)}</b>
           </Text>
           {!publicView && video.notes.length > 0 && (
             <>
@@ -298,6 +298,26 @@ const RequestCard: FC<Props> = ({
                   </Button>
                 )}
           </HStack>
+          {!publicView && video.PG_Status.checker && (
+            <>
+              <Text
+                fontSize="md"
+                style={{
+                  textShadow: "0px 1px 3px #000000",
+                  color: "white",
+                }}
+                p={0}
+                isTruncated
+              >
+                {video.PG_Status.status === Status.BeingChecked
+                  ? "Being checked "
+                  : "Checked "}
+                by:
+                <br />
+                {video.PG_Status.checker}
+              </Text>
+            </>
+          )}
         </Stack>
       </Flex>
     </Box>
