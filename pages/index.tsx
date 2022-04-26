@@ -46,7 +46,7 @@ import DeleteModal from "../components/modals/DeleteModal";
 import NowPlayingCard from "../components/NowPlayingCard";
 import { useFeature } from "@growthbook/growthbook-react";
 
-const SethView: NextPage = () => {
+const Home: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
   const [deleteModalData, setDeleteModalData] = useState<any>({
     request: null,
@@ -58,7 +58,6 @@ const SethView: NextPage = () => {
     mutate,
   } = useSWR("/api/public/queue");
   const comingSoon = useFeature("coming-soon").on;
-  console.log(comingSoon);
 
   const validateYTUrl = (value: string) => {
     let error;
@@ -131,8 +130,17 @@ const SethView: NextPage = () => {
       <>
         <Head>
           <title>SethDrums Song Panel</title>
-          <meta name="description" content="SethDrums Song Panel" />
           <link rel="icon" href="/favicon.ico" />
+          <meta name="og:title" content="SethDrums Song Panel - Home" />
+          <meta name="og:site_name" content="SethDrums Song Panel" />
+          <meta
+            name="og:description"
+            content="Song Panel to request song for SethDrums' stream."
+          />
+          <meta name="og:image" content="/SD_Logo_Neon.png" />
+          <meta name="twitter:creator" content="@imSethDrums" />
+          <meta name="twitter:card" content="summary_large_image" />
+          <meta name="twitter:image" content="/SD_Logo_Neon.png" />
         </Head>
         <Container maxW={"container.xl"} p={0}>
           <Box w={"100%"} textAlign="center">
@@ -147,9 +155,18 @@ const SethView: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Pepega Panel</title>
-        <meta name="description" content="Pepega Panel" />
+        <title>SethDrums Song Panel</title>
         <link rel="icon" href="/favicon.ico" />
+        <meta name="og:title" content="SethDrums Song Panel - Home" />
+        <meta name="og:site_name" content="SethDrums Song Panel" />
+        <meta
+          name="og:description"
+          content="Song Panel to request song for SethDrums' stream."
+        />
+        <meta name="og:image" content="/SD_Logo_Neon.png" />
+        <meta name="twitter:creator" content="@imSethDrums" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="/SD_Logo_Neon.png" />
       </Head>
       <Container maxW={"container.xl"} p={0}>
         <Nav returnTo="/" />
@@ -393,4 +410,4 @@ const SethView: NextPage = () => {
   );
 };
 
-export default SethView;
+export default Home;
