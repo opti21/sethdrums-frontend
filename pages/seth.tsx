@@ -146,10 +146,6 @@ const SethView: NextPage = () => {
 
       channel.bind("queue-add", (data: any) => {
         console.log("queue add");
-        toast.info("New Request Added", {
-          position: "bottom-center",
-          pauseOnFocusLoss: false,
-        });
         axios
           .get("/api/mod/queue")
           .then((res) => {
