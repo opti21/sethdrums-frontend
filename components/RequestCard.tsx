@@ -189,7 +189,12 @@ const RequestCard: FC<Props> = ({
           </Text>
           {!publicView && video.notes.length > 0 && (
             <>
-              <Text noOfLines={2} overflowWrap={"break-word"}>
+              <Text
+                style={{ color: "white" }}
+                noOfLines={2}
+                overflowWrap={"break-word"}
+                p={0.5}
+              >
                 Mod Notes: {video.notes}
               </Text>
               {video.notes.length > 50 && (
@@ -276,26 +281,34 @@ const RequestCard: FC<Props> = ({
               ))}
             {typeof user != undefined && publicView
               ? user?.preferred_username === request.requested_by && (
-                  <Button
-                    onClick={() => {
-                      openDeleteModal(request, video);
-                    }}
-                    bgColor={"#BD0000"}
-                    w={"25%"}
-                  >
-                    <Icon as={IoMdTrash} w={5} h={5} />
-                  </Button>
+                  <>
+                    {!request.played && (
+                      <Button
+                        onClick={() => {
+                          openDeleteModal(request, video);
+                        }}
+                        bgColor={"#BD0000"}
+                        w={"25%"}
+                      >
+                        <Icon as={IoMdTrash} w={5} h={5} />
+                      </Button>
+                    )}
+                  </>
                 )
               : !sethView && (
-                  <Button
-                    onClick={() => {
-                      openDeleteModal(request, video);
-                    }}
-                    bgColor={"#BD0000"}
-                    w={"25%"}
-                  >
-                    <Icon as={IoMdTrash} w={5} h={5} />
-                  </Button>
+                  <>
+                    {!request.played && (
+                      <Button
+                        onClick={() => {
+                          openDeleteModal(request, video);
+                        }}
+                        bgColor={"#BD0000"}
+                        w={"25%"}
+                      >
+                        <Icon as={IoMdTrash} w={5} h={5} />
+                      </Button>
+                    )}
+                  </>
                 )}
           </HStack>
           {!publicView && video.PG_Status.checker && (

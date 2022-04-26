@@ -28,6 +28,7 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -631,46 +632,48 @@ const Mod: NextPage = () => {
                           </Container>
                         )}
                       </Box>
-                      <Button my={2} onClick={openAddModal}>
-                        Add Request
-                      </Button>
-                      <Popover placement="top">
-                        <PopoverTrigger>
-                          <Button
-                            colorScheme={"red"}
-                            variant={"ghost"}
-                            p={2}
-                            ml={2}
-                          >
-                            Clear Non-Prio
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent color="white" bg="red.900">
-                          <PopoverArrow bg="red.900" />
-                          <PopoverCloseButton />
-                          <PopoverHeader>
-                            Are you sure you want to clear the non-prio queue?
-                          </PopoverHeader>
-                          <PopoverBody>
-                            <Button
-                              my={2}
-                              onClick={() => {
-                                clearNonPrio();
-                              }}
-                              colorScheme="red"
-                              w="100%"
-                              isLoading={clearQueueLoading}
-                            >
-                              CLEAR NON-PRIO
-                            </Button>
-                          </PopoverBody>
-                        </PopoverContent>
-                      </Popover>
-                      <Link passHref href={"/mod/banned-videos"}>
-                        <Button variant={"ghost"} ml={2}>
-                          Banned Videos
+                      <HStack>
+                        <Button my={2} onClick={openAddModal}>
+                          Add Request
                         </Button>
-                      </Link>
+                        <Popover placement="top">
+                          <PopoverTrigger>
+                            <Button
+                              colorScheme={"red"}
+                              variant={"ghost"}
+                              p={2}
+                              ml={2}
+                            >
+                              Clear Non-Prio
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent color="white" bg="red.900">
+                            <PopoverArrow bg="red.900" />
+                            <PopoverCloseButton />
+                            <PopoverHeader>
+                              Are you sure you want to clear the non-prio queue?
+                            </PopoverHeader>
+                            <PopoverBody>
+                              <Button
+                                my={2}
+                                onClick={() => {
+                                  clearNonPrio();
+                                }}
+                                colorScheme="red"
+                                w="100%"
+                                isLoading={clearQueueLoading}
+                              >
+                                CLEAR NON-PRIO
+                              </Button>
+                            </PopoverBody>
+                          </PopoverContent>
+                        </Popover>
+                        <Link passHref href={"/mod/banned-videos"}>
+                          <ChakraLink fontWeight={"medium"} ml={2}>
+                            Banned Videos
+                          </ChakraLink>
+                        </Link>
+                      </HStack>
                       <QueueStatus />
                       <NotCountedAlert />
                       {queue.order.length > 0 ? (
