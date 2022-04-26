@@ -22,6 +22,7 @@ import {
   HStack,
   Avatar,
   Divider,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -355,6 +356,11 @@ const SethView: NextPage = () => {
                   <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                     Recently Played
                   </Text>
+                  <Link href="/previously-played" passHref>
+                    <ChakraLink fontWeight={"medium"} ml={2}>
+                      View Previously Played
+                    </ChakraLink>
+                  </Link>
                   {queue?.recentlyPlayed.map((request) => {
                     return (
                       <RequestCard

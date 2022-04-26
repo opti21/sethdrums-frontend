@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { ColorModeScript } from "@chakra-ui/react";
 import theme from "../utils/theme";
 import PlausibleProvider from "next-plausible";
+import "react-datepicker/dist/react-datepicker.css";
 
 const growthbook = new GrowthBook({
   trackingCallback: (experiment, result) => {
