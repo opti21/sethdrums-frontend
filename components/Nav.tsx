@@ -95,16 +95,28 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 <>
                   {isMod && (
                     <Link href="/mod" passHref>
-                      <Button mx={2} size="sm" p={2} variant="ghost">
+                      <ChakraLink
+                        fontWeight={"medium"}
+                        mx={2}
+                        size="sm"
+                        p={2}
+                        variant="ghost"
+                      >
                         Mod View
-                      </Button>
+                      </ChakraLink>
                     </Link>
                   )}
                   {isSeth && (
                     <Link href="/seth" passHref>
-                      <Button mx={2} size="sm" p={2} variant="ghost">
+                      <ChakraLink
+                        fontWeight={"medium"}
+                        mx={2}
+                        size="sm"
+                        p={2}
+                        variant="ghost"
+                      >
                         Seth View
-                      </Button>
+                      </ChakraLink>
                     </Link>
                   )}
                   <Avatar size="sm" src={user?.picture ? user.picture : ""} />
@@ -158,9 +170,28 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 />
                 {isMod && (
                   <Link href="/mod" passHref>
-                    <Button mx={2} p={2} variant="ghost">
+                    <ChakraLink
+                      fontWeight={"medium"}
+                      mx={2}
+                      size="sm"
+                      p={2}
+                      variant="ghost"
+                    >
                       Mod View
-                    </Button>
+                    </ChakraLink>
+                  </Link>
+                )}
+                {isSeth && (
+                  <Link href="/seth" passHref>
+                    <ChakraLink
+                      fontWeight={"medium"}
+                      mx={2}
+                      size="sm"
+                      p={2}
+                      variant="ghost"
+                    >
+                      Seth View
+                    </ChakraLink>
                   </Link>
                 )}
                 {user ? (
