@@ -193,6 +193,7 @@ const RequestCard: FC<Props> = ({
                 style={{ color: "white" }}
                 noOfLines={2}
                 overflowWrap={"break-word"}
+                p={0.5}
               >
                 Mod Notes: {video.notes}
               </Text>
