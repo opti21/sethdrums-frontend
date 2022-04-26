@@ -137,10 +137,16 @@ const Home: NextPage = () => {
             name="og:description"
             content="Song Panel to request song for SethDrums' stream."
           />
-          <meta name="og:image" content="/SD_Logo_Neon.png" />
+          <meta
+            name="og:image"
+            content="https://sethdrums.com/SD_Logo_Neon.png"
+          />
           <meta name="twitter:creator" content="@imSethDrums" />
           <meta name="twitter:card" content="summary_large_image" />
-          <meta name="twitter:image" content="/SD_Logo_Neon.png" />
+          <meta
+            name="twitter:image"
+            content="https://sethdrums.com/SD_Logo_Neon.png"
+          />
         </Head>
         <Container maxW={"container.xl"} p={0}>
           <Box w={"100%"} textAlign="center">
@@ -163,10 +169,16 @@ const Home: NextPage = () => {
           name="og:description"
           content="Song Panel to request song for SethDrums' stream."
         />
-        <meta name="og:image" content="/SD_Logo_Neon.png" />
+        <meta
+          name="og:image"
+          content="https://sethdrums.com/SD_Logo_Neon.png"
+        />
         <meta name="twitter:creator" content="@imSethDrums" />
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:image" content="/SD_Logo_Neon.png" />
+        <meta
+          name="twitter:image"
+          content="https://sethdrums.com/SD_Logo_Neon.png"
+        />
       </Head>
       <Container maxW={"container.xl"} p={0}>
         <Nav returnTo="/" />
