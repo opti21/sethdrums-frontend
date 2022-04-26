@@ -7,6 +7,7 @@ import {
   Button,
   Input,
   FormLabel,
+  Stack,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -19,6 +20,7 @@ import BanTable from "../../components/BanTable";
 import Link from "next/link";
 import { AiOutlineLeft } from "react-icons/ai";
 import useSWR from "swr";
+import { Video } from "@prisma/client";
 
 const Mod: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -29,10 +31,27 @@ const Mod: NextPage = () => {
   } = useSWR("/api/mod/videos/banned", {
     refreshInterval: 0,
   });
-  const [search, setSearch] = useState("");
+  const [titleSearch, setTitleSearch] = useState("");
+  const [idSearch, setIDSearch] = useState("");
 
-  const handleSearch = (event) => {
-    setSearch(event.target.value);
+  const handleTitleSearch = (event) => {
+    setTitleSearch(event.target.value);
+  };
+
+  const handleIDSearch = (event) => {
+    setIDSearch(event.target.value);
+  };
+
+  const bannedData = () => {
+    const titleFilter = bannedVideos.filter((video: Video) => {
+      return video.title.toLowerCase().includes(titleSearch.toLowerCase());
+    });
+
+    const idFilter = titleFilter.filter((video: Video) => {
+      return video.youtube_id.includes(idSearch);
+    });
+
+    return idFilter;
   };
 
   return (
@@ -76,21 +95,17 @@ const Mod: NextPage = () => {
                   Back to Mod View
                 </Button>
               </Link>
-              <Box p={4}>
-                <FormLabel htmlFor="titleSearch">Search By Title</FormLabel>
-                <Input
-                  w={["50%", "25%"]}
-                  id="titleSearch"
-                  onChange={handleSearch}
-                />
-              </Box>
-              <BanTable
-                data={bannedVideos.filter((video) => {
-                  return video.title
-                    .toLowerCase()
-                    .includes(search.toLowerCase());
-                })}
-              />
+              <Stack direction={["column", "row"]}>
+                <Box m={2}>
+                  <FormLabel htmlFor="titleSearch">Search By Title</FormLabel>
+                  <Input id="titleSearch" onChange={handleTitleSearch} />
+                </Box>
+                <Box m={2} p={2}>
+                  <FormLabel htmlFor="idSearch">Search By ID</FormLabel>
+                  <Input id="idSearch" onChange={handleIDSearch} />
+                </Box>
+              </Stack>
+              <BanTable data={bannedData()} />
             </Box>
           </>
         )}
