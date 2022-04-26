@@ -8,6 +8,7 @@ import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { useEffect } from "react";
 import { ColorModeScript } from "@chakra-ui/react";
 import theme from "../utils/theme";
+import PlausibleProvider from "next-plausible";
 
 const growthbook = new GrowthBook({
   trackingCallback: (experiment, result) => {
@@ -47,23 +48,27 @@ function App({ Component, pageProps }: AppProps) {
   }, []);
 
   return (
-    <UserProvider>
-      <SWRConfig
-        value={{
-          refreshInterval: 5000,
-          fetcher,
-        }}
-      >
-        <ToastContainer />
-        <GrowthBookProvider growthbook={growthbook}>
-          <ChakraProvider>
-            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+    <PlausibleProvider domain="sethdrums.com">
+      <UserProvider>
+        <SWRConfig
+          value={{
+            refreshInterval: 5000,
+            fetcher,
+          }}
+        >
+          <ToastContainer />
+          <GrowthBookProvider growthbook={growthbook}>
+            <ChakraProvider>
+              <ColorModeScript
+                initialColorMode={theme.config.initialColorMode}
+              />
 
-            <Component {...pageProps} />
-          </ChakraProvider>
-        </GrowthBookProvider>
-      </SWRConfig>
-    </UserProvider>
+              <Component {...pageProps} />
+            </ChakraProvider>
+          </GrowthBookProvider>
+        </SWRConfig>
+      </UserProvider>
+    </PlausibleProvider>
   );
 }
 

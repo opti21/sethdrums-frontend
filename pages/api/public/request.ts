@@ -9,6 +9,7 @@ import { parseYTDuration } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
 import Pusher from "pusher";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { withSentry } from "@sentry/nextjs";
 
 if (
   !process.env.PUSHER_APP_ID ||
@@ -27,8 +28,8 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-const publicRequestApiHandler = withApiAuthRequired(
-  async (req: NextApiRequest, res: NextApiResponse) => {
+const publicRequestApiHandler = withSentry(
+  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     if (req.method === "POST") {
       // TODO: validation
@@ -185,7 +186,7 @@ const publicRequestApiHandler = withApiAuthRequired(
     } else {
       return res.status(405).send(`${req.method} is not a valid method`);
     }
-  }
+  })
 );
 
 export default publicRequestApiHandler;

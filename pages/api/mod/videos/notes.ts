@@ -1,12 +1,13 @@
 import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
+import { withSentry } from "@sentry/nextjs";
 
-const videoApiHandler = withApiAuthRequired(
-  async (req: NextApiRequest, res: NextApiResponse) => {
+const videoApiHandler = withSentry(
+  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
       // TODO: validate body
-      const updatedVideo = await prisma.video
+      await prisma.video
         .update({
           where: {
             id: req.body.videoID,
@@ -26,7 +27,7 @@ const videoApiHandler = withApiAuthRequired(
     } else {
       return res.status(405).send(`${req.method} is not a valid`);
     }
-  }
+  })
 );
 
 export default videoApiHandler;
