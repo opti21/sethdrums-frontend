@@ -189,7 +189,11 @@ const RequestCard: FC<Props> = ({
           </Text>
           {!publicView && video.notes.length > 0 && (
             <>
-              <Text noOfLines={2} overflowWrap={"break-word"}>
+              <Text
+                style={{ color: "white" }}
+                noOfLines={2}
+                overflowWrap={"break-word"}
+              >
                 Mod Notes: {video.notes}
               </Text>
               {video.notes.length > 50 && (
