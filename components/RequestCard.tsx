@@ -276,26 +276,34 @@ const RequestCard: FC<Props> = ({
               ))}
             {typeof user != undefined && publicView
               ? user?.preferred_username === request.requested_by && (
-                  <Button
-                    onClick={() => {
-                      openDeleteModal(request, video);
-                    }}
-                    bgColor={"#BD0000"}
-                    w={"25%"}
-                  >
-                    <Icon as={IoMdTrash} w={5} h={5} />
-                  </Button>
+                  <>
+                    {!request.played && (
+                      <Button
+                        onClick={() => {
+                          openDeleteModal(request, video);
+                        }}
+                        bgColor={"#BD0000"}
+                        w={"25%"}
+                      >
+                        <Icon as={IoMdTrash} w={5} h={5} />
+                      </Button>
+                    )}
+                  </>
                 )
               : !sethView && (
-                  <Button
-                    onClick={() => {
-                      openDeleteModal(request, video);
-                    }}
-                    bgColor={"#BD0000"}
-                    w={"25%"}
-                  >
-                    <Icon as={IoMdTrash} w={5} h={5} />
-                  </Button>
+                  <>
+                    {!request.played && (
+                      <Button
+                        onClick={() => {
+                          openDeleteModal(request, video);
+                        }}
+                        bgColor={"#BD0000"}
+                        w={"25%"}
+                      >
+                        <Icon as={IoMdTrash} w={5} h={5} />
+                      </Button>
+                    )}
+                  </>
                 )}
           </HStack>
           {!publicView && video.PG_Status.checker && (
