@@ -3,6 +3,7 @@ import { read } from "fs";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../utils/prisma";
 import Pusher from "pusher";
+import { withSentry } from "@sentry/nextjs";
 
 if (
   !process.env.PUSHER_APP_ID ||
@@ -21,8 +22,8 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-const pusherTriggerHandler = withApiAuthRequired(
-  async (req: NextApiRequest, res: NextApiResponse) => {
+const pusherTriggerHandler = withSentry(
+  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
@@ -48,7 +49,7 @@ const pusherTriggerHandler = withApiAuthRequired(
     } else {
       res.status(405).send(`${req.method} is not a valid`);
     }
-  }
+  })
 );
 
 export default pusherTriggerHandler;
