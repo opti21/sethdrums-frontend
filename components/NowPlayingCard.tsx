@@ -118,10 +118,17 @@ const NowPlayingCard: FC<Props> = ({
               objectFit="cover"
               alt="video thumbnail"
               mt={2}
+              style={{
+                filter: "drop-shadow(0px 5px 3px rgba(0, 0, 0, 0.3))",
+              }}
             />
             <Text
               fontSize={"xl"}
-              style={{ fontWeight: "bold", textShadow: "0px 2px 6px #000000" }}
+              style={{
+                fontWeight: "bold",
+                textShadow: "0px 2px 6px #000000",
+                color: "white",
+              }}
             >
               {formatDuration(video.duration)}
             </Text>
@@ -134,6 +141,7 @@ const NowPlayingCard: FC<Props> = ({
             style={{
               fontWeight: "bold",
               textShadow: "0px 2px 5px #000000",
+              color: "white",
             }}
             padding={1}
             noOfLines={publicView ? 3 : 2}
@@ -145,6 +153,7 @@ const NowPlayingCard: FC<Props> = ({
             fontSize="lg"
             style={{
               textShadow: "0px 1px 3px #000000",
+              color: "white",
             }}
             padding={0.5}
             isTruncated

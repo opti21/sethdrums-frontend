@@ -153,7 +153,10 @@ const publicRequestApiHandler = withApiAuthRequired(
             .json({ success: false, message: "Request does not exsist" });
         }
 
-        if (request.requested_by != session.preferred_username) {
+        if (request.requested_by != session.user.preferred_username) {
+          console.error(
+            "someone is trying to delete a request that's not there's"
+          );
           return res.status(406).json({
             success: false,
             message: "Hey you shouldn't be doing that, it's not yours",
