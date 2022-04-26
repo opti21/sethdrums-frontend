@@ -139,13 +139,13 @@ const Home: NextPage = () => {
           />
           <meta
             name="og:image"
-            content="https://sethdrums.com/SD_Logo_Neon.png"
+            content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
           />
           <meta name="twitter:creator" content="@imSethDrums" />
           <meta name="twitter:card" content="summary_large_image" />
           <meta
             name="twitter:image"
-            content="https://sethdrums.com/SD_Logo_Neon.png"
+            content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
           />
         </Head>
         <Container maxW={"container.xl"} p={0}>
@@ -171,13 +171,13 @@ const Home: NextPage = () => {
         />
         <meta
           name="og:image"
-          content="https://sethdrums.com/SD_Logo_Neon.png"
+          content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
         />
         <meta name="twitter:creator" content="@imSethDrums" />
         <meta name="twitter:card" content="summary_large_image" />
         <meta
           name="twitter:image"
-          content="https://sethdrums.com/SD_Logo_Neon.png"
+          content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
         />
       </Head>
       <Container maxW={"container.xl"} p={0}>
