@@ -50,3 +50,16 @@ export const usePGCheckerModalStore = create<TPGCheckerModalState>((set) => ({
       },
     })),
 }));
+
+// Fart Modal
+type TFartModalState = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+};
+
+export const useFartModalStore = create<TFartModalState>((set) => ({
+  isOpen: false,
+  open: () => set(() => ({ isOpen: true })),
+  close: () => set(() => ({ isOpen: false })),
+}));
