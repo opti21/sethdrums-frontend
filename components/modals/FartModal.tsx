@@ -23,7 +23,7 @@ const FartModal: FC = ({}: any) => {
         <ModalCloseButton />
         <ModalBody>
           <ReactAudioPlayer src="/drama_fart.ogg" autoPlay volume={0.5} />
-          Here's your prize.
+          {"Here's your prize."}
         </ModalBody>
       </ModalContent>
     </Modal>
