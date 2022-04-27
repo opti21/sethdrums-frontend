@@ -9,15 +9,16 @@ datasource db {
 }
 
 model Request {
-  id             Int              @id @default(autoincrement())
-  requested_by   String
-  video_id       Int
-  queue_id       Int?             @default(2)
-  played         Boolean          @default(false)
-  played_at      DateTime?
-  priority       Boolean          @default(false)
-  Video          Video            @relation(fields: [video_id], references: [id])
-  TagsOnRequests TagsOnRequests[]
+  id              Int              @id @default(autoincrement())
+  requested_by    String
+  video_id        Int
+  queue_id        Int?             @default(2)
+  played          Boolean          @default(false)
+  played_at       DateTime?
+  priority        Boolean          @default(false)
+  requested_by_id String?
+  Video           Video            @relation(fields: [video_id], references: [id])
+  TagsOnRequests  TagsOnRequests[]
 }
 
 model RequestTag {

@@ -29,6 +29,7 @@ import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
+import { UserProfile } from "@auth0/nextjs-auth0";
 
 type Props = {
   id: string;
@@ -40,7 +41,7 @@ type Props = {
   numOfPrio?: number;
   sethView?: boolean;
   publicView?: boolean;
-  user?: any;
+  user?: UserProfile;
 };
 
 const RequestCard: FC<Props> = ({
@@ -280,7 +281,7 @@ const RequestCard: FC<Props> = ({
                 </Button>
               ))}
             {typeof user != undefined && publicView
-              ? user?.preferred_username === request.requested_by && (
+              ? user?.sub.split("|")[2] === request.requested_by_id && (
                   <>
                     {!request.played && (
                       <Button

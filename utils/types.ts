@@ -117,6 +117,7 @@ export interface IAPiVideo extends Video {
 export interface IApiRequest {
   id: string;
   requested_by: string;
+  requested_by_id: string;
   video_id: string;
   played: boolean;
   played_at: string;
