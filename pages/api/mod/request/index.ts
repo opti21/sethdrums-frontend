@@ -54,7 +54,8 @@ const requestApiHandler = withSentry(
         if (createdVideo) {
           const createdRequest = await createRequest(
             createdVideo.id,
-            req.body.requestedBy
+            req.body.requestedBy,
+            ""
           );
 
           const addedToQueue = await addToQueue(createdRequest?.id.toString());
@@ -79,7 +80,8 @@ const requestApiHandler = withSentry(
       // If video is already in DB just create a request
       const createdRequest = await createRequest(
         videoInDB.id,
-        req.body.requestedBy
+        req.body.requestedBy,
+        ""
       );
 
       if (!createRequest) {
@@ -183,13 +185,15 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
 
 async function createRequest(
   videoID: number,
-  username: string
+  username: string,
+  userID: string
 ): Promise<Request | undefined> {
   try {
     return await prisma.request.create({
       data: {
         video_id: videoID,
         requested_by: username,
+        requested_by_id: userID,
       },
     });
   } catch (e) {

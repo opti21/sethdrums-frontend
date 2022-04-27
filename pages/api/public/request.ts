@@ -44,7 +44,7 @@ const publicRequestApiHandler = withSentry(
 
       const userAlreadyRequested = await prisma.request.findFirst({
         where: {
-          requested_by: req.body.requestedBy,
+          requested_by_id: session.user.sub.split("|")[2],
           played: false,
         },
         include: {
@@ -87,7 +87,8 @@ const publicRequestApiHandler = withSentry(
         if (createdVideo) {
           const createdRequest = await createRequest(
             createdVideo.id,
-            session.user.preferred_username
+            session.user.preferred_username,
+            session.user.sub.split("|")[2]
           );
 
           const addedToQueue = await addToQueue(createdRequest?.id.toString());
@@ -117,7 +118,8 @@ const publicRequestApiHandler = withSentry(
       // If video is already in DB just create a request
       const createdRequest = await createRequest(
         videoInDB.id,
-        req.body.requestedBy
+        session.user.preferred_username,
+        session.user.sub.split("|")[2]
       );
 
       if (!createRequest) {
@@ -154,7 +156,7 @@ const publicRequestApiHandler = withSentry(
             .json({ success: false, message: "Request does not exsist" });
         }
 
-        if (request.requested_by != session.user.preferred_username) {
+        if (request.requested_by_id != session.user.sub.split("|")[2]) {
           console.error(
             "someone is trying to delete a request that's not there's"
           );
@@ -228,13 +230,15 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
 
 async function createRequest(
   videoID: number,
-  username: string
+  username: string,
+  userID: string
 ): Promise<Request | undefined> {
   try {
     return await prisma.request.create({
       data: {
         video_id: videoID,
         requested_by: username,
+        requested_by_id: userID,
       },
     });
   } catch (e) {
