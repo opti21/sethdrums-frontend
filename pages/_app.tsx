@@ -10,6 +10,10 @@ import { ColorModeScript } from "@chakra-ui/react";
 import theme from "../utils/theme";
 import PlausibleProvider from "next-plausible";
 import "react-datepicker/dist/react-datepicker.css";
+import ReactShortcut from "react-shortcut";
+import ReactAudioPlayer from "react-audio-player";
+import { useFartModalStore } from "../stateStore/modalState";
+import FartModal from "../components/modals/FartModal";
 
 const growthbook = new GrowthBook({
   trackingCallback: (experiment, result) => {
@@ -21,6 +25,7 @@ const growthbook = new GrowthBook({
 });
 
 function App({ Component, pageProps }: AppProps) {
+  const openFartModal = useFartModalStore((state) => state.open);
   const fetcher = async (url) => {
     const res = await fetch(url);
 
@@ -63,6 +68,14 @@ function App({ Component, pageProps }: AppProps) {
               <ColorModeScript
                 initialColorMode={theme.config.initialColorMode}
               />
+              <ReactShortcut
+                keys="Up Up Down Down Left Right Left Right B A"
+                onKeysPressed={() => {
+                  console.log("fart");
+                  openFartModal();
+                }}
+              />
+              <FartModal />
 
               <Component {...pageProps} />
             </ChakraProvider>
