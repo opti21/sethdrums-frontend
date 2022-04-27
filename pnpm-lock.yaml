@@ -35,11 +35,13 @@ specifiers:
   pusher: ^5.0.1
   pusher-js: ^7.0.6
   react: 17.0.2
+  react-audio-player: ^0.17.0
   react-datepicker: ^4.7.0
   react-dom: 17.0.2
   react-icons: ^4.3.1
   react-player: ^2.9.0
   react-rewards: ^2.0.3
+  react-shortcut: ^2.0.9
   react-table: ^7.7.0
   react-toastify: ^8.2.0
   redis-om: ^0.2.0
@@ -76,11 +78,13 @@ dependencies:
   pusher: 5.0.1
   pusher-js: 7.0.6
   react: 17.0.2
+  react-audio-player: 0.17.0_react-dom@17.0.2+react@17.0.2
   react-datepicker: 4.7.0_react-dom@17.0.2+react@17.0.2
   react-dom: 17.0.2_react@17.0.2
   react-icons: 4.3.1_react@17.0.2
   react-player: 2.10.0_react@17.0.2
   react-rewards: 2.0.3_react-dom@17.0.2+react@17.0.2
+  react-shortcut: 2.0.9_react-dom@17.0.2+react@17.0.2
   react-table: 7.7.0_react@17.0.2
   react-toastify: 8.2.0_react-dom@17.0.2+react@17.0.2
   redis-om: 0.2.1
@@ -3719,6 +3723,10 @@ packages:
       - supports-color
     dev: false
 
+  /mousetrap/1.6.5:
+    resolution: {integrity: sha512-QNo4kEepaIBwiT8CDhP98umTetp+JNfQYBWvC1pc6/OAibuXtRcxZ58Qz8skvEHYvURne/7R8T5VoOI7rDsEUA==}
+    dev: false
+
   /mpath/0.8.4:
     resolution: {integrity: sha512-DTxNZomBcTWlrMW76jy1wvV37X/cNNxPW1y2Jzd4DZkAaC5ZGsm8bfGfNOthcDuRJujXLqiuS6o3Tpy0JEoh7g==}
     engines: {node: '>=4.0.0'}
@@ -4216,6 +4224,17 @@ packages:
       strip-json-comments: 2.0.1
     dev: false
 
+  /react-audio-player/0.17.0_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-aCZgusPxA9HK7rLZcTdhTbBH9l6do9vn3NorgoDZRxRxJlOy9uZWzPaKjd7QdcuP2vXpxGA/61JMnnOEY7NXeA==}
+    peerDependencies:
+      react: '>=16'
+      react-dom: '>=16'
+    dependencies:
+      prop-types: 15.8.1
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
   /react-clientside-effect/1.2.5_react@17.0.2:
     resolution: {integrity: sha512-2bL8qFW1TGBHozGGbVeyvnggRpMjibeZM2536AKNENLECutp2yfs44IL8Hmpn8qjFQ2K7A9PnYf3vc7aQq/cPA==}
     peerDependencies:
@@ -4389,6 +4408,18 @@ packages:
       react: ^15.0.0 || ^16.0.0 || ^17.0.0
       react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
+    dev: false
+
+  /react-shortcut/2.0.9_react-dom@17.0.2+react@17.0.2:
+    resolution: {integrity: sha512-2DF8VdF0dj41AEcz02TpS2qAm24OlNQrpkGYWqw2sVFJAOTapElDzsveCXHT0QHjxd1Fo9BtKgZBdyzLcbn7HA==}
+    engines: {node: '>= 8', npm: '>= 4'}
+    peerDependencies:
+      react: '*'
+      react-dom: '*'
+    dependencies:
+      mousetrap: 1.6.5
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
     dev: false
