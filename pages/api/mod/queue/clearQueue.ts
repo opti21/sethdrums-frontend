@@ -25,7 +25,8 @@ const queueApiHandler = withSentry(
         res.status(500).json({ error: "Error getting queue" });
       }
 
-      const requestData = await prisma.request.findMany({
+      // Get request data for prio requests currently in the queue
+      const prioRequestData = await prisma.request.findMany({
         where: {
           id: { in: queue.order.map((requestID) => parseInt(requestID)) },
           priority: true,
@@ -40,13 +41,16 @@ const queueApiHandler = withSentry(
       });
 
       let requests = [];
+      let requestsToBeDeleted = [];
 
-      for (let i = 0; i < requestData.length; i++) {
-        const requestIndex = requestData.findIndex(
+      for (let i = 0; i < queue?.order.length; i++) {
+        const requestIndex = prioRequestData.findIndex(
           (request) => request.id.toString() === queue?.order[i]
         );
         if (requestIndex != -1) {
-          requests.push(requestData[requestIndex]);
+          requests.push(prioRequestData[requestIndex]);
+        } else {
+          requestsToBeDeleted.push(queue?.order[i]);
         }
       }
 
@@ -54,6 +58,18 @@ const queueApiHandler = withSentry(
       if (!didUpdateQueue) {
         res.status(500).json({ error: "Error updating order" });
       }
+
+      await prisma.request
+        .deleteMany({
+          where: {
+            played: false,
+            priority: false,
+          },
+        })
+        .catch((err) => {
+          console.error(err);
+          res.status(500).json({ success: false });
+        });
 
       return res.status(200).json({ success: true });
     } else {
