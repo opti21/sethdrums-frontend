@@ -1,5 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
+import {
+  addToQueue,
+  getQueue,
+  removeFromOrder,
+} from "../../../redis/handlers/Queue";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";
@@ -32,13 +36,20 @@ const publicRequestApiHandler = withSentry(
   withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     if (req.method === "POST") {
-      // TODO: validation
+      const queue = await getQueue();
+
+      if (!queue.is_open) {
+        return res
+          .status(406)
+          .json({ success: false, error: "Queue is currently closed" });
+      }
+
       const parsed = urlParser.parse(req.body.ytLink);
       const youtubeID = parsed?.id;
 
       if (!parsed) {
         return res
-          .status(400)
+          .status(406)
           .json({ success: false, error: "not a valid youtube URL" });
       }
 
