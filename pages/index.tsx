@@ -46,6 +46,8 @@ import Link from "next/link";
 import DeleteModal from "../components/modals/DeleteModal";
 import NowPlayingCard from "../components/NowPlayingCard";
 import { useFeature } from "@growthbook/growthbook-react";
+import ScrollToTop from "react-scroll-to-top";
+import { ArrowUpIcon } from "@chakra-ui/icons";
 
 const Home: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -310,6 +312,12 @@ const Home: NextPage = () => {
         </Modal>
 
         <DeleteModal publicView={true} />
+
+        <ScrollToTop
+          smooth
+          style={{ backgroundColor: "Background" }}
+          component={<ArrowUpIcon color="white" />}
+        />
 
         {queueError && (
           <Alert mt={2} status="error">
