@@ -158,6 +158,7 @@ const Home: NextPage = () => {
       </>
     );
   }
+  console.log(queue);
 
   return (
     <>
@@ -317,70 +318,91 @@ const Home: NextPage = () => {
         {!queueError &&
           (queue ? (
             <Stack direction={["column", "row"]} pt={5}>
-              <Box px={[4, 5]} w={["100%", "50%"]}>
-                <Box width={"100%"}>
-                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                    Now Playing
+              {queue.is_open ? (
+                <Box px={[4, 5]} w={["100%", "50%"]}>
+                  <Box
+                    rounded="lg"
+                    bgColor={"green.500"}
+                    textAlign="center"
+                    p={2}
+                  >
+                    <Text fontWeight="bold">Queue is Open</Text>
+                  </Box>
+                  <Box width={"100%"}>
+                    <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                      Now Playing
+                    </Text>
+                    {queue.now_playing ? (
+                      <NowPlayingCard
+                        request={queue.now_playing}
+                        video={queue.now_playing.Video}
+                        pgStatus={queue.now_playing.Video.PG_Status}
+                        publicView={true}
+                      />
+                    ) : (
+                      <Container
+                        my={2}
+                        p={2}
+                        h={100}
+                        borderWidth="1px"
+                        borderRadius="lg"
+                        maxW={"100%"}
+                        centerContent
+                      >
+                        <Box mt={6}>
+                          <Text>Nothing playing</Text>
+                        </Box>
+                      </Container>
+                    )}
+                  </Box>
+                  <Text mr={4} as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Queue
                   </Text>
-                  {queue.now_playing ? (
-                    <NowPlayingCard
-                      request={queue.now_playing}
-                      video={queue.now_playing.Video}
-                      pgStatus={queue.now_playing.Video.PG_Status}
-                      publicView={true}
-                    />
+                  {!user ? (
+                    <Link passHref={true} href={"/api/auth/login"}>
+                      <Button
+                        my={2}
+                        isLoading={isLoading}
+                        leftIcon={<IoLogoTwitch />}
+                      >
+                        Sign In to Request
+                      </Button>
+                    </Link>
                   ) : (
-                    <Container
-                      my={2}
-                      p={2}
-                      h={100}
-                      borderWidth="1px"
-                      borderRadius="lg"
-                      maxW={"100%"}
-                      centerContent
-                    >
-                      <Box mt={6}>
-                        <Text>Nothing playing</Text>
-                      </Box>
-                    </Container>
-                  )}
-                </Box>
-                <Text mr={4} as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                  Queue
-                </Text>
-                {!user ? (
-                  <Link passHref={true} href={"/api/auth/login"}>
-                    <Button
-                      my={2}
-                      isLoading={isLoading}
-                      leftIcon={<IoLogoTwitch />}
-                    >
-                      Sign In to Request
+                    <Button my={2} onClick={handleAddModalOpen}>
+                      Add Request
                     </Button>
-                  </Link>
-                ) : (
-                  <Button my={2} onClick={handleAddModalOpen}>
-                    Add Request
-                  </Button>
-                )}
-                <Box maxH={[500, 1000]} overflowY={"auto"}>
-                  {!queueError &&
-                    queue &&
-                    queue?.order.map((request) => {
-                      return (
-                        <RequestCard
-                          key={`key${request.id}`}
-                          id={request.id}
-                          request={request}
-                          video={request.Video}
-                          publicView={true}
-                          openDeleteModal={handleDeleteModalOpen}
-                          user={user}
-                        />
-                      );
-                    })}
+                  )}
+                  <Box maxH={[500, 1000]} overflowY={"auto"}>
+                    {!queueError &&
+                      queue &&
+                      queue?.order.map((request) => {
+                        return (
+                          <RequestCard
+                            key={`key${request.id}`}
+                            id={request.id}
+                            request={request}
+                            video={request.Video}
+                            publicView={true}
+                            openDeleteModal={handleDeleteModalOpen}
+                            user={user}
+                          />
+                        );
+                      })}
+                  </Box>
                 </Box>
-              </Box>
+              ) : (
+                <Box px={[4, 5]} w={["100%", "49%"]}>
+                  <Box
+                    rounded="lg"
+                    bgColor={"red.700"}
+                    textAlign="center"
+                    p={2}
+                  >
+                    <Text fontWeight="bold">Queue is Closed</Text>
+                  </Box>
+                </Box>
+              )}
               <Box px={[4, 5]} w={["100%", "50%"]}>
                 {/* Potential spot for Socials and twitch embed */}
                 <Box width={"100%"}>

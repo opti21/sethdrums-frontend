@@ -254,6 +254,16 @@ const Mod: NextPage = () => {
             <>
               <Stack direction={"row"} pt={5}>
                 <Box px={[4, 5]} w={["100%", "80%"]}>
+                  <Box
+                    rounded="lg"
+                    bgColor={queue?.is_open ? "green.500" : "red.700"}
+                    textAlign="center"
+                    p={2}
+                  >
+                    <Text fontWeight="bold">
+                      Queue is {queue?.is_open ? "Open" : "Closed"}
+                    </Text>
+                  </Box>
                   <ModQueue />
                 </Box>
                 <Box display={["none", "block"]} w={"20%"} ml={2}>
