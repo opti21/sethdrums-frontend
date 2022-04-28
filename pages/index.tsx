@@ -199,7 +199,9 @@ const Home: NextPage = () => {
                 enableReinitialize={true}
                 onSubmit={(values, actions) => {
                   axios
-                    .post("/api/public/request", values)
+                    .post("/api/public/request", {
+                      ytLink: values.ytLink,
+                    })
                     .then(async (res) => {
                       actions.setSubmitting(false);
                       if (res.status === 200) {
@@ -210,16 +212,21 @@ const Home: NextPage = () => {
                     })
                     .catch((error) => {
                       actions.setSubmitting(false);
-                      if (error.response.status === 401) {
-                        toast.error("You already have a request in the queue");
+                      console.error(error);
+
+                      if (error.response.status === 406) {
+                        if (!error.response.data.error) {
+                          toast.error("Error adding request");
+                        }
+
+                        toast.error(error.response.data.error);
                         return;
-                      } else if (error.response.status === 402) {
-                        toast.error("Video has already been requested");
-                        return;
-                      } else if (error.response.status === 422) {
-                        toast.error(
-                          "That video is not allowed, please request another."
-                        );
+                      } else if (error.response.status === 500) {
+                        if (!error.response.data.error) {
+                          toast.error("Error adding request");
+                        }
+
+                        toast.error(error.response.data.error);
                         return;
                       } else {
                         toast.error("Error adding request");

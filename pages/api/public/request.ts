@@ -65,11 +65,15 @@ const publicRequestApiHandler = withSentry(
       });
 
       if (userAlreadyRequested) {
-        return res.status(401).send("User Already requested");
+        return res
+          .status(406)
+          .send({ success: false, error: "User Already requested" });
       }
 
       if (videoAlreadyRequested) {
-        return res.status(402).send("Video Already requested");
+        return res
+          .status(406)
+          .send({ success: false, error: "Video Already requested" });
       }
 
       // Check if video is in database
@@ -110,9 +114,10 @@ const publicRequestApiHandler = withSentry(
       }
 
       if (videoInDB.banned) {
-        return res
-          .status(422)
-          .json({ success: false, message: "Video is banned" });
+        return res.status(406).json({
+          success: false,
+          error: "Requests must be PG13, please request another.",
+        });
       }
 
       // If video is already in DB just create a request
@@ -152,8 +157,8 @@ const publicRequestApiHandler = withSentry(
 
         if (!request) {
           return res
-            .status(422)
-            .json({ success: false, message: "Request does not exsist" });
+            .status(406)
+            .json({ success: false, error: "Request does not exsist" });
         }
 
         if (request.requested_by_id != session.user.sub.split("|")[2]) {
@@ -162,7 +167,7 @@ const publicRequestApiHandler = withSentry(
           );
           return res.status(406).json({
             success: false,
-            message: "Hey you shouldn't be doing that, it's not yours",
+            error: "Hey you shouldn't be doing that, it's not yours",
           });
         }
         await prisma.request.delete({
@@ -183,10 +188,12 @@ const publicRequestApiHandler = withSentry(
         console.error(err);
         return res
           .status(500)
-          .json({ success: false, message: "error deleting request" });
+          .json({ success: false, error: "error deleting request" });
       }
     } else {
-      return res.status(405).send(`${req.method} is not a valid method`);
+      return res
+        .status(405)
+        .json({ success: false, error: `${req.method} is not a valid method` });
     }
   })
 );
