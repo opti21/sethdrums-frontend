@@ -244,7 +244,7 @@ const Mod: NextPage = () => {
         <ScrollToTop
           smooth
           style={{ backgroundColor: "Background" }}
-          component={<ArrowUpIcon />}
+          component={<ArrowUpIcon color="white" />}
         />
 
         {queueError && (
