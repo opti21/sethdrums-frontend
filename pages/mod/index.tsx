@@ -54,8 +54,6 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { Field, Form, Formik, FormikProps } from "formik";
-import urlParser from "js-video-url-parser";
-import "js-video-url-parser/lib/provider/youtube";
 import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
 import DragItem from "../../components/DragItem";
@@ -67,24 +65,26 @@ import NowPlayingCard from "../../components/NowPlayingCard";
 import PGConfirmModal from "../../components/modals/PGConfirmModal";
 import PGCheckerModal from "../../components/modals/PGCheckerModal";
 import Link from "next/link";
+import { useModQueueStore } from "../../stateStore/queueState";
+import ModQueue from "../../components/ModQueue";
 
 const Mod: NextPage = () => {
-  const [activeId, setActiveId] = useState<string | null>(null);
   const { user, error: userError, isLoading } = useUser();
-  const [queueError, setQueueError] = useState<string | null>(null);
-  const [queue, setQueue] = useState<IQueue | null>(null);
-  const [queueStatus, setQueueStatus] = useState<string>("loading");
-  const [beingUpdatedBy, setBeingUpdatedBy] = useState<string>("");
-  const [deleteModalData, setDeleteModalData] = useState<any>({
-    request: null,
-    video: null,
-  });
   const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
-  const [clearQueueLoading, setClearQueueLoading] = useState(false);
 
-  const disableDrag =
-    queueStatus === "updating" && beingUpdatedBy !== user?.prefferred_username;
+  const queue = useModQueueStore((state) => state.queue);
+  const setQueue = useModQueueStore((state) => state.setQueue);
+
+  const queueError = useModQueueStore((state) => state.queueError);
+  const setQueueError = useModQueueStore((state) => state.setQueueError);
+
+  const setQueueStatus = useModQueueStore((state) => state.setQueueStatus);
+
+  const beingUpdatedBy = useModQueueStore((state) => state.beingUpdatedBy);
+  const setBeingUpdatedBy = useModQueueStore(
+    (state) => state.setBeingUpdatedBy
+  );
 
   useEffect(() => {
     if (!user) {
@@ -223,228 +223,7 @@ const Mod: NextPage = () => {
     };
   }, [user]);
 
-  const onDragStart = async (event: any) => {
-    console.log("Drag Started");
-    const { active } = event;
-
-    setActiveId(active.id);
-    await axios.post("/api/mod/trigger", {
-      eventName: "lock-queue",
-      data: { beingUpdatedBy: user?.preferred_username },
-    });
-  };
-
-  const reorder = (
-    list: IApiRequest[],
-    startIndex: number,
-    endIndex: number
-  ) => {
-    const result = Array.from(list);
-    const [removed] = result.splice(startIndex, 1);
-    result.splice(endIndex, 0, removed);
-
-    return result;
-  };
-
-  const unlockQueue = async () => {
-    console.log("unlock queue");
-    await axios.post("/api/mod/trigger", {
-      eventName: "unlock-queue",
-      data: { beingUpdatedBy: "" },
-    });
-  };
-
-  const onDragEnd = async (event: any) => {
-    if (!queue) {
-      unlockQueue();
-      return;
-    }
-    if (!queue.order) {
-      unlockQueue();
-      return;
-    }
-
-    const { active, over } = event;
-    if (!over) {
-      unlockQueue();
-      return;
-    }
-
-    if (active.id !== over.id) {
-      const oldIndex = queue.order.findIndex(
-        (request) => `sortable${request.id}` === active.id
-      );
-      const newIndex = queue.order.findIndex(
-        (request) => `sortable${request.id}` === over.id
-      );
-
-      const updatedOrder = reorder(queue.order, oldIndex, newIndex);
-      const newQueue = { ...queue, order: updatedOrder };
-
-      setQueue(newQueue);
-
-      axios
-        .post("/api/mod/queue", {
-          updatedOrder,
-        })
-        .then((res) => {
-          if (res.status === 200) {
-            toast.success("Queue updated");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-
-      unlockQueue();
-    }
-
-    unlockQueue();
-    setActiveId(null);
-  };
-
-  const sensors = useSensors(
-    useSensor(MouseSensor, {
-      // Require the mouse to move by 10 pixels before activating
-      activationConstraint: {
-        distance: 5,
-      },
-    }),
-    useSensor(TouchSensor, {
-      // Press delay of 250ms, with tolerance of 5px of movement
-      activationConstraint: {
-        delay: 250,
-        tolerance: 5,
-      },
-    }),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
-  );
-
-  // Modals
-  const {
-    isOpen: isAddModalOpen,
-    onClose: closeAddModal,
-    onOpen: openAddModal,
-  } = useDisclosure();
-  const {
-    isOpen: isDeleteModalOpen,
-    onOpen: openDeleteModal,
-    onClose: closeDeleteModal,
-  } = useDisclosure();
-
-  const validateYTUrl = (value: string) => {
-    let error;
-    const parsed = urlParser.parse(value);
-    const alreadyRequested = queue.order.findIndex((request) => {
-      return request.Video.youtube_id === parsed?.id;
-    });
-
-    if (!value) {
-      error = "Youtube link required";
-    } else if (!parsed) {
-      error = "Not valid youtube URL";
-    } else if (alreadyRequested != -1) {
-      error = "Video is already in the queue";
-    }
-
-    return error;
-  };
-
-  const validateRequestedBy = (value: string) => {
-    let error;
-
-    if (!value) {
-      error = "Name required";
-    }
-
-    return error;
-  };
-
-  const QueueStatus = () => {
-    switch (queueStatus) {
-      case "ready":
-        return (
-          <Alert status="info">
-            <AlertIcon />
-            Queue is up to date
-          </Alert>
-        );
-      case "updating":
-        return (
-          <Alert status="warning">
-            <AlertIcon />
-            {beingUpdatedBy === user?.preferred_username
-              ? "You're "
-              : beingUpdatedBy + ` is `}
-            updating the queue
-          </Alert>
-        );
-      default:
-        return (
-          <Alert status="warning">
-            <AlertIcon />
-            Loading
-          </Alert>
-        );
-    }
-  };
-
-  const NotCountedAlert = () => {
-    let numOfPGNotChecked = 0;
-    const requestText =
-      numOfPGNotChecked > 1 ? "requests need" : "request needs";
-
-    for (let i = 0; i < queue?.order?.length; i++) {
-      if (queue.order[i].Video.PG_Status.status === Status.NOT_CHECKED) {
-        numOfPGNotChecked += 1;
-      }
-    }
-
-    if (queue.order.length > 0 && numOfPGNotChecked > 0) {
-      return (
-        <Alert mt={2} status="warning">
-          <AlertIcon />
-          {numOfPGNotChecked} {requestText} to be checked for PG status
-        </Alert>
-      );
-    }
-    return null;
-  };
-
-  const handleDeleteModalOpen = (request: any, video: any) => {
-    setDeleteModalData({
-      request,
-      video,
-    });
-    openDeleteModal();
-  };
-
-  const numOfPrio = queue?.order.filter((request) => {
-    request.priority === true;
-  }).length;
-
-  const clearNonPrio = () => {
-    setClearQueueLoading(true);
-    axios
-      .post("/api/mod/queue/clearQueue")
-      .then(async (res) => {
-        if (res.status === 200) {
-          await axios.post("/api/mod/trigger", {
-            eventName: "update-queue",
-            data: {},
-          });
-          toast.success("Non-prio requests cleared");
-          setClearQueueLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        toast.error("Error clearing non-prio requests");
-        setClearQueueLoading(false);
-      });
-  };
+  console.log(queue);
 
   return (
     <>
@@ -456,124 +235,7 @@ const Mod: NextPage = () => {
       <Container maxW={"container.xl"} p={0}>
         <Nav returnTo="/mod" />
 
-        <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader>Add Video</ModalHeader>
-            <ModalCloseButton />
-            <ModalBody>
-              <Formik
-                initialValues={{ ytLink: "", requestedBy: "" }}
-                onSubmit={(values, actions) => {
-                  axios
-                    .post("/api/mod/request", values)
-                    .then(async (res) => {
-                      if (res.status === 200) {
-                        await axios.post("/api/mod/trigger", {
-                          eventName: "update-queue",
-                          data: {},
-                        });
-                        closeAddModal();
-                        actions.setSubmitting(false);
-                        toast.success("Request added");
-                      }
-                    })
-                    .catch((error) => {
-                      actions.setSubmitting(false);
-                      console.error(error);
-                      if (error.response.status === 422) {
-                        toast.error("Video is banned, uban it if you dare...");
-                        return;
-                      } else {
-                        toast.error("Error adding request");
-                        return;
-                      }
-                    });
-                }}
-              >
-                {(props: FormikProps<any>) => (
-                  <Form>
-                    <Field name="ytLink" validate={validateYTUrl}>
-                      {({ field, form }: any) => (
-                        <FormControl
-                          isInvalid={form.errors.ytLink && form.touched.ytLink}
-                          isRequired={true}
-                        >
-                          <FormLabel htmlFor="youtube-link">
-                            Youtube Link
-                          </FormLabel>
-
-                          <Input
-                            {...field}
-                            id="youtube-link"
-                            placeholder="https://www.youtube.com/watch?v=ECSNqKsY_T4"
-                          />
-                          <FormErrorMessage>
-                            {form.errors.ytLink}
-                          </FormErrorMessage>
-                        </FormControl>
-                      )}
-                    </Field>
-                    <Field
-                      mb={2}
-                      name="requestedBy"
-                      validate={validateRequestedBy}
-                    >
-                      {({ field, form }: any) => (
-                        <FormControl
-                          isInvalid={
-                            form.errors.requestedBy && form.touched.requestedBy
-                          }
-                          isRequired={true}
-                        >
-                          <FormLabel mt={4} htmlFor="requested-by">
-                            Requested By
-                          </FormLabel>
-
-                          <Input
-                            {...field}
-                            id="requested-by"
-                            placeholder="username"
-                          />
-                          <FormErrorMessage>
-                            {form.errors.requestedBy}
-                          </FormErrorMessage>
-                        </FormControl>
-                      )}
-                    </Field>
-                    <AspectRatio mt={4} maxW="100%" ratio={16 / 9}>
-                      <ReactPlayer
-                        url={props.values.ytLink}
-                        height={"100%"}
-                        width={"100%"}
-                        controls={true}
-                      />
-                    </AspectRatio>
-                    <Button
-                      mt={4}
-                      mb={2}
-                      colorScheme="teal"
-                      isLoading={props.isSubmitting}
-                      type="submit"
-                    >
-                      Submit
-                    </Button>
-                  </Form>
-                )}
-              </Formik>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-
-        <DeleteModal
-          isDeleteModalOpen={isDeleteModalOpen}
-          closeDeleteModal={closeDeleteModal}
-          deleteModalData={deleteModalData}
-          setDeleteModalData={setDeleteModalData}
-        />
-
         <PGCheckerModal />
-
         <PGConfirmModal />
 
         {queueError && (
@@ -590,137 +252,36 @@ const Mod: NextPage = () => {
           user &&
           (queue ? (
             <>
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCorners}
-                onDragStart={onDragStart}
-                onDragEnd={onDragEnd}
-              >
-                <SortableContext
-                  items={
-                    queue?.order.map((request) => {
-                      return `sortable${request.id}`;
-                    })!
-                  }
-                  strategy={verticalListSortingStrategy}
-                >
-                  <Stack direction={"row"} pt={5}>
-                    <Box px={[4, 5]} w={["100%", "80%"]}>
-                      <Box width={"100%"}>
-                        <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                          Now Playing
-                        </Text>
-                        {queue.now_playing ? (
-                          <NowPlayingCard
-                            request={queue.now_playing}
-                            video={queue.now_playing.Video}
-                            pgStatus={queue.now_playing.Video.PG_Status}
-                          />
-                        ) : (
-                          <Container
-                            my={2}
-                            p={2}
-                            h={100}
-                            borderWidth="1px"
-                            borderRadius="lg"
-                            maxW={"100%"}
-                            centerContent
-                          >
-                            <Box mt={6}>
-                              <Text>Nothing playing</Text>
-                            </Box>
-                          </Container>
-                        )}
-                      </Box>
-                      <HStack>
-                        <Button my={2} onClick={openAddModal}>
-                          Add Request
-                        </Button>
-                        <Popover placement="top">
-                          <PopoverTrigger>
-                            <Button
-                              colorScheme={"red"}
-                              variant={"ghost"}
-                              p={2}
-                              ml={2}
-                            >
-                              Clear Non-Prio
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent color="white" bg="red.900">
-                            <PopoverArrow bg="red.900" />
-                            <PopoverCloseButton />
-                            <PopoverHeader>
-                              Are you sure you want to clear the non-prio queue?
-                            </PopoverHeader>
-                            <PopoverBody>
-                              <Button
-                                my={2}
-                                onClick={() => {
-                                  clearNonPrio();
-                                }}
-                                colorScheme="red"
-                                w="100%"
-                                isLoading={clearQueueLoading}
-                              >
-                                CLEAR NON-PRIO
-                              </Button>
-                            </PopoverBody>
-                          </PopoverContent>
-                        </Popover>
-                        <Link passHref href={"/mod/banned-videos"}>
-                          <ChakraLink fontWeight={"medium"} ml={2}>
-                            Banned Videos
-                          </ChakraLink>
-                        </Link>
-                      </HStack>
-                      <QueueStatus />
-                      <NotCountedAlert />
-                      {queue.order.length > 0 ? (
-                        queue?.order.map((request) => {
-                          return (
-                            <RequestCard
-                              key={`key${request.id}`}
-                              id={request.id}
-                              request={request}
-                              video={request.Video}
-                              pgStatus={request.Video.PG_Status}
-                              openDeleteModal={handleDeleteModalOpen}
-                              disabled={disableDrag}
-                              numOfPrio={numOfPrio}
-                              user={user}
-                            />
-                          );
-                        })
-                      ) : (
-                        <Box w={"100%"} textAlign="center">
-                          <Text fontSize="2xl" fontWeight="bold">
-                            No Requests In Queue
-                          </Text>
-                        </Box>
-                      )}
-                    </Box>
-                    <Box display={["none", "block"]} w={"20%"} ml={2}>
-                      <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                        Mods Online
-                      </Text>
-                      <Box>
-                        {modsOnline.map((mod) => {
-                          return (
-                            <HStack key={mod.id} my={2}>
-                              <Avatar src={mod.info.picture} />
-                              <Text>{mod.info.username}</Text>
-                            </HStack>
-                          );
-                        })}
-                      </Box>
-                    </Box>
-                  </Stack>
-                </SortableContext>
-                <DragOverlay>
-                  {activeId ? <DragItem id={activeId} /> : null}
-                </DragOverlay>
-              </DndContext>
+              <Stack direction={"row"} pt={5}>
+                <Box px={[4, 5]} w={["100%", "80%"]}>
+                  <Box
+                    rounded="lg"
+                    bgColor={queue?.is_open ? "green.500" : "red.700"}
+                    textAlign="center"
+                    p={2}
+                  >
+                    <Text fontWeight="bold">
+                      Queue is {queue?.is_open ? "Open" : "Closed"}
+                    </Text>
+                  </Box>
+                  <ModQueue />
+                </Box>
+                <Box display={["none", "block"]} w={"20%"} ml={2}>
+                  <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
+                    Mods Online
+                  </Text>
+                  <Box>
+                    {modsOnline.map((mod) => {
+                      return (
+                        <HStack key={mod.id} my={2}>
+                          <Avatar src={mod.info.picture} />
+                          <Text>{mod.info.username}</Text>
+                        </HStack>
+                      );
+                    })}
+                  </Box>
+                </Box>
+              </Stack>
             </>
           ) : (
             <Box w={"100%"} alignContent="center">

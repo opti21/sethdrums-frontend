@@ -72,6 +72,7 @@ const queueApiHandler = withSentry(
           now_playing: nowPlaying,
           is_updating: queue.is_updating,
           being_updated_by: queue.being_updated_by,
+          is_open: queue.is_open,
         };
         return res.status(200).json(queueResponse);
       } catch (err) {
