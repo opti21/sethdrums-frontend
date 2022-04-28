@@ -23,6 +23,8 @@ import {
   Avatar,
   Divider,
   Link as ChakraLink,
+  VStack,
+  Flex,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -37,7 +39,6 @@ import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
-import Pusher from "pusher-js";
 import Image from "next/image";
 import { IoLogoTwitch } from "react-icons/io";
 import useSWR from "swr";
@@ -381,6 +382,7 @@ const Home: NextPage = () => {
                 </Box>
               </Box>
               <Box px={[4, 5]} w={["100%", "50%"]}>
+                {/* Potential spot for Socials and twitch embed */}
                 <Box width={"100%"}>
                   <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                     Recently Played

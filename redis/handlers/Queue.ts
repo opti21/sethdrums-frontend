@@ -8,6 +8,7 @@ interface Queue {
   is_updating: boolean;
   being_updated_by: string;
   now_playing: string;
+  is_open: boolean;
 }
 
 class Queue extends Entity {}
@@ -16,10 +17,10 @@ const queueSchema = new Schema(
   Queue,
   {
     order: { type: "string[]" },
-    prioOrder: { type: "string[]" },
     is_updating: { type: "boolean" },
     being_updated_by: { type: "string" },
     now_playing: { type: "string" },
+    is_open: { type: "boolean" },
   },
   {
     dataStructure: "JSON",

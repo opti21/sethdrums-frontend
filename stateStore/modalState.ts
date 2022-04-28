@@ -63,3 +63,16 @@ export const useFartModalStore = create<TFartModalState>((set) => ({
   open: () => set(() => ({ isOpen: true })),
   close: () => set(() => ({ isOpen: false })),
 }));
+
+// Add Request Confirm Modal
+type TAddRequestModalState = {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
+};
+
+export const useAddRequestModalStore = create<TAddRequestModalState>((set) => ({
+  isOpen: false,
+  open: () => set(() => ({ isOpen: true })),
+  close: () => set(() => ({ isOpen: false })),
+}));
