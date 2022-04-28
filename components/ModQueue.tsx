@@ -269,12 +269,7 @@ const ModQueue: FC<Props> = ({}) => {
     <>
       <AddModal queue={queue} />
 
-      <DeleteModal
-        isDeleteModalOpen={isDeleteModalOpen}
-        closeDeleteModal={closeDeleteModal}
-        deleteModalData={deleteModalData}
-        setDeleteModalData={setDeleteModalData}
-      />
+      <DeleteModal />
 
       <Box width={"100%"}>
         <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>

@@ -309,13 +309,7 @@ const Home: NextPage = () => {
           </ModalContent>
         </Modal>
 
-        <DeleteModal
-          isDeleteModalOpen={isDeleteModalOpen}
-          closeDeleteModal={closeDeleteModal}
-          deleteModalData={deleteModalData}
-          setDeleteModalData={setDeleteModalData}
-          publicView={true}
-        />
+        <DeleteModal publicView={true} />
 
         {queueError && (
           <Alert mt={2} status="error">

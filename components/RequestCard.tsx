@@ -30,6 +30,7 @@ import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
 import { UserProfile } from "@auth0/nextjs-auth0";
+import { useDeleteModalStore } from "../stateStore/modalState";
 
 type Props = {
   id: string;
@@ -48,12 +49,13 @@ const RequestCard: FC<Props> = ({
   request,
   video,
   pgStatus,
-  openDeleteModal,
   disabled,
   sethView,
   publicView,
   user,
 }) => {
+  const openDeleteModal = useDeleteModalStore((state) => state.open);
+
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
       id: `sortable${id}`,
