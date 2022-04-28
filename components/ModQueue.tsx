@@ -139,10 +139,6 @@ const ModQueue: FC<Props> = ({}) => {
     openDeleteModal();
   };
 
-  const numOfPrio = queue?.order.filter((request) => {
-    request.priority === true;
-  }).length;
-
   const clearNonPrio = () => {
     setClearQueueLoading(true);
     axios
@@ -370,7 +366,6 @@ const ModQueue: FC<Props> = ({}) => {
                   pgStatus={request.Video.PG_Status}
                   openDeleteModal={handleDeleteModalOpen}
                   disabled={disableDrag}
-                  numOfPrio={numOfPrio}
                   user={user}
                 />
               );

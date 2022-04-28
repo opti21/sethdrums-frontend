@@ -21,7 +21,7 @@ import {
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import axios from "axios";
-import { FC } from "react";
+import { FC, memo } from "react";
 import { PGButton, SethPGButtons } from "./PgButtons";
 import { MdDragIndicator } from "react-icons/md";
 import { IApiRequest, IAPiVideo, Status } from "../utils/types";
@@ -38,7 +38,6 @@ type Props = {
   pgStatus?: PG_Status;
   openDeleteModal?: (request: any, video: any) => void;
   disabled?: boolean;
-  numOfPrio?: number;
   sethView?: boolean;
   publicView?: boolean;
   user?: UserProfile;
@@ -51,7 +50,6 @@ const RequestCard: FC<Props> = ({
   pgStatus,
   openDeleteModal,
   disabled,
-  numOfPrio,
   sethView,
   publicView,
   user,
@@ -64,7 +62,6 @@ const RequestCard: FC<Props> = ({
 
   const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
   const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
-  const cardBG = request.priority ? prioGradient : regularGradient;
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -111,7 +108,7 @@ const RequestCard: FC<Props> = ({
     <Box
       border="1px"
       borderColor={request.priority ? "orange.300" : "purple.700"}
-      bgGradient={cardBG}
+      bgGradient={request.priority ? prioGradient : regularGradient}
       rounded="lg"
       w={"100%"}
       p={2}
@@ -338,4 +335,4 @@ const RequestCard: FC<Props> = ({
   );
 };
 
-export default RequestCard;
+export default memo(RequestCard);
