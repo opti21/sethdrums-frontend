@@ -13,29 +13,20 @@ import {
 import axios from "axios";
 import { Dispatch, FC } from "react";
 import { toast } from "react-toastify";
+import { useDeleteModalStore } from "../../stateStore/modalState";
 
 type Props = {
-  isDeleteModalOpen: boolean;
-  closeDeleteModal: () => void;
-  deleteModalData: {
-    request: any;
-    video: any;
-  };
-  setDeleteModalData: Dispatch<any>;
   publicView?: boolean;
 };
 
-const DeleteModal: FC<Props> = ({
-  isDeleteModalOpen,
-  closeDeleteModal,
-  deleteModalData,
-  setDeleteModalData,
-  publicView,
-}: any) => {
+const DeleteModal: FC<Props> = ({ publicView }: any) => {
+  const isDeleteModalOpen = useDeleteModalStore((state) => state.isOpen);
+  const closeDeleteModal = useDeleteModalStore((state) => state.close);
+  const deleteModalData = useDeleteModalStore((state) => state.deleteModalData);
   const request = deleteModalData.request;
   const video = deleteModalData.video;
 
-  const handleDelete = (requestID: string) => {
+  const handleDelete = (requestID: number) => {
     axios
       .delete(!publicView ? "/api/mod/request" : "/api/public/request", {
         data: {
@@ -51,17 +42,9 @@ const DeleteModal: FC<Props> = ({
           });
         }
         closeDeleteModal();
-        setDeleteModalData({
-          request: null,
-          video: null,
-        });
       })
       .catch((err) => {
         closeDeleteModal();
-        setDeleteModalData({
-          request: null,
-          video: null,
-        });
         toast.error("Error deleting request");
         console.error(err);
       });
@@ -98,7 +81,7 @@ const DeleteModal: FC<Props> = ({
           <Button
             bgColor="red"
             mr={3}
-            onClick={() => handleDelete(request?.id)}
+            onClick={() => handleDelete(parseInt(request?.id))}
           >
             Delete
           </Button>

@@ -1,5 +1,6 @@
-import { Video } from "@prisma/client";
+import { Request, Video } from "@prisma/client";
 import create from "zustand";
+import { IApiRequest } from "../utils/types";
 
 // PG Confirm Modal
 type TPGConfirmModalState = {
@@ -49,6 +50,41 @@ export const usePGCheckerModalStore = create<TPGCheckerModalState>((set) => ({
         currentStatus,
       },
     })),
+}));
+
+// Delete Request Modal
+
+interface IDeleteModalData {
+  request: IApiRequest | null;
+  video: Video | null;
+}
+
+type TDeleteModalState = {
+  isOpen: boolean;
+  open: (request: IApiRequest, video: Video) => void;
+  close: () => void;
+  deleteModalData: IDeleteModalData;
+  setDeleteModalData: (newDeleteData: IDeleteModalData) => void;
+};
+
+export const useDeleteModalStore = create<TDeleteModalState>((set) => ({
+  isOpen: false,
+  open: (request, video) =>
+    set(() => ({ isOpen: true, deleteModalData: { request, video } })),
+  close: () =>
+    set(() => ({
+      isOpen: false,
+      deleteModalData: {
+        request: null,
+        video: null,
+      },
+    })),
+  deleteModalData: {
+    request: null,
+    video: null,
+  },
+  setDeleteModalData: (newDeleteData) =>
+    set({ deleteModalData: newDeleteData }),
 }));
 
 // Fart Modal

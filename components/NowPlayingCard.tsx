@@ -64,37 +64,51 @@ const NowPlayingCard: FC<Props> = ({
     return formatted;
   };
 
-  const markAsPlayed = () => {
-    axios
-      .put("/api/mod/request", { requestID: request.id, played: true })
-      .then(async (res) => {
-        if (res.status === 200) {
-          toast.success("Request marked as played!");
-          // Clear now playing
-          await axios
-            .delete("/api/mod/queue/nowPlaying")
-            .then((nowPlayingRes) => {
-              if (nowPlayingRes.status === 200) {
-                axios
-                  .post("/api/mod/trigger", {
-                    eventName: "update-queue",
-                    data: {},
-                  })
-                  .catch((triggerErr) => {
-                    console.error(triggerErr);
-                    toast.error("Error triggering pusher");
-                  });
-              }
+  const markAsPlayed = async () => {
+    await axios
+      .delete("/api/mod/queue/now-playing")
+      .then((nowPlayingRes) => {
+        if (nowPlayingRes.status === 200) {
+          axios
+            .post("/api/mod/trigger", {
+              eventName: "update-queue",
+              data: {},
             })
-            .catch((err) => {
-              console.error(err);
-              toast.error("Error clearing now playing");
+            .catch((triggerErr) => {
+              console.error(triggerErr);
+              toast.error("Error triggering pusher");
             });
+        } else {
+          toast.error("Error removing now playing");
+          console.log(nowPlayingRes);
         }
       })
       .catch((err) => {
         console.error(err);
-        toast.error("Error marking request as played");
+        toast.error("Error clearing now playing");
+      });
+  };
+
+  const returnToQueue = async () => {
+    await axios
+      .post("/api/mod/request/return-to-queue", {
+        requestID: request.id,
+      })
+      .then((res) => {
+        axios
+          .post("/api/mod/trigger", {
+            eventName: "update-queue",
+            data: {},
+          })
+          .catch((triggerErr) => {
+            console.error(triggerErr);
+            toast.error("Error triggering pusher");
+          });
+        toast.success("Request returned to queue");
+      })
+      .catch((err) => {
+        console.error(err);
+        toast.error("Error returning request to queue");
       });
   };
 
@@ -203,6 +217,15 @@ const NowPlayingCard: FC<Props> = ({
               >
                 Mark Played
               </Button>
+              <Button
+                h={[10, 5]}
+                w={"100%"}
+                fontSize={[15, 10]}
+                colorScheme={"blue"}
+                onClick={() => returnToQueue()}
+              >
+                Return to Queue
+              </Button>
             </>
           )}
           {sethView && (
@@ -220,6 +243,7 @@ const NowPlayingCard: FC<Props> = ({
                 w={"100%"}
                 fontSize={[15, 10]}
                 colorScheme={"blue"}
+                onClick={() => returnToQueue()}
               >
                 Return to Queue
               </Button>

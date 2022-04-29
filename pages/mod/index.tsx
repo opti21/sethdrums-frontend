@@ -29,6 +29,7 @@ import {
   PopoverHeader,
   PopoverBody,
   Link as ChakraLink,
+  StatUpArrow,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -67,6 +68,8 @@ import PGCheckerModal from "../../components/modals/PGCheckerModal";
 import Link from "next/link";
 import { useModQueueStore } from "../../stateStore/queueState";
 import ModQueue from "../../components/ModQueue";
+import ScrollToTop from "react-scroll-to-top";
+import { ArrowUpIcon } from "@chakra-ui/icons";
 
 const Mod: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -237,6 +240,12 @@ const Mod: NextPage = () => {
 
         <PGCheckerModal />
         <PGConfirmModal />
+
+        <ScrollToTop
+          smooth
+          style={{ backgroundColor: "Background" }}
+          component={<ArrowUpIcon color="white" />}
+        />
 
         {queueError && (
           <Alert mt={2} status="error">

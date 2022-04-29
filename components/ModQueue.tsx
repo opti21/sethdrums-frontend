@@ -139,10 +139,6 @@ const ModQueue: FC<Props> = ({}) => {
     openDeleteModal();
   };
 
-  const numOfPrio = queue?.order.filter((request) => {
-    request.priority === true;
-  }).length;
-
   const clearNonPrio = () => {
     setClearQueueLoading(true);
     axios
@@ -273,12 +269,7 @@ const ModQueue: FC<Props> = ({}) => {
     <>
       <AddModal queue={queue} />
 
-      <DeleteModal
-        isDeleteModalOpen={isDeleteModalOpen}
-        closeDeleteModal={closeDeleteModal}
-        deleteModalData={deleteModalData}
-        setDeleteModalData={setDeleteModalData}
-      />
+      <DeleteModal />
 
       <Box width={"100%"}>
         <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
@@ -370,7 +361,6 @@ const ModQueue: FC<Props> = ({}) => {
                   pgStatus={request.Video.PG_Status}
                   openDeleteModal={handleDeleteModalOpen}
                   disabled={disableDrag}
-                  numOfPrio={numOfPrio}
                   user={user}
                 />
               );

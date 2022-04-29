@@ -45,7 +45,7 @@ const pgStatusApiHandler = withSentry(
         console.error(error);
         return res
           .status(500)
-          .json({ success: false, messge: "Erro updating PG" });
+          .json({ success: false, messge: "Error updating PG" });
       }
     } else {
       return res.status(405).send(`${req.method} is not a valid`);
