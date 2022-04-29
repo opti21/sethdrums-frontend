@@ -1,6 +1,9 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
-import { getQueue, updateOrderPrio } from "../../../../redis/handlers/Queue";
+import {
+  getQueue,
+  updateOrderIdStrings,
+} from "../../../../redis/handlers/Queue";
 import prisma from "../../../../utils/prisma";
 import { withSentry } from "@sentry/nextjs";
 
@@ -49,7 +52,7 @@ const MakeRequestPrioApiHandler = withSentry(
 
           const updatedOrder = reorder(currentQueue.order, oldIndex, numOfPrio);
 
-          await updateOrderPrio(updatedOrder);
+          await updateOrderIdStrings(updatedOrder);
           return res.status(200).send("Request updated");
         } else {
           const updatedRequest = await prisma.request.update({
@@ -70,15 +73,15 @@ const MakeRequestPrioApiHandler = withSentry(
             numOfPrio - 1
           );
 
-          await updateOrderPrio(updatedOrder);
+          await updateOrderIdStrings(updatedOrder);
           return res.status(200).send("Request updated");
         }
       } catch (error) {
         console.error(error);
-        res.status(500).send("Error updating prio status");
+        return res.status(500).send("Error updating prio status");
       }
     } else {
-      res.status(405).send(`${req.method} is not a valid method`);
+      return res.status(405).send(`${req.method} is not a valid method`);
     }
   })
 );

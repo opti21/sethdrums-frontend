@@ -173,7 +173,7 @@ async function updateOrder(updatedOrderData: any): Promise<boolean> {
   }
 }
 
-async function updateOrderPrio(updatedOrder: string[]): Promise<boolean> {
+async function updateOrderIdStrings(updatedOrder: string[]): Promise<boolean> {
   try {
     lockQueue();
 
@@ -228,6 +228,6 @@ export {
   addToQueue,
   removeFromOrder,
   updateOrder,
-  updateOrderPrio,
+  updateOrderIdStrings,
   updateNowPlaying,
 };

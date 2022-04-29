@@ -8,6 +8,10 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { withSentry } from "@sentry/nextjs";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+dayjs.extend(utc);
 
 const queueApiHandler = withSentry(
   withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
@@ -25,16 +29,32 @@ const queueApiHandler = withSentry(
     if (req.method === "POST") {
       // TODO: validate body
       if (req.body.requestID) {
-        const requestExists = await prisma.request.findFirst({
-          where: {
-            id: parseInt(req.body.requestID),
-          },
-        });
-        if (!requestExists) {
-          return res
-            .status(422)
-            .json({ success: false, message: "request does not exist" });
+        try {
+          await prisma.request.update({
+            where: {
+              id: parseInt(req.body.requestID),
+            },
+            data: {
+              played: true,
+              played_at: dayjs.utc().format(),
+            },
+          });
+        } catch (err) {
+          if (err instanceof PrismaClientKnownRequestError) {
+            if (err.code === "P2025") {
+              return res
+                .status(422)
+                .json({ success: false, error: "Request does not exist" });
+            } else {
+              console.error(err);
+              return res.status(500).json({
+                success: false,
+                error: "Prisma error marking request played",
+              });
+            }
+          }
         }
+
         const nowPlayingUpdate = await updateNowPlaying(req.body.requestID);
         if (!nowPlayingUpdate) {
           return res.status(500).json({ error: "Server error" });

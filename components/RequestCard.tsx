@@ -88,12 +88,12 @@ const RequestCard: FC<Props> = ({
 
   const markNowPlaying = () => {
     axios
-      .post("/api/mod/queue/nowPlaying", {
+      .post("/api/mod/queue/now-playing", {
         requestID: id,
       })
       .then(async (res) => {
         if (res.status === 200) {
-          toast.success("song now playing");
+          toast.success("Song now playing");
           await axios.post("/api/mod/trigger", {
             eventName: "update-queue",
             data: {},
