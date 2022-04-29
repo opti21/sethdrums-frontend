@@ -417,7 +417,6 @@ const SethView: NextPage = () => {
                         video={request.Video}
                         pgStatus={request.Video.PG_Status}
                         sethView={true}
-                        numOfPrio={numOfPrio}
                       />
                     );
                   })}
