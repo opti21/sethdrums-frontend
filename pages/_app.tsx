@@ -4,7 +4,6 @@ import { SWRConfig } from "swr";
 import { UserProvider } from "@auth0/nextjs-auth0";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { GrowthBook, GrowthBookProvider } from "@growthbook/growthbook-react";
 import { useEffect } from "react";
 import { ColorModeScript } from "@chakra-ui/react";
 import theme from "../utils/theme";
@@ -14,15 +13,6 @@ import ReactShortcut from "react-shortcut";
 import ReactAudioPlayer from "react-audio-player";
 import { useFartModalStore } from "../stateStore/modalState";
 import FartModal from "../components/modals/FartModal";
-
-const growthbook = new GrowthBook({
-  trackingCallback: (experiment, result) => {
-    console.log({
-      experimentId: experiment.key,
-      variationId: result.variationId,
-    });
-  },
-});
 
 function App({ Component, pageProps }: AppProps) {
   const openFartModal = useFartModalStore((state) => state.open);
@@ -44,15 +34,6 @@ function App({ Component, pageProps }: AppProps) {
     return res.json();
   };
 
-  useEffect(() => {
-    // Load feature definitions from API
-    fetch(process.env.NEXT_PUBLIC_GROWTHBOOK_ENDPOINT)
-      .then((res) => res.json())
-      .then((json) => {
-        growthbook.setFeatures(json.features);
-      });
-  }, []);
-
   return (
     <PlausibleProvider domain="sethdrums.com">
       <UserProvider>
@@ -73,23 +54,19 @@ function App({ Component, pageProps }: AppProps) {
             draggable
             pauseOnHover
           />
-          <GrowthBookProvider growthbook={growthbook}>
-            <ChakraProvider>
-              <ColorModeScript
-                initialColorMode={theme.config.initialColorMode}
-              />
-              <ReactShortcut
-                keys="Up Up Down Down Left Right Left Right B A"
-                onKeysPressed={() => {
-                  console.log("fart");
-                  openFartModal();
-                }}
-              />
-              <FartModal />
+          <ChakraProvider>
+            <ColorModeScript initialColorMode={theme.config.initialColorMode} />
+            <ReactShortcut
+              keys="Up Up Down Down Left Right Left Right B A"
+              onKeysPressed={() => {
+                console.log("fart");
+                openFartModal();
+              }}
+            />
+            <FartModal />
 
-              <Component {...pageProps} />
-            </ChakraProvider>
-          </GrowthBookProvider>
+            <Component {...pageProps} />
+          </ChakraProvider>
         </SWRConfig>
       </UserProvider>
     </PlausibleProvider>

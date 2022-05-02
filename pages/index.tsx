@@ -45,7 +45,6 @@ import useSWR from "swr";
 import Link from "next/link";
 import DeleteModal from "../components/modals/DeleteModal";
 import NowPlayingCard from "../components/NowPlayingCard";
-import { useFeature } from "@growthbook/growthbook-react";
 import ScrollToTop from "react-scroll-to-top";
 import { ArrowUpIcon } from "@chakra-ui/icons";
 
@@ -60,7 +59,6 @@ const Home: NextPage = () => {
     error: queueError,
     mutate,
   } = useSWR("/api/public/queue");
-  const comingSoon = useFeature("coming-soon").on;
 
   const validateYTUrl = (value: string) => {
     let error;
@@ -128,39 +126,38 @@ const Home: NextPage = () => {
     openDeleteModal();
   };
 
-  if (comingSoon) {
-    return (
-      <>
-        <Head>
-          <title>SethDrums Song Panel</title>
-          <link rel="icon" href="/favicon.ico" />
-          <meta name="og:title" content="SethDrums Song Panel - Home" />
-          <meta name="og:site_name" content="SethDrums Song Panel" />
-          <meta
-            name="og:description"
-            content="Song Panel to request song for SethDrums' stream."
-          />
-          <meta
-            name="og:image"
-            content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
-          />
-          <meta name="twitter:creator" content="@imSethDrums" />
-          <meta name="twitter:card" content="summary_large_image" />
-          <meta
-            name="twitter:image"
-            content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
-          />
-        </Head>
-        <Container maxW={"container.xl"} p={0}>
-          <Box w={"100%"} textAlign="center">
-            <Image src="/SD_Logo_Neon.png" width={391} height={200} />
-            <Text>Coming Soon...</Text>
-          </Box>
-        </Container>
-      </>
-    );
-  }
-  console.log(queue);
+  // if (comingSoon) {
+  //   return (
+  //     <>
+  //       <Head>
+  //         <title>SethDrums Song Panel</title>
+  //         <link rel="icon" href="/favicon.ico" />
+  //         <meta name="og:title" content="SethDrums Song Panel - Home" />
+  //         <meta name="og:site_name" content="SethDrums Song Panel" />
+  //         <meta
+  //           name="og:description"
+  //           content="Song Panel to request song for SethDrums' stream."
+  //         />
+  //         <meta
+  //           name="og:image"
+  //           content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
+  //         />
+  //         <meta name="twitter:creator" content="@imSethDrums" />
+  //         <meta name="twitter:card" content="summary_large_image" />
+  //         <meta
+  //           name="twitter:image"
+  //           content="https://sethdrums.com/SethDrums_Twitter_2022-min.jpg"
+  //         />
+  //       </Head>
+  //       <Container maxW={"container.xl"} p={0}>
+  //         <Box w={"100%"} textAlign="center">
+  //           <Image src="/SD_Logo_Neon.png" width={391} height={200} />
+  //           <Text>Coming Soon...</Text>
+  //         </Box>
+  //       </Container>
+  //     </>
+  //   );
+  // }
 
   return (
     <>
