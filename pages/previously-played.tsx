@@ -16,7 +16,6 @@ import "js-video-url-parser/lib/provider/youtube";
 import Image from "next/image";
 import useSWR from "swr";
 import Link from "next/link";
-import { useFeature } from "@growthbook/growthbook-react";
 import HistoryTable from "../components/HistoryTable";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 
@@ -26,26 +25,25 @@ const PreviouslyPlayed: NextPage = () => {
   const { data: historyData, error: historyError } = useSWR(
     "/api/public/previously-played"
   );
-  const comingSoon = useFeature("coming-soon").on;
 
-  if (comingSoon) {
-    return (
-      <>
-        <Head>
-          <title>SethDrums Previously Played</title>
-          <meta name="description" content="SethDrums Previously Played" />
-          <link rel="icon" href="/favicon.ico" />
-        </Head>
-        <Container maxW={"container.xl"} p={0}>
-          <Box w={"100%"} textAlign="center">
-            <Image src="/SD_Logo_Neon.png" width={391} height={200} />
-            <Text>Coming Soon...</Text>
-          </Box>
-        </Container>
-      </>
-    );
-  }
-  console.log(historyData);
+  // if (comingSoon) {
+  //   return (
+  //     <>
+  //       <Head>
+  //         <title>SethDrums Previously Played</title>
+  //         <meta name="description" content="SethDrums Previously Played" />
+  //         <link rel="icon" href="/favicon.ico" />
+  //       </Head>
+  //       <Container maxW={"container.xl"} p={0}>
+  //         <Box w={"100%"} textAlign="center">
+  //           <Image src="/SD_Logo_Neon.png" width={391} height={200} />
+  //           <Text>Coming Soon...</Text>
+  //         </Box>
+  //       </Container>
+  //     </>
+  //   );
+  // }
+  // console.log(historyData);
 
   return (
     <>
