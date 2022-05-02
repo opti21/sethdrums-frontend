@@ -2,6 +2,8 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.98](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.97...v0.1.98) (2022-05-02)
+
 ### 0.1.97 (2022-04-29)
 
 
