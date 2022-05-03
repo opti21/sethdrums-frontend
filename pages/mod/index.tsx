@@ -164,7 +164,14 @@ const Mod: NextPage = () => {
       channel.bind("queue-add", (data: any) => {
         console.log("queue add");
         toast.info("New Request Added", {
-          position: "bottom-center",
+          onClick: () =>
+            window.scroll({
+              top: document.body.offsetHeight,
+              left: 0,
+              behavior: "smooth",
+            }),
+          toastId: "new-song",
+          position: "bottom-left",
           pauseOnFocusLoss: false,
         });
         axios
