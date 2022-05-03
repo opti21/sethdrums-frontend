@@ -23,12 +23,14 @@ import {
   PopoverCloseButton,
   PopoverHeader,
   PopoverBody,
+  IconButton,
 } from "@chakra-ui/react";
 import { Status } from "@prisma/client";
 import axios from "axios";
 import { Field, Form, Formik, FormikProps } from "formik";
 import { request } from "https";
 import { Dispatch, FC, useState } from "react";
+import { MdCopyAll } from "react-icons/md";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import { usePGCheckerModalStore } from "../../stateStore/modalState";
@@ -126,6 +128,17 @@ const PGCheckerModal: FC = ({}: any) => {
         <ModalHeader>PG Status Checker</ModalHeader>
         <ModalCloseButton />
         <ModalBody>
+          <HStack py={2}>
+            <IconButton
+              onClick={() => {
+                navigator.clipboard.writeText(pgData.video?.title);
+                toast.success("Title Copied");
+              }}
+              icon={<MdCopyAll />}
+              aria-label="Copy video title"
+            />
+            <Text>{pgData.video?.title}</Text>
+          </HStack>
           <AspectRatio maxW="100%" ratio={16 / 9}>
             <ReactPlayer
               url={`https://www.youtube.com/watch?v=${pgData.video?.youtube_id}`}
