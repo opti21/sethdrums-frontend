@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.99](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.98...v0.1.99) (2022-05-04)
+
+
+### Features
+
+* Add copy button to pg modal checker ([e5a1601](https://github.com/opti21/pepega-panel-frontend/commit/e5a160169a5f6c5f0ab17e20458e0566314458f2))
+
+
+### Bug Fixes
+
+* fixed new request notis ([273ec17](https://github.com/opti21/pepega-panel-frontend/commit/273ec17ce9ac3267ad9382626b6a83fefa2be645)), closes [opti21/SethDrums-Song-Panel-Issues#4](https://github.com/opti21/SethDrums-Song-Panel-Issues/issues/4)
+
 ### [0.1.98](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.97...v0.1.98) (2022-05-02)
 
 ### 0.1.97 (2022-04-29)
