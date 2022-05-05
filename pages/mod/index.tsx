@@ -36,36 +36,12 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Nav from "../../components/Nav";
-import RequestCard from "../../components/RequestCard";
-import { IApiRequest, IQueue } from "../../utils/types";
-import {
-  closestCorners,
-  DndContext,
-  DragOverlay,
-  KeyboardSensor,
-  MouseSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
-import ReactPlayer from "react-player";
-import {
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { Field, Form, Formik, FormikProps } from "formik";
 import { useUser } from "@auth0/nextjs-auth0";
 import { toast } from "react-toastify";
-import DragItem from "../../components/DragItem";
-import DeleteModal from "../../components/modals/DeleteModal";
 import Pusher from "pusher-js";
 import Image from "next/image";
-import { Status } from "@prisma/client";
-import NowPlayingCard from "../../components/NowPlayingCard";
 import PGConfirmModal from "../../components/modals/PGConfirmModal";
 import PGCheckerModal from "../../components/modals/PGCheckerModal";
-import Link from "next/link";
 import { useModQueueStore } from "../../stateStore/queueState";
 import ModQueue from "../../components/ModQueue";
 import ScrollToTop from "react-scroll-to-top";
@@ -188,7 +164,14 @@ const Mod: NextPage = () => {
       channel.bind("queue-add", (data: any) => {
         console.log("queue add");
         toast.info("New Request Added", {
-          position: "bottom-center",
+          onClick: () =>
+            window.scroll({
+              top: document.body.offsetHeight,
+              left: 0,
+              behavior: "smooth",
+            }),
+          toastId: "new-song",
+          position: "bottom-left",
           pauseOnFocusLoss: false,
         });
         axios
