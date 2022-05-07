@@ -1,11 +1,13 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["referentialIntegrity"]
 }
 
 datasource db {
-  provider          = "postgresql"
-  url               = env("POSTGRES_URL")
-  shadowDatabaseUrl = env("POSTGRES_GHOST_URL")
+  provider             = "mysql"
+  url                  = env("PLANETSCALE_URL")
+  shadowDatabaseUrl    = env("PLANETSCALE_SHADOW")
+  referentialIntegrity = "prisma"
 }
 
 model Request {
@@ -57,7 +59,7 @@ model Video {
   region_blocked Boolean?
   embed_blocked  Boolean?
   duration       Int?
-  notes          String         @default("")
+  notes          String         @default("") @db.VarChar(1000)
   banned         Boolean        @default(false)
   thumbnail      String
   banned_by      String?
