@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.99...v0.2.0) (2022-05-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* Switching database to planet scale
+
+### Features
+
+* Switching to Planetscale ([c1d59e6](https://github.com/opti21/pepega-panel-frontend/commit/c1d59e69650bdbaf1d6878b7ff1b5989473992d7))
+
 ### [0.1.99](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.98...v0.1.99) (2022-05-04)
 
 
