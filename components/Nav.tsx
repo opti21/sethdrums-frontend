@@ -36,17 +36,27 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   const username = user?.preferred_username as string;
   const [isMod, setIsMod] = useState(false);
   const [isSeth, setIsSeth] = useState(false);
+  console.log(user);
 
   useEffect(() => {
     if (user && !isLoading) {
-      axios.get("/api/mod/isMod").then((res) => {
-        if (res.status === 200) {
-          setIsMod(true);
-        }
-        if (res.status === 201) {
-          setIsSeth(true);
-        }
-      });
+      axios
+        .get("/api/mod/isMod")
+        .then((res) => {
+          if (res.status === 200) {
+            setIsMod(true);
+          }
+          if (res.status === 201) {
+            setIsSeth(true);
+          }
+        })
+        .catch((err) => {
+          if (err.response.status === 403) {
+            return;
+          } else {
+            console.error(err);
+          }
+        });
     }
   }, [user, isLoading]);
 
