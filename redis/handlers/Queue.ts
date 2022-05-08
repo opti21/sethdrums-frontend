@@ -9,6 +9,7 @@ interface Queue {
   being_updated_by: string;
   now_playing: string;
   is_open: boolean;
+  currently_processing: string[];
 }
 
 class Queue extends Entity {}
@@ -21,6 +22,7 @@ const queueSchema = new Schema(
     being_updated_by: { type: "string" },
     now_playing: { type: "string" },
     is_open: { type: "boolean" },
+    currently_processing: { type: "string[]" },
   },
   {
     dataStructure: "JSON",
@@ -219,6 +221,36 @@ async function updateNowPlaying(requestID: string): Promise<boolean> {
   }
 }
 
+async function setPrioAsProcessing(requestID: string) {
+  await connect();
+
+  const repository = client.fetchRepository(queueSchema);
+
+  const queue = await repository.fetch(QUEUE_ID);
+
+  queue.currently_processing.push(requestID);
+
+  await repository.save(queue);
+}
+
+async function removePrioFromProcessing(requestID: string) {
+  await connect();
+
+  const repository = client.fetchRepository(queueSchema);
+
+  const queue = await repository.fetch(QUEUE_ID);
+
+  if (queue.order) {
+    for (let i = 0; i < queue.currently_processing.length; i++) {
+      if (queue.currently_processing[i] === requestID) {
+        queue.currently_processing.splice(i, 1);
+      }
+    }
+  }
+
+  await repository.save(queue);
+}
+
 export {
   Queue,
   getQueue,
@@ -230,4 +262,6 @@ export {
   updateOrder,
   updateOrderIdStrings,
   updateNowPlaying,
+  setPrioAsProcessing,
+  removePrioFromProcessing,
 };

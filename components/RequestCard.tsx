@@ -250,9 +250,15 @@ const RequestCard: FC<Props> = ({
                           toast.success("Request marked Priority");
                         }
                       })
-                      .catch((error) => {
-                        toast.error("Error updating prio status");
-                        console.error(error);
+                      .catch((err) => {
+                        if (err.response.status === 409) {
+                          toast.error(
+                            "Gotta be quicker quicker then that! Someone marked this request to be bumped"
+                          );
+                        } else {
+                          toast.error("Error updating prio status");
+                          console.error(err);
+                        }
                       });
                   }}
                   bgColor={"gold"}
