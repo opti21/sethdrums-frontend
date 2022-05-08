@@ -159,6 +159,7 @@ const AddModal: FC<Props> = ({ queue }) => {
                   />
                 </AspectRatio>
                 <Button
+                  id="submit-request-btn"
                   mt={4}
                   mb={2}
                   colorScheme="teal"

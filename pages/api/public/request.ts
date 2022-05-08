@@ -35,6 +35,13 @@ const pusher = new Pusher({
 const publicRequestApiHandler = withSentry(
   withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
+    if (process.env.NODE_ENV === "development") {
+      if (session.user.sub.split("|")[0] === "auth0") {
+        session.user.sub = "auth0|test_user|test_user_id";
+        session.user.preferred_username = "test_user";
+      }
+    }
+
     if (req.method === "POST") {
       const queue = await getQueue();
 
@@ -62,6 +69,7 @@ const publicRequestApiHandler = withSentry(
           Video: true,
         },
       });
+      console.log(userAlreadyRequested);
 
       const videoAlreadyRequested = await prisma.request.findFirst({
         where: {

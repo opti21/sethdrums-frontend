@@ -108,6 +108,7 @@ const RequestCard: FC<Props> = ({
 
   return (
     <Box
+      className="request-card"
       border="1px"
       borderColor={request.priority ? "orange.300" : "purple.700"}
       bgGradient={request.priority ? prioGradient : regularGradient}
@@ -118,8 +119,11 @@ const RequestCard: FC<Props> = ({
       ref={setNodeRef}
       style={style}
     >
-      <Flex direction={["column", "row"]}>
-        <Flex direction={"row"}>
+      <Flex className="request-card-content" direction={["column", "row"]}>
+        <Flex
+          className="request-thumbnail-duration-container"
+          direction={"row"}
+        >
           {!sethView && !publicView && (
             <Icon
               as={MdDragIndicator}
@@ -133,6 +137,7 @@ const RequestCard: FC<Props> = ({
           )}
           <Stack alignItems={"center"} direction={["row", "column"]} pr={2}>
             <Image
+              className="request-thumbnail"
               maxW={"100px"}
               rounded="lg"
               src={video.thumbnail}
@@ -144,6 +149,7 @@ const RequestCard: FC<Props> = ({
               }}
             />
             <Text
+              className="request-duration"
               fontSize={"xl"}
               style={{
                 fontWeight: "bold",
@@ -155,8 +161,9 @@ const RequestCard: FC<Props> = ({
             </Text>
           </Stack>
         </Flex>
-        <VStack align={"start"} w={"100%"}>
+        <VStack className="request-info-container" align={"start"} w={"100%"}>
           <Link
+            className="request-title-link"
             href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
             onClick={() => {
               if (sethView) {

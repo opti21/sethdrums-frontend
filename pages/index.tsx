@@ -184,7 +184,12 @@ const Home: NextPage = () => {
       <Container maxW={"container.xl"} p={0}>
         <Nav returnTo="/" />
 
-        <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
+        <Modal
+          id="public-add-request-modal"
+          isOpen={isAddModalOpen}
+          onClose={closeAddModal}
+          size="2xl"
+        >
           <ModalOverlay />
           <ModalContent>
             <ModalHeader>Add Video</ModalHeader>
@@ -193,7 +198,6 @@ const Home: NextPage = () => {
               <Formik
                 initialValues={{
                   ytLink: "",
-                  requestedBy: user ? user.preferred_username : "",
                 }}
                 enableReinitialize={true}
                 onSubmit={(values, actions) => {
@@ -257,33 +261,6 @@ const Home: NextPage = () => {
                         </FormControl>
                       )}
                     </Field>
-                    <Field
-                      mb={2}
-                      name="requestedBy"
-                      validate={validateRequestedBy}
-                    >
-                      {({ field, form }: any) => (
-                        <FormControl
-                          isInvalid={
-                            form.errors.requestedBy && form.touched.requestedBy
-                          }
-                          isDisabled={true}
-                        >
-                          <FormLabel mt={4} htmlFor="requested-by">
-                            Requested By
-                          </FormLabel>
-
-                          <Input
-                            {...field}
-                            id="requested-by"
-                            placeholder="username"
-                          />
-                          <FormErrorMessage>
-                            {form.errors.requestedBy}
-                          </FormErrorMessage>
-                        </FormControl>
-                      )}
-                    </Field>
                     <AspectRatio mt={4} maxW="100%" ratio={16 / 9}>
                       <ReactPlayer
                         url={props.values.ytLink}
@@ -295,6 +272,7 @@ const Home: NextPage = () => {
                     <Button
                       mt={4}
                       mb={2}
+                      id="public-submit-request-btn"
                       colorScheme="teal"
                       isLoading={props.isSubmitting}
                       type="submit"
@@ -367,6 +345,7 @@ const Home: NextPage = () => {
                   {!user ? (
                     <Link passHref={true} href={"/api/auth/login"}>
                       <Button
+                        className="request-button"
                         my={2}
                         isLoading={isLoading}
                         leftIcon={<IoLogoTwitch />}
@@ -375,11 +354,19 @@ const Home: NextPage = () => {
                       </Button>
                     </Link>
                   ) : (
-                    <Button my={2} onClick={handleAddModalOpen}>
+                    <Button
+                      className="request-button"
+                      my={2}
+                      onClick={handleAddModalOpen}
+                    >
                       Add Request
                     </Button>
                   )}
-                  <Box maxH={[500, 1000]} overflowY={"auto"}>
+                  <Box
+                    className="request-queue-list"
+                    maxH={[500, 1000]}
+                    overflowY={"auto"}
+                  >
                     {!queueError &&
                       queue &&
                       queue?.order.map((request) => {
