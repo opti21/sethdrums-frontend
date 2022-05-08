@@ -2,6 +2,8 @@ import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   getQueue,
+  removePrioFromProcessing,
+  setPrioAsProcessing,
   updateOrderIdStrings,
 } from "../../../../redis/handlers/Queue";
 import prisma from "../../../../utils/prisma";
@@ -25,9 +27,23 @@ const MakeRequestPrioApiHandler = withSentry(
         res.status(422).send("missing necessary query");
       }
       try {
-        const requestID = parseInt(req.query.requestID.toString());
+        const requestID = parseInt(req.query.requestID as string);
         const newStatus = req.query.newStatus === "true" ? true : false;
         const currentQueue = await getQueue();
+
+        if (
+          currentQueue.currently_processing.includes(
+            req.query.requestID as string
+          )
+        ) {
+          return res.status(409).json({
+            success: false,
+            message: "Request already being bumped to prio",
+          });
+        }
+
+        await setPrioAsProcessing(req.query.requestID as string);
+
         const numOfPrio = await prisma.request.count({
           where: {
             id: {
@@ -38,6 +54,7 @@ const MakeRequestPrioApiHandler = withSentry(
         });
 
         if (newStatus === true) {
+          console.log(requestID);
           const updatedRequest = await prisma.request.update({
             where: {
               id: requestID,
@@ -53,9 +70,10 @@ const MakeRequestPrioApiHandler = withSentry(
           const updatedOrder = reorder(currentQueue.order, oldIndex, numOfPrio);
 
           await updateOrderIdStrings(updatedOrder);
+          await removePrioFromProcessing(requestID.toString());
           return res.status(200).send("Request updated");
         } else {
-          const updatedRequest = await prisma.request.update({
+          await prisma.request.update({
             where: {
               id: requestID,
             },
@@ -74,10 +92,12 @@ const MakeRequestPrioApiHandler = withSentry(
           );
 
           await updateOrderIdStrings(updatedOrder);
+          await removePrioFromProcessing(requestID.toString());
           return res.status(200).send("Request updated");
         }
       } catch (error) {
         console.error(error);
+        await removePrioFromProcessing(req.query.requestID as string);
         return res.status(500).send("Error updating prio status");
       }
     } else {

@@ -6,17 +6,17 @@ import { withSentry } from "@sentry/nextjs";
 const isModHandler = withSentry(
   withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
-    const isMod = await prisma.mod.findFirst({
+    const isMod = await prisma.mod.findMany({
       where: {
-        twitch_id: session.user.sub.split("|")[2],
+        twitch_id: session.user.sub.split("|")[2] || "",
       },
     });
 
     if (req.method === "GET") {
-      if (!isMod) {
+      if (isMod.length === 0) {
         return res.status(403).send("Not a mod");
       }
-      if (isMod.twitch_id === "147155277") {
+      if (isMod[0].twitch_id === "147155277") {
         return res.status(201).send("Has a huge forehead");
       }
       return res.status(200).send("Is a mod");

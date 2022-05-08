@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.0...v0.2.1) (2022-05-08)
+
+
+### Features
+
+* Added some basic tests ([1a1f979](https://github.com/opti21/pepega-panel-frontend/commit/1a1f979efc41a4d9b1759617288316fa24ad6cfc))
+
+
+### Bug Fixes
+
+* better mod check ([de6ad00](https://github.com/opti21/pepega-panel-frontend/commit/de6ad00ab245f7411e452952279055130e2598f7))
+* Handle prio API conflicts ([fd56ab7](https://github.com/opti21/pepega-panel-frontend/commit/fd56ab704a226d53d4d7ad46dca9e8628d549ff6))
+
 ## [0.2.0](https://github.com/opti21/pepega-panel-frontend/compare/v0.1.99...v0.2.0) (2022-05-07)
 
 
