@@ -1,11 +1,14 @@
 {
   "folders": [
-	{
-		"path": "."
-	},
-	{
-		"path": "..\\pepega-chat"
-	}
-],
+    {
+      "path": "."
+    },
+    {
+      "path": "..\\pepega-chat"
+    },
+    {
+      "path": "..\\pepega-api"
+    }
+  ],
   "settings": {}
 }
