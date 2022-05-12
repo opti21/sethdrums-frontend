@@ -30,6 +30,7 @@ specifiers:
   mongoose: ^6.2.2
   next: 12.1.0
   next-auth: ^4.3.0
+  next-plausible: ^3.1.9
   next-transpile-modules: ^9.0.0
   prisma: ^3.14.0
   pusher: ^5.0.1
@@ -74,6 +75,7 @@ dependencies:
   mongoose: 6.2.10
   next: 12.1.0_f370f735164a03a12cea0cc89593cbee
   next-auth: 4.3.1_react-dom@17.0.2+react@17.0.2
+  next-plausible: 3.1.9_caa633a00319350dbda42996613fe26c
   pusher: 5.0.1
   pusher-js: 7.0.6
   react: 17.0.2
@@ -4210,6 +4212,18 @@ packages:
       react: 17.0.2
       react-dom: 17.0.2_react@17.0.2
       uuid: 8.3.2
+    dev: false
+
+  /next-plausible/3.1.9_caa633a00319350dbda42996613fe26c:
+    resolution: {integrity: sha512-6Ro6lVnuXAtqbbBQfuKuu0cpZHWWvJWbOE1G+Rx6i42T6lLYtbQzbu09Cutv3vc/wD/4ySHzJkuTnxsqnlArGA==}
+    peerDependencies:
+      next: ^11.1.0 || ^12.0.0
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react-dom: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      next: 12.1.0_f370f735164a03a12cea0cc89593cbee
+      react: 17.0.2
+      react-dom: 17.0.2_react@17.0.2
     dev: false
 
   /next-transpile-modules/9.0.0:
