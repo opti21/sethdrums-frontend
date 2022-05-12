@@ -27,8 +27,16 @@ const queueApiHandler = withApiAuthRequired(
       // Get request data for prio requests currently in the queue
       const prioRequestData = await prisma.request.findMany({
         where: {
-          id: { in: queue.order.map((requestID) => parseInt(requestID)) },
-          priority: true,
+          OR: [
+            {
+              id: { in: queue.order.map((requestID) => parseInt(requestID)) },
+              priority: true,
+            },
+            {
+              id: { in: queue.order.map((requestID) => parseInt(requestID)) },
+              mod_prio: true,
+            },
+          ],
         },
         include: {
           Video: {
@@ -63,6 +71,7 @@ const queueApiHandler = withApiAuthRequired(
           where: {
             played: false,
             priority: false,
+            mod_prio: false,
           },
         })
         .catch((err) => {

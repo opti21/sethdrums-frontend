@@ -28,6 +28,7 @@ import { IApiRequest, IAPiVideo, Status } from "../utils/types";
 import { PG_Status } from "@prisma/client";
 import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
+import { RiSwordFill, RiSwordLine } from "react-icons/ri";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
 import { UserProfile } from "@auth0/nextjs-auth0";
 import { useDeleteModalStore } from "../stateStore/modalState";
@@ -61,9 +62,6 @@ const RequestCard: FC<Props> = ({
       id: `sortable${id}`,
       // disabled: disabled,
     });
-
-  const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
-  const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -106,12 +104,30 @@ const RequestCard: FC<Props> = ({
       });
   };
 
+  const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
+  const modPrioGradient = "linear(to-r, #24243e, #16a38c, #24243e)";
+  const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
+
+  let borderColor = "purple.700";
+  let bgGradient = regularGradient;
+
+  if (request.priority) {
+    console.log("prio");
+    borderColor = request.priority ? "orange.300" : "purple.700";
+    bgGradient = request.priority ? prioGradient : regularGradient;
+  }
+
+  if (request.mod_prio && !publicView) {
+    borderColor = request.mod_prio ? "green" : "purple.700";
+    bgGradient = request.mod_prio ? modPrioGradient : regularGradient;
+  }
+
   return (
     <Box
       className="request-card"
       border="1px"
-      borderColor={request.priority ? "orange.300" : "purple.700"}
-      bgGradient={request.priority ? prioGradient : regularGradient}
+      borderColor={borderColor}
+      bgGradient={bgGradient}
       rounded="lg"
       w={"100%"}
       p={2}
@@ -222,108 +238,174 @@ const RequestCard: FC<Props> = ({
             </>
           )}
         </VStack>
-        <Stack direction={["row", "column"]} pt={2} spacing={2}>
-          {!publicView && !sethView && (
-            <PGButton
-              pgStatus={pgStatus}
-              requestID={request.id}
-              video={video}
-            />
-          )}
-          {sethView && <SethPGButtons pgStatus={pgStatus} />}
-          <HStack w={"100%"}>
-            {!sethView &&
-              !publicView &&
-              (!request.priority ? (
-                <Button
-                  onClick={() => {
-                    axios
-                      .post(
-                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
-                      )
-                      .then(async (res) => {
-                        if (res.status === 200) {
+        <Stack direction={["row", "column"]} w={["100%", "35%"]}>
+          <Stack
+            direction={["row", "column"]}
+            w={["100%", "100%"]}
+            pt={2}
+            spacing={1.5}
+          >
+            {!publicView && !sethView && (
+              <PGButton
+                pgStatus={pgStatus}
+                requestID={request.id}
+                video={video}
+              />
+            )}
+            {sethView && <SethPGButtons pgStatus={pgStatus} />}
+            <HStack>
+              {!sethView &&
+                !publicView &&
+                !request.mod_prio &&
+                (!request.priority ? (
+                  <Button
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=true`
+                        )
+                        .then(async (res) => {
+                          if (res.status === 200) {
+                            await axios.post("/api/mod/trigger", {
+                              eventName: "update-queue",
+                              data: {},
+                            });
+                            toast.success("Request marked Priority");
+                          }
+                        })
+                        .catch((err) => {
+                          if (err.response.status === 409) {
+                            toast.error(
+                              "Gotta be quicker quicker then that! Someone marked this request to be bumped"
+                            );
+                          } else {
+                            toast.error("Error updating prio status");
+                            console.error(err);
+                          }
+                        });
+                    }}
+                    bgColor={"gold"}
+                    style={{ color: "black" }}
+                  >
+                    <Icon as={AiOutlineCrown} w={5} h={5} />
+                  </Button>
+                ) : (
+                  <Button
+                    w={"100%"}
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
+                        )
+                        .then(async (res) => {
                           await axios.post("/api/mod/trigger", {
                             eventName: "update-queue",
                             data: {},
                           });
-                          toast.success("Request marked Priority");
-                        }
-                      })
-                      .catch((err) => {
-                        if (err.response.status === 409) {
-                          toast.error(
-                            "Gotta be quicker quicker then that! Someone marked this request to be bumped"
-                          );
-                        } else {
+                          toast.success("Request unmarked Priority");
+                        })
+                        .catch((error) => {
                           toast.error("Error updating prio status");
-                          console.error(err);
-                        }
-                      });
-                  }}
-                  bgColor={"gold"}
-                  style={{ color: "black" }}
-                  w={["100%", "75%"]}
-                >
-                  <Icon as={AiOutlineCrown} w={5} h={5} />
-                </Button>
-              ) : (
-                <Button
-                  onClick={() => {
-                    axios
-                      .post(
-                        `/api/mod/request/make-prio?requestID=${request.id}&newStatus=false`
-                      )
-                      .then(async (res) => {
-                        await axios.post("/api/mod/trigger", {
-                          eventName: "update-queue",
-                          data: {},
+                          console.error(error);
                         });
-                      })
-                      .catch((error) => {
-                        toast.error("Error updating prio status");
-                        console.error(error);
-                      });
-                  }}
-                  bgColor={"gold"}
-                  style={{ color: "black" }}
-                  w={["100%", "75%"]}
-                >
-                  <Icon as={AiFillCrown} w={5} h={5} />
-                </Button>
-              ))}
-            {typeof user != undefined && publicView
-              ? user?.sub.split("|")[2] === request.requested_by_id && (
-                  <>
-                    {!request.played && (
-                      <Button
-                        onClick={() => {
-                          openDeleteModal(request, video);
-                        }}
-                        bgColor={"#BD0000"}
-                        w={"25%"}
-                      >
-                        <Icon as={IoMdTrash} w={5} h={5} />
-                      </Button>
-                    )}
-                  </>
-                )
-              : !sethView && (
-                  <>
-                    {!request.played && (
-                      <Button
-                        onClick={() => {
-                          openDeleteModal(request, video);
-                        }}
-                        bgColor={"#BD0000"}
-                        w={"25%"}
-                      >
-                        <Icon as={IoMdTrash} w={5} h={5} />
-                      </Button>
-                    )}
-                  </>
-                )}
-          </HStack>
+                    }}
+                    bgColor={"gold"}
+                    style={{ color: "black" }}
+                  >
+                    <Icon as={AiFillCrown} w={5} h={5} />
+                  </Button>
+                ))}
+              {!sethView &&
+                !publicView &&
+                !request.priority &&
+                (!request.mod_prio ? (
+                  <Button
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-mod-prio?requestID=${request.id}&newStatus=true`
+                        )
+                        .then(async (res) => {
+                          if (res.status === 200) {
+                            await axios.post("/api/mod/trigger", {
+                              eventName: "update-queue",
+                              data: {},
+                            });
+                            toast.success("Request marked Mod Priority");
+                          }
+                        })
+                        .catch((err) => {
+                          if (err.response.status === 409) {
+                            toast.error(
+                              "Gotta be quicker quicker then that! Someone marked this request to be bumped"
+                            );
+                          } else {
+                            toast.error("Error updating mod prio status");
+                            console.error(err);
+                          }
+                        });
+                    }}
+                    bgColor={"#16a38c"}
+                    style={{ color: "white" }}
+                  >
+                    <Icon as={RiSwordLine} w={5} h={5} />
+                  </Button>
+                ) : (
+                  <Button
+                    w={"100%"}
+                    onClick={() => {
+                      axios
+                        .post(
+                          `/api/mod/request/make-mod-prio?requestID=${request.id}&newStatus=false`
+                        )
+                        .then(async (res) => {
+                          await axios.post("/api/mod/trigger", {
+                            eventName: "update-queue",
+                            data: {},
+                          });
+                        })
+                        .catch((error) => {
+                          toast.error("Error updating mod prio status");
+                          console.error(error);
+                        });
+                    }}
+                    bgColor={"#16a38c"}
+                    style={{ color: "white" }}
+                  >
+                    <Icon as={RiSwordFill} w={5} h={5} />
+                  </Button>
+                ))}
+              {typeof user != undefined && publicView
+                ? user?.sub.split("|")[2] === request.requested_by_id && (
+                    <>
+                      {!request.played && (
+                        <Button
+                          onClick={() => {
+                            openDeleteModal(request, video);
+                          }}
+                          bgColor={"#BD0000"}
+                        >
+                          <Icon as={IoMdTrash} w={5} h={5} />
+                        </Button>
+                      )}
+                    </>
+                  )
+                : !sethView && (
+                    <>
+                      {!request.played && (
+                        <Button
+                          onClick={() => {
+                            openDeleteModal(request, video);
+                          }}
+                          bgColor={"#BD0000"}
+                        >
+                          <Icon as={IoMdTrash} w={5} h={5} />
+                        </Button>
+                      )}
+                    </>
+                  )}
+            </HStack>
+          </Stack>
           {!publicView && video.PG_Status.checker && (
             <>
               <Text

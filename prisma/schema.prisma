@@ -19,7 +19,9 @@ model Request {
   played_at       DateTime?
   priority        Boolean          @default(false)
   requested_by_id String?
+  vod_link        String?
   Video           Video            @relation(fields: [video_id], references: [id])
+  mod_prio        Boolean          @default(false)
   TagsOnRequests  TagsOnRequests[]
 }
 
