@@ -6,11 +6,10 @@ import {
   updateOrderIdStrings,
 } from "../../../../redis/handlers/Queue";
 import prisma from "../../../../utils/prisma";
-import { withSentry } from "@sentry/nextjs";
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 
-const MakeRequestPrioApiHandler = withSentry(
-  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
+const MakeRequestPrioApiHandler = withApiAuthRequired(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
@@ -89,7 +88,7 @@ const MakeRequestPrioApiHandler = withSentry(
     } else {
       return res.status(405).send(`${req.method} is not a valid method`);
     }
-  })
+  }
 );
 
 export default MakeRequestPrioApiHandler;
