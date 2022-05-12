@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.2](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.1...v0.2.2) (2022-05-12)
+
+
+### Features
+
+* add Raygun monitoring ([94422de](https://github.com/opti21/pepega-panel-frontend/commit/94422def48e5ed83b7d1c4b64848a32797b9d057))
+
+
+### Bug Fixes
+
+* re-add referential to prisma schema ([0fb78ad](https://github.com/opti21/pepega-panel-frontend/commit/0fb78ad58e32f038bbb33a31b27d50c48c11a7a7))
+* update prisma to fix referential issue ([63aba8b](https://github.com/opti21/pepega-panel-frontend/commit/63aba8b9993ad247534b465cc4ca6e6f49dfcfa4))
+
 ### [0.2.1](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.0...v0.2.1) (2022-05-08)
 
 

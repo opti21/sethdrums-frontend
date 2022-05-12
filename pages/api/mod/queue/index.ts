@@ -2,10 +2,9 @@ import { getQueue, updateOrder } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { withSentry } from "@sentry/nextjs";
 
-const queueApiHandler = withSentry(
-  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
+const queueApiHandler = withApiAuthRequired(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
@@ -90,7 +89,7 @@ const queueApiHandler = withSentry(
     } else {
       return res.status(405).send(`${req.method} is not a valid`);
     }
-  })
+  }
 );
 
 export default queueApiHandler;
