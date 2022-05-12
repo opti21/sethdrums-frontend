@@ -13,7 +13,6 @@ import { parseYTDuration } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
 import Pusher from "pusher";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-import { withSentry } from "@sentry/nextjs";
 
 if (
   !process.env.PUSHER_APP_ID ||
@@ -32,8 +31,8 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-const publicRequestApiHandler = withSentry(
-  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
+const publicRequestApiHandler = withApiAuthRequired(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     if (process.env.NODE_ENV === "development") {
       if (session.user.sub.split("|")[0] === "auth0") {
@@ -214,7 +213,7 @@ const publicRequestApiHandler = withSentry(
         .status(405)
         .json({ success: false, error: `${req.method} is not a valid method` });
     }
-  })
+  }
 );
 
 export default publicRequestApiHandler;

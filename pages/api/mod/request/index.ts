@@ -13,10 +13,9 @@ import prisma from "../../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
-import { withSentry } from "@sentry/nextjs";
 
-const requestApiHandler = withSentry(
-  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
+const requestApiHandler = withApiAuthRequired(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
@@ -143,7 +142,7 @@ const requestApiHandler = withSentry(
     } else {
       return res.status(405).send(`${req.method} is not a valid method`);
     }
-  })
+  }
 );
 
 export default requestApiHandler;

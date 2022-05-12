@@ -1,10 +1,9 @@
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../utils/prisma";
-import { withSentry } from "@sentry/nextjs";
 
-const isModHandler = withSentry(
-  withApiAuthRequired(async (req: NextApiRequest, res: NextApiResponse) => {
+const isModHandler = withApiAuthRequired(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     const session = getSession(req, res);
     const isMod = await prisma.mod.findMany({
       where: {
@@ -23,7 +22,7 @@ const isModHandler = withSentry(
     } else {
       res.status(405).send(`${req.method} is not a valid`);
     }
-  })
+  }
 );
 
 export default isModHandler;
