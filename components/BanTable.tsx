@@ -93,23 +93,26 @@ const BanTable: FC<Props> = ({ data }) => {
             Header: "Notes",
             accessor: "notes",
             Cell: ({ value }) => {
-              return (
-                <>
-                  <Popover>
-                    <PopoverTrigger>
-                      <Button variant={"link"}>Show Notes</Button>
-                    </PopoverTrigger>
-                    <PopoverContent>
-                      <PopoverArrow />
-                      <PopoverCloseButton />
-                      <PopoverHeader>Notes</PopoverHeader>
-                      <PopoverBody maxH={300} overflowY="auto">
-                        {value}
-                      </PopoverBody>
-                    </PopoverContent>
-                  </Popover>
-                </>
-              );
+              if (value.length > 0) {
+                return (
+                  <>
+                    <Popover>
+                      <PopoverTrigger>
+                        <Button variant={"link"}>Show Notes</Button>
+                      </PopoverTrigger>
+                      <PopoverContent>
+                        <PopoverArrow />
+                        <PopoverCloseButton />
+                        <PopoverHeader>Notes</PopoverHeader>
+                        <PopoverBody maxH={300} overflowY="auto">
+                          {value}
+                        </PopoverBody>
+                      </PopoverContent>
+                    </Popover>
+                  </>
+                );
+              }
+              return null;
             },
           },
           {
