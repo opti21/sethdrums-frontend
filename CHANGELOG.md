@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.3](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.2...v0.2.3) (2022-05-13)
+
+
+### Features
+
+* mod bumps ([dd4846d](https://github.com/opti21/pepega-panel-frontend/commit/dd4846defa6f5d2695a17390cd0e0e00e94f5072))
+
+
+### Bug Fixes
+
+* gotta actually remove all of sentry ([fced08c](https://github.com/opti21/pepega-panel-frontend/commit/fced08c2fcc42515f34b458ac30ec24b509498c2))
+* install next-plausible ([07726d5](https://github.com/opti21/pepega-panel-frontend/commit/07726d5720cea9c1fc877b171c397ccaecf1924e))
+
 ### [0.2.2](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.1...v0.2.2) (2022-05-12)
 
 
