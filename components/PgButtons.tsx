@@ -21,7 +21,7 @@ type SethProps = {
 };
 
 const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
-  const buttonWidth = ["100%", 150];
+  const buttonWidth = "100%";
   const openPGConfirmModal = usePGConfirmModalStore((state) => state.open);
   const setPGData = usePGCheckerModalStore((state) => state.setPGData);
   const openPGModal = usePGCheckerModalStore((state) => state.open);
@@ -134,7 +134,7 @@ const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
 };
 
 const SethPGButtons: FC<SethProps> = ({ pgStatus, width }) => {
-  const buttonWidth = width ? width : ["100%", 120];
+  const buttonWidth = "100%";
   switch (pgStatus.status) {
     case Status.NotChecked:
       return (

@@ -17,7 +17,12 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         where: {
           id: { in: queue.order.map((requestID) => parseInt(requestID)) },
         },
-        include: {
+        select: {
+          id: true,
+          played: true,
+          priority: true,
+          requested_by: true,
+          requested_by_id: true,
           Video: {
             select: {
               id: true,

@@ -123,6 +123,7 @@ export interface IApiRequest {
   played: boolean;
   played_at: string;
   priority: boolean;
+  mod_prio: boolean;
   Video: IAPiVideo;
 }
 
