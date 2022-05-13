@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.4](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.3...v0.2.4) (2022-05-13)
+
+
+### Features
+
+* Song Raffles ([30c2907](https://github.com/opti21/pepega-panel-frontend/commit/30c29072298fce5e03f7442d943bb3d6be60c646))
+
+
+### Bug Fixes
+
+* fix date in CHANGELOG ([f1f27bd](https://github.com/opti21/pepega-panel-frontend/commit/f1f27bd729b62a4ce94ee40b6c622217983cf721))
+
 ### [0.2.3](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.2...v0.2.3) (2022-05-12)
 
 ### Features
