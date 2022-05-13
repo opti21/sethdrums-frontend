@@ -124,6 +124,7 @@ export interface IApiRequest {
   played_at: string;
   priority: boolean;
   mod_prio: boolean;
+  raffle_prio: boolean;
   Video: IAPiVideo;
 }
 

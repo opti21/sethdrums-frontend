@@ -106,6 +106,7 @@ const RequestCard: FC<Props> = ({
 
   const prioGradient = "linear(to-r, #7303c0, #C89416, #7303c0)";
   const modPrioGradient = "linear(to-r, #24243e, #16a38c, #24243e)";
+  const rafflePrioGradient = "linear(to-r, #103783, #f492f0, #103783)";
   const regularGradient = "linear(to-r, #24243e, #302b63, #24243e)";
 
   let borderColor = "purple.700";
@@ -115,6 +116,12 @@ const RequestCard: FC<Props> = ({
     console.log("prio");
     borderColor = request.priority ? "orange.300" : "purple.700";
     bgGradient = request.priority ? prioGradient : regularGradient;
+  }
+
+  if (request.raffle_prio) {
+    console.log("raffle prio");
+    borderColor = "blue.300";
+    bgGradient = rafflePrioGradient;
   }
 
   if (request.mod_prio && !publicView) {
