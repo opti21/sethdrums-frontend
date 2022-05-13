@@ -45,10 +45,24 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
 
         const numOfPrio = await prisma.request.count({
           where: {
-            id: {
-              in: currentQueue.order.map((requestID) => parseInt(requestID)),
-            },
-            priority: true,
+            OR: [
+              {
+                id: {
+                  in: currentQueue.order.map((requestID) =>
+                    parseInt(requestID)
+                  ),
+                },
+                priority: true,
+              },
+              {
+                id: {
+                  in: currentQueue.order.map((requestID) =>
+                    parseInt(requestID)
+                  ),
+                },
+                mod_prio: true,
+              },
+            ],
           },
         });
 
@@ -78,6 +92,8 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
             },
             data: {
               priority: false,
+              mod_prio: false,
+              raffle_prio: false,
             },
           });
           const oldIndex = currentQueue.order.findIndex(

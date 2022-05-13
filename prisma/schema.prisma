@@ -22,6 +22,7 @@ model Request {
   vod_link        String?
   Video           Video            @relation(fields: [video_id], references: [id])
   mod_prio        Boolean          @default(false)
+  raffle_prio     Boolean          @default(false)
   TagsOnRequests  TagsOnRequests[]
 }
 
