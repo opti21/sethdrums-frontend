@@ -24,7 +24,7 @@
     "@next-auth/prisma-adapter": "^1.0.1",
     "@prisma/client": "^3.14.0",
     "@react-forked/dnd": "^14.0.0",
-    "axios": "^0.26.0",
+    "axios": "^0.27.2",
     "dayjs": "^1.11.0",
     "formik": "^2.2.9",
     "framer-motion": "6",
