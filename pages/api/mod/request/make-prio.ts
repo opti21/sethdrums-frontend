@@ -43,30 +43,15 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
 
         await setPrioAsProcessing(req.query.requestID as string);
 
-        const numOfPrio = await prisma.request.count({
-          where: {
-            OR: [
-              {
-                id: {
-                  in: currentQueue.order.map((requestID) =>
-                    parseInt(requestID)
-                  ),
-                },
-                priority: true,
-              },
-              {
-                id: {
-                  in: currentQueue.order.map((requestID) =>
-                    parseInt(requestID)
-                  ),
-                },
-                mod_prio: true,
-              },
-            ],
-          },
-        });
-
         if (newStatus === true) {
+          const numOfPrio = await prisma.request.count({
+            where: {
+              id: {
+                in: currentQueue.order.map((requestID) => parseInt(requestID)),
+              },
+              priority: true,
+            },
+          });
           console.log(requestID);
           const updatedRequest = await prisma.request.update({
             where: {
@@ -86,6 +71,28 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
           await removePrioFromProcessing(requestID.toString());
           return res.status(200).send("Request updated");
         } else {
+          const numOfPrio = await prisma.request.count({
+            where: {
+              OR: [
+                {
+                  id: {
+                    in: currentQueue.order.map((requestID) =>
+                      parseInt(requestID)
+                    ),
+                  },
+                  priority: true,
+                },
+                {
+                  id: {
+                    in: currentQueue.order.map((requestID) =>
+                      parseInt(requestID)
+                    ),
+                  },
+                  mod_prio: true,
+                },
+              ],
+            },
+          });
           await prisma.request.update({
             where: {
               id: requestID,

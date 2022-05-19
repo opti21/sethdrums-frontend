@@ -6,11 +6,14 @@ import {
 } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import duration from "dayjs/plugin/duration";
 dayjs.extend(utc);
+dayjs.extend(duration);
+import axios from "axios";
 
 const queueApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -38,6 +41,8 @@ const queueApiHandler = withApiAuthRequired(
               played_at: dayjs.utc().format(),
             },
           });
+
+          await generateVodLink(parseInt(req.body.requestID));
         } catch (err) {
           if (err instanceof PrismaClientKnownRequestError) {
             if (err.code === "P2025") {
@@ -85,3 +90,102 @@ const queueApiHandler = withApiAuthRequired(
 );
 
 export default queueApiHandler;
+
+const generateVodLink = async (requestID: number) => {
+  console.log("GENERATING LINK");
+
+  try {
+    const token_db = await prisma.twitchCreds
+      .findUnique({
+        where: {
+          id: 1,
+        },
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+
+    let TWITCH_TOKEN: string;
+
+    if (!token_db) {
+      let tokenResponse = await axios.post(
+        `https://id.twitch.tv/oauth2/token?client_id=${process.env.TWITCH_CLIENT_ID}&client_secret=${process.env.TWITCH_CLIENT_SECRET}&grant_type=client_credentials`
+      );
+      const tokenData = tokenResponse.data;
+
+      await prisma.twitchCreds
+        .create({
+          data: {
+            access_token: tokenData.access_token,
+            expires_in: tokenData.expires_in,
+          },
+        })
+        .then((response) => {
+          console.log("Token Created");
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+
+      TWITCH_TOKEN = tokenData.access_token;
+    } else {
+      TWITCH_TOKEN = token_db.access_token;
+    }
+
+    //147155277
+
+    let vidFetch = await fetch(
+      "https://api.twitch.tv/helix/videos?user_id=147155277",
+      {
+        headers: {
+          Authorization: "Bearer " + TWITCH_TOKEN,
+          "Client-ID": `${process.env.TWITCH_CLIENT_ID}`,
+        },
+      }
+    );
+
+    let vod_link: string;
+
+    if (vidFetch.status === 200) {
+      console.log("VOD FETCH SUCCESS");
+      const vidJSON = await vidFetch.json();
+      const { data: videos } = vidJSON;
+
+      const started_at = dayjs(videos[0].published_at).utc();
+      const now = dayjs().utc();
+
+      const difference = now.diff(started_at);
+      const offset = dayjs.duration(difference).format("HH[h]mm[m]ss[s]");
+      // console.log(offset);
+
+      vod_link = videos[0].url + "?t=" + offset;
+
+      console.log(vod_link);
+    } else {
+      const vidError = await vidFetch.json();
+      console.error(vidError);
+    }
+
+    console.log(vod_link);
+
+    // Update request with vod link
+
+    await prisma.request
+      .update({
+        where: {
+          id: requestID,
+        },
+        data: {
+          vod_link: vod_link,
+        },
+      })
+      .then(async (doc) => {
+        console.log(doc);
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  } catch (error) {
+    console.error(error);
+  }
+};
