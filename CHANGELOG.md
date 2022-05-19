@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.5](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.4...v0.2.5) (2022-05-19)
+
+
+### Features
+
+* Generate VOD links when request is played ([30bb91b](https://github.com/opti21/pepega-panel-frontend/commit/30bb91bc7cb12ffee39e8e4474be4360c030eb17))
+
+
+### Bug Fixes
+
+* put regular prios in correct place ([b3bab50](https://github.com/opti21/pepega-panel-frontend/commit/b3bab5046025169b2acaf9f4fe76e46f7b7ab2f8))
+
 ### [0.2.4](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.3...v0.2.4) (2022-05-13)
 
 
