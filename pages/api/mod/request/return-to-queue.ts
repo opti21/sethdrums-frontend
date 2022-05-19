@@ -36,6 +36,7 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
           data: {
             played: false,
             played_at: null,
+            vod_link: null,
           },
         });
 

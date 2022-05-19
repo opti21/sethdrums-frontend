@@ -14,6 +14,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           requested_by: true,
           played_at: true,
           priority: true,
+          vod_link: true,
           Video: {
             select: {
               id: true,

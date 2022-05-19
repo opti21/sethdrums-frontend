@@ -109,6 +109,21 @@ const HistoryTable: FC<Props> = ({ data }) => {
               );
             },
           },
+          {
+            Header: "VOD Link",
+            accessor: "vod_link",
+            Cell: ({ value }) => {
+              if (value) {
+                return (
+                  <ChakraLink href={value} fontWeight={"medium"} isExternal>
+                    <Button fontWeight={"medium"}>Watch VOD</Button>
+                  </ChakraLink>
+                );
+              } else {
+                return null;
+              }
+            },
+          },
         ],
       },
     ],

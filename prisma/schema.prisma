@@ -95,6 +95,12 @@ model Mod {
   twitch_id String
 }
 
+model TwitchCreds {
+  id           Int    @id @default(autoincrement())
+  access_token String
+  expires_in   Int
+}
+
 enum Status {
   NOT_CHECKED
   BEING_CHECKED
