@@ -66,7 +66,7 @@ const PreviouslyPlayed: NextPage = () => {
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <Link href="/history" passHref>
+            <Link href="/previously-played" passHref>
               <BreadcrumbLink>Previously Played</BreadcrumbLink>
             </Link>
           </BreadcrumbItem>
