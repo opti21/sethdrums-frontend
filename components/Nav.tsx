@@ -37,7 +37,6 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   const username = user?.preferred_username as string;
   const [isMod, setIsMod] = useState(false);
   const [isSeth, setIsSeth] = useState(false);
-  console.log(user);
 
   useEffect(() => {
     if (user && !isLoading) {
