@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.3](https://github.com/opti21/pepega-panel-frontend/compare/v0.3.2...v0.3.3) (2022-05-25)
+
+
+### Bug Fixes
+
+* linting issue ([f4baa28](https://github.com/opti21/pepega-panel-frontend/commit/f4baa28855dbe00d11f318057d65a9284b56d550))
+* remove console log ([cd8b5ea](https://github.com/opti21/pepega-panel-frontend/commit/cd8b5ea7b032b911675c8aca073485864bb99644))
+* show info when no songs are saved ([98735f0](https://github.com/opti21/pepega-panel-frontend/commit/98735f03d15a50c5e22d450b83e1a78be8c47e9c))
+
 ### [0.3.2](https://github.com/opti21/pepega-panel-frontend/compare/v0.3.0...v0.3.2) (2022-05-25)
 
 ## [0.3.0](https://github.com/opti21/pepega-panel-frontend/compare/v0.2.5...v0.3.0) (2022-05-25)
