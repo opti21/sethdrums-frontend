@@ -70,6 +70,7 @@ model Video {
   PG_Status      PG_Status?
   Requests       Request[]
   TagsOnVideos   TagsOnVideos[]
+  SavedSongs     SavedSongs[]
 }
 
 model VideoTag {
@@ -99,6 +100,12 @@ model TwitchCreds {
   id           Int    @id @default(autoincrement())
   access_token String
   expires_in   Int
+}
+
+model SavedSongs {
+  id           Int     @id @default(autoincrement())
+  twitch_id    String  @unique
+  saved_videos Video[]
 }
 
 enum Status {
