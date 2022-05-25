@@ -6,6 +6,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  AlertIcon,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -22,6 +23,7 @@ const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError } = useSWR(
     "/api/public/saved-songs"
   );
+  console.log(savedSongsData);
 
   return (
     <>
@@ -55,9 +57,17 @@ const MySongs: NextPage = () => {
           </Alert>
         )}
         {!savedSongsError && savedSongsData ? (
-          <Box py={2}>
-            <SavedSongsTable data={savedSongsData.saved_videos} />
-          </Box>
+          savedSongsData.length > 0 ? (
+            <Box py={2}>
+              <SavedSongsTable data={savedSongsData} />
+            </Box>
+          ) : (
+            <Alert mt={2} status="info">
+              <AlertIcon />
+              No songs have been saved yet. To save a song type '!save' in chat
+              when a song is playing on stream.
+            </Alert>
+          )
         ) : (
           <Box w={"100%"} alignContent="center">
             <Text>Loading Saved Songs...</Text>

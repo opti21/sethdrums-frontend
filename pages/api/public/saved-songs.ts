@@ -30,7 +30,11 @@ const savedSongsApiHandler = withApiAuthRequired(
           },
         });
 
-        return res.status(200).json(savedSongs);
+        if (!savedSongs) {
+          return res.status(200).json([]);
+        }
+
+        return res.status(200).json(savedSongs.saved_videos);
       } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Server error" });
