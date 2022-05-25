@@ -7,6 +7,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   AlertIcon,
+  Code,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -64,8 +65,9 @@ const MySongs: NextPage = () => {
           ) : (
             <Alert mt={2} status="info">
               <AlertIcon />
-              No songs have been saved yet. To save a song type '!save' in chat
-              when a song is playing on stream.
+              No songs have been saved yet. To save a song type
+              <Code mx={2}> !save </Code> in chat when a song is playing on
+              stream.
             </Alert>
           )
         ) : (
