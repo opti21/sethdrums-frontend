@@ -6,6 +6,15 @@ const nextConfig = {
     // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/merch",
+        destination: "https://sethdrums-shop.fourthwall.com",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 module.exports = nextConfig;
