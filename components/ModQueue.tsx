@@ -124,7 +124,17 @@ const ModQueue: FC<Props> = ({}) => {
       return (
         <Alert mt={2} status="warning">
           <AlertIcon />
-          {numOfPGNotChecked} {requestText} to be checked for PG status
+          <ChakraLink
+            onClick={() =>
+              window.scroll({
+                top: document.body.offsetHeight,
+                left: 0,
+                behavior: "smooth",
+              })
+            }
+          >
+            {numOfPGNotChecked} {requestText} to be checked for PG status
+          </ChakraLink>
         </Alert>
       );
     }
