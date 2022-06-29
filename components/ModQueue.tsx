@@ -86,7 +86,7 @@ const ModQueue: FC<Props> = ({}) => {
         return (
           <Alert status="info">
             <AlertIcon />
-            Queue is up to date
+            Suggestion List is up to date
           </Alert>
         );
       case "updating":
@@ -96,7 +96,7 @@ const ModQueue: FC<Props> = ({}) => {
             {beingUpdatedBy === user?.preferred_username
               ? "You're "
               : beingUpdatedBy + ` is `}
-            updating the queue
+            updating the suggestion list
           </Alert>
         );
       default:
@@ -309,7 +309,7 @@ const ModQueue: FC<Props> = ({}) => {
       </Box>
       <HStack>
         <Button my={2} onClick={openAddModal}>
-          Add Request
+          Add Suggestion
         </Button>
         <Popover placement="top">
           <PopoverTrigger>
@@ -321,7 +321,7 @@ const ModQueue: FC<Props> = ({}) => {
             <PopoverArrow bg="red.900" />
             <PopoverCloseButton />
             <PopoverHeader>
-              Are you sure you want to clear the non-prio queue?
+              Are you sure you want to clear the non-prio suggestions?
             </PopoverHeader>
             <PopoverBody>
               <Button
@@ -378,7 +378,7 @@ const ModQueue: FC<Props> = ({}) => {
           ) : (
             <Box w={"100%"} textAlign="center">
               <Text fontSize="2xl" fontWeight="bold">
-                No Requests In Queue
+                No Requests In Suggestion List
               </Text>
             </Box>
           )}

@@ -246,7 +246,7 @@ const Mod: NextPage = () => {
                     p={2}
                   >
                     <Text fontWeight="bold">
-                      Queue is {queue?.is_open ? "Open" : "Closed"}
+                      Suggestion List is {queue?.is_open ? "Open" : "Closed"}
                     </Text>
                   </Box>
                   <ModQueue />
@@ -270,7 +270,7 @@ const Mod: NextPage = () => {
             </>
           ) : (
             <Box w={"100%"} alignContent="center">
-              <Text>Loading Queue...</Text>
+              <Text>Loading Suggestion List...</Text>
               <Image
                 src="/loading.gif"
                 alt="loading seth's huge forehead"
