@@ -168,7 +168,7 @@ const Home: NextPage = () => {
         <meta name="og:site_name" content="SethDrums Song Panel" />
         <meta
           name="og:description"
-          content="Song Panel to request song for SethDrums' stream."
+          content="Song Panel to suggest a song for SethDrums' stream."
         />
         <meta
           name="og:image"
@@ -296,7 +296,7 @@ const Home: NextPage = () => {
 
         {queueError && (
           <Alert mt={2} status="error">
-            Error fetching queue
+            Error fetching Suggestion List
           </Alert>
         )}
         {!queueError &&
@@ -310,7 +310,7 @@ const Home: NextPage = () => {
                     textAlign="center"
                     p={2}
                   >
-                    <Text fontWeight="bold">Queue is Open</Text>
+                    <Text fontWeight="bold">Suggestion List is Open</Text>
                   </Box>
                   <Box width={"100%"}>
                     <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
@@ -340,7 +340,7 @@ const Home: NextPage = () => {
                     )}
                   </Box>
                   <Text mr={4} as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
-                    Queue
+                    Suggestion List
                   </Text>
                   {!user ? (
                     <Link passHref={true} href={"/api/auth/login"}>
@@ -350,7 +350,7 @@ const Home: NextPage = () => {
                         isLoading={isLoading}
                         leftIcon={<IoLogoTwitch />}
                       >
-                        Sign In to Request
+                        Sign In to Suggest
                       </Button>
                     </Link>
                   ) : (
@@ -359,7 +359,7 @@ const Home: NextPage = () => {
                       my={2}
                       onClick={handleAddModalOpen}
                     >
-                      Add Request
+                      Add Suggestion
                     </Button>
                   )}
                   <Box
@@ -392,7 +392,7 @@ const Home: NextPage = () => {
                     textAlign="center"
                     p={2}
                   >
-                    <Text fontWeight="bold">Queue is Closed</Text>
+                    <Text fontWeight="bold">Suggestion List is Closed</Text>
                   </Box>
                 </Box>
               )}
@@ -425,7 +425,7 @@ const Home: NextPage = () => {
             </Stack>
           ) : (
             <Box w={"100%"} alignContent="center">
-              <Text>Loading Queue...</Text>
+              <Text>Loading...</Text>
               <Image
                 src="/loading.gif"
                 alt="loading seth's huge forehead"
