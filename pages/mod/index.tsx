@@ -79,17 +79,6 @@ const Mod: NextPage = () => {
     let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
     const fetchQueue = () => {
-      toast.info("New Request Added", {
-        onClick: () =>
-          window.scroll({
-            top: document.body.offsetHeight,
-            left: 0,
-            behavior: "smooth",
-          }),
-        toastId: "new-song",
-        position: "bottom-left",
-        pauseOnFocusLoss: false,
-      });
       axios
         .get("/api/mod/queue")
         .then((res) => {
