@@ -78,6 +78,38 @@ const Mod: NextPage = () => {
 
     let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
+    const fetchQueue = () => {
+      toast.info("New Request Added", {
+        onClick: () =>
+          window.scroll({
+            top: document.body.offsetHeight,
+            left: 0,
+            behavior: "smooth",
+          }),
+        toastId: "new-song",
+        position: "bottom-left",
+        pauseOnFocusLoss: false,
+      });
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          if (res.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+
+          setQueue(res.data);
+          setQueueStatus("ready");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+          console.error(error);
+        });
+    };
+
     if (!pusherConnected) {
       channel.bind("pusher:subscription_error", (error) => {
         console.error(error);
@@ -94,33 +126,14 @@ const Mod: NextPage = () => {
           setModsOnline((currModsOnline) => [...currModsOnline, member]);
         });
 
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            setQueue(res.data);
-            setQueueStatus("ready");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            } else if (error.response.status === 403) {
-              setQueueError("Only mods can access this");
-              return;
-            }
-
-            setQueueError("Error Fetching queue");
-            console.error(error);
-          });
+        fetchQueue();
       });
 
       channel.bind("pusher:member_added", (member) => {
-        console.log("mod joined");
         setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
       });
 
       channel.bind("pusher:member_removed", (member) => {
-        console.log("mod disconnected");
         setModsOnline((currOnlineMods) => {
           const updatedMods = currOnlineMods.filter((mod) => {
             return member.id != mod.id;
@@ -131,38 +144,22 @@ const Mod: NextPage = () => {
       });
 
       channel.bind("lock-queue", (data: any) => {
-        console.log("LOCKL QUEUE");
         setQueueStatus("updating");
         setBeingUpdatedBy(data.beingUpdatedBy);
         // console.log(data);
       });
 
       channel.bind("unlock-queue", (data: any) => {
-        console.log("UNLOCKL QUEUE");
         if (beingUpdatedBy === user?.preferred_username) {
           setQueueStatus("ready");
           setBeingUpdatedBy("");
           return;
         }
 
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            setQueue(res.data);
-            setQueueStatus("ready");
-            setBeingUpdatedBy("");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
-            console.error(error);
-          });
+        fetchQueue();
       });
 
       channel.bind("queue-add", (data: any) => {
-        console.log("queue add");
         toast.info("New Request Added", {
           onClick: () =>
             window.scroll({
@@ -174,32 +171,28 @@ const Mod: NextPage = () => {
           position: "bottom-left",
           pauseOnFocusLoss: false,
         });
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            if (res.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
 
-            setQueue(res.data);
-            setQueueStatus("ready");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
-            console.error(error);
-          });
+        fetchQueue();
       });
 
       channel.bind("update-queue", (data: any) => {
-        console.log("update queue");
-        axios.get("/api/mod/queue").then((res) => {
-          setQueue(res.data);
-          setQueueStatus("ready");
+        fetchQueue();
+      });
+
+      channel.bind("request-updated", (data: any) => {
+        toast.info("User updated request", {
+          onClick: () =>
+            window.scroll({
+              top: document.body.offsetHeight,
+              left: 0,
+              behavior: "smooth",
+            }),
+          toastId: "updated-request",
+          position: "bottom-left",
+          pauseOnFocusLoss: false,
         });
+
+        fetchQueue();
       });
       setPusherConnected(true);
     }
