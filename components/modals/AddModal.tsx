@@ -97,14 +97,9 @@ const AddModal: FC<Props> = ({ queue }) => {
                 })
                 .catch((error) => {
                   actions.setSubmitting(false);
-                  console.error(error);
-                  if (error.response.status === 422) {
-                    toast.error("Video is banned, uban it if you dare...");
-                    return;
-                  } else {
-                    toast.error("Error adding request");
-                    return;
-                  }
+                  toast.error(error.response.data.error);
+                  console.error(error.response.data);
+                  return;
                 });
             }}
           >

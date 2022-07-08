@@ -215,26 +215,9 @@ const Home: NextPage = () => {
                     })
                     .catch((error) => {
                       actions.setSubmitting(false);
-                      console.error(error);
-
-                      if (error.response.status === 406) {
-                        if (!error.response.data.error) {
-                          toast.error("Error adding request");
-                        }
-
-                        toast.error(error.response.data.error);
-                        return;
-                      } else if (error.response.status === 500) {
-                        if (!error.response.data.error) {
-                          toast.error("Error adding request");
-                        }
-
-                        toast.error(error.response.data.error);
-                        return;
-                      } else {
-                        toast.error("Error adding request");
-                        return;
-                      }
+                      toast.error(error.response.data.error);
+                      console.error(error.response.data);
+                      return;
                     });
                 }}
               >

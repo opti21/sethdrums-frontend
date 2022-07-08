@@ -104,9 +104,21 @@ const publicRequestApiHandler = withApiAuthRequired(
       if (!videoInDB) {
         // Video doesn't exist on database
         // Make new video then request
-        const createdVideo = await createVideo(youtubeID);
+        const createdVideo = await createVideo(youtubeID).catch((error) => {
+          console.error(error);
+          return res
+            .status(500)
+            .json({ success: false, error: "Error creating video" });
+        });
 
         if (createdVideo) {
+          if (createdVideo.region_blocked) {
+            return res.status(400).json({
+              success: false,
+              error: "Video must be playable in the US",
+            });
+          }
+
           const createdRequest = await createRequest(
             createdVideo.id,
             session.user.preferred_username,
@@ -135,6 +147,13 @@ const publicRequestApiHandler = withApiAuthRequired(
         return res.status(406).json({
           success: false,
           error: "Requests must be PG13, please request another.",
+        });
+      }
+
+      if (videoInDB.region_blocked) {
+        return res.status(400).json({
+          success: false,
+          error: "Video must be playable in the US",
         });
       }
 
@@ -228,6 +247,15 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
       const apiData: YTApiResponse = axiosResponse.data;
       const video = apiData.items[0];
       const duration = parseYTDuration(video.contentDetails.duration);
+      let regionBlocked = false;
+
+      // Check if video is blocked from US
+      if (video.contentDetails.regionRestriction) {
+        if (!video.contentDetails.regionRestriction.allowed.includes("US")) {
+          console.log("Region Blocked");
+          regionBlocked = true;
+        }
+      }
 
       const createdVideo = await prisma.video.create({
         data: {
@@ -250,6 +278,7 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
     }
   } catch (e) {
     console.error(e);
+    return Promise.reject(e);
   }
 }
 

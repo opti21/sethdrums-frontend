@@ -24,6 +24,7 @@ import {
   PopoverHeader,
   PopoverBody,
   IconButton,
+  ButtonGroup,
 } from "@chakra-ui/react";
 import { Status } from "@prisma/client";
 import axios from "axios";
@@ -35,11 +36,14 @@ import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import { usePGCheckerModalStore } from "../../stateStore/modalState";
 
+const VIDEO_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
+
 const PGCheckerModal: FC = ({}: any) => {
   const isOpen = usePGCheckerModalStore((state) => state.isOpen);
   const closePGModal = usePGCheckerModalStore((state) => state.close);
   const pgData = usePGCheckerModalStore((state) => state.pgData);
   const setPGData = usePGCheckerModalStore((state) => state.setPGData);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [banLoading, setBanLoading] = useState(false);
 
   const updatePG = (status: string, pgStatusID: string) => {
@@ -145,8 +149,23 @@ const PGCheckerModal: FC = ({}: any) => {
               height={"100%"}
               width={"100%"}
               controls={true}
+              playbackRate={playbackRate}
             />
           </AspectRatio>
+          <ButtonGroup mt={4} width={"100%"} justifyContent={"center"}>
+            {VIDEO_RATES.map((rate, index) => {
+              return (
+                <Button
+                  key={index}
+                  minW={"10%"}
+                  onClick={() => setPlaybackRate(rate)}
+                  colorScheme={playbackRate === rate ? "blue" : "gray"}
+                >
+                  {rate}
+                </Button>
+              );
+            })}
+          </ButtonGroup>
           <Formik
             initialValues={{
               notes: pgData.video?.notes,
