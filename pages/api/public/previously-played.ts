@@ -1,4 +1,3 @@
-import { getQueue } from "../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../utils/prisma";
 

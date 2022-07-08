@@ -39,6 +39,7 @@ import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
 import NowPlayingCard from "../components/NowPlayingCard";
+import { validateYTUrl } from "../utils/utils";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -210,24 +211,6 @@ const SethView: NextPage = () => {
     }
   };
 
-  const validateYTUrl = (value: string) => {
-    let error;
-    const parsed = urlParser.parse(value);
-    const alreadyRequested = queue.order.findIndex((request) => {
-      return request.Video.youtube_id === parsed?.id;
-    });
-
-    if (!value) {
-      error = "Youtube link required";
-    } else if (!parsed) {
-      error = "Not valid youtube URL";
-    } else if (alreadyRequested != -1) {
-      error = "Video is already in the queue";
-    }
-
-    return error;
-  };
-
   const validateRequestedBy = (value: string) => {
     let error;
 
@@ -289,7 +272,12 @@ const SethView: NextPage = () => {
               >
                 {(props: FormikProps<any>) => (
                   <Form>
-                    <Field name="ytLink" validate={validateYTUrl}>
+                    <Field
+                      name="ytLink"
+                      validate={(value) => {
+                        validateYTUrl(value, queue);
+                      }}
+                    >
                       {({ field, form }: any) => (
                         <FormControl
                           isInvalid={form.errors.ytLink && form.touched.ytLink}
