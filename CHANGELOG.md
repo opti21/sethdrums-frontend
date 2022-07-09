@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.5](https://github.com/opti21/pepega-panel-frontend/compare/v0.3.3...v0.3.5) (2022-07-09)
+
+
+### Features
+
+* add merch redirect ([125a5cd](https://github.com/opti21/pepega-panel-frontend/commit/125a5cdb52bd96a642e4514240b449bbe3f64e20))
+* add request-updated event ([7873ad2](https://github.com/opti21/pepega-panel-frontend/commit/7873ad2ad5564254e91c1022012c162f1fb4d0d1))
+* axiom web vitals ([480b6d1](https://github.com/opti21/pepega-panel-frontend/commit/480b6d18e61d9b717db659c567a30085ca958f5c))
+* block videos not playable in the US ([6685a03](https://github.com/opti21/pepega-panel-frontend/commit/6685a0359770ce01087f6efa42ecdee3617df2ed))
+* make alert scroll to bottom ([dc6199d](https://github.com/opti21/pepega-panel-frontend/commit/dc6199d4cdad609486dcda9de1a72ac5e39df13c))
+
+
+### Bug Fixes
+
+* add build step to github action ([4372a94](https://github.com/opti21/pepega-panel-frontend/commit/4372a94fd1e2e87d433694c09004b58db00d5d05))
+* merch redirect ([e13f14a](https://github.com/opti21/pepega-panel-frontend/commit/e13f14aed71fde0874e806b3f51f65472bc7aea2))
+* remove deleteModal prop ([17edd35](https://github.com/opti21/pepega-panel-frontend/commit/17edd35ebc60d8fa626e925283e44418ba6ba43b))
+* remove toast notification from fetch function ([85a6a80](https://github.com/opti21/pepega-panel-frontend/commit/85a6a8094984c81a4854fdef733b13a8e54ca095))
+
 ### [0.3.4](https://github.com/opti21/pepega-panel-frontend/compare/v0.3.3...v0.3.4) (2022-07-09)
 
 
