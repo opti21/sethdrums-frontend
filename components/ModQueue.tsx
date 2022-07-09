@@ -369,7 +369,6 @@ const ModQueue: FC<Props> = ({}) => {
                   request={request}
                   video={request.Video}
                   pgStatus={request.Video.PG_Status}
-                  openDeleteModal={handleDeleteModalOpen}
                   disabled={disableDrag}
                   user={user}
                 />
