@@ -82,7 +82,12 @@ export interface ContentDetails {
   caption: string;
   licensedContent: boolean;
   contentRating: number; // this may need to change but not needed
+  regionRestriction: RegionRestriction;
   projection: string;
+}
+
+export interface RegionRestriction {
+  allowed: string[];
 }
 
 export interface Statistics {

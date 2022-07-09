@@ -48,9 +48,20 @@ const requestApiHandler = withApiAuthRequired(
       if (!videoInDB) {
         // Video doesn't exist on database
         // Make new video then request
-        const createdVideo = await createVideo(youtubeID);
+        const createdVideo = await createVideo(youtubeID).catch((error) => {
+          console.error(error);
+          return res
+            .status(500)
+            .json({ success: false, error: "Error creating video" });
+        });
 
         if (createdVideo) {
+          if (createdVideo.region_blocked) {
+            return res.status(400).json({
+              success: false,
+              error: "Video must be playable in the US",
+            });
+          }
           const createdRequest = await createRequest(
             createdVideo.id,
             req.body.requestedBy,
@@ -73,7 +84,14 @@ const requestApiHandler = withApiAuthRequired(
       if (videoInDB.banned) {
         return res
           .status(422)
-          .json({ success: false, message: "Video is banned" });
+          .json({ success: false, error: "Video is banned" });
+      }
+
+      if (videoInDB.region_blocked) {
+        return res.status(400).json({
+          success: false,
+          error: "Video must be playable in the US",
+        });
       }
 
       // If video is already in DB just create a request
@@ -157,6 +175,15 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
       const apiData: YTApiResponse = axiosResponse.data;
       const video = apiData.items[0];
       const duration = parseYTDuration(video.contentDetails.duration);
+      let regionBlocked = false;
+
+      // Check if video is blocked from US
+      if (video.contentDetails.regionRestriction) {
+        if (!video.contentDetails.regionRestriction.allowed.includes("US")) {
+          console.log("Region Blocked");
+          regionBlocked = true;
+        }
+      }
 
       const createdVideo = await prisma.video.create({
         data: {
@@ -164,7 +191,7 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
           title: video.snippet.title,
           duration: duration,
           thumbnail: `https://i.ytimg.com/vi/${videoID}/mqdefault.jpg`,
-          region_blocked: false,
+          region_blocked: regionBlocked,
           embed_blocked: false,
           channel: video.snippet.channelTitle,
           PG_Status: {
@@ -175,10 +202,11 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
         },
       });
 
-      return createdVideo;
+      return Promise.resolve(createdVideo);
     }
   } catch (e) {
     console.error(e);
+    return Promise.reject(e);
   }
 }
 

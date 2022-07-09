@@ -38,7 +38,6 @@ type Props = {
   request: IApiRequest;
   video: IAPiVideo;
   pgStatus?: PG_Status;
-  openDeleteModal?: (request: any, video: any) => void;
   disabled?: boolean;
   sethView?: boolean;
   publicView?: boolean;

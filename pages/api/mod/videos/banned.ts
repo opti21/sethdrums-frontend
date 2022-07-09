@@ -1,9 +1,4 @@
-import {
-  getQueue,
-  removeFromOrder,
-  updateNowPlaying,
-  updateOrder,
-} from "../../../../redis/handlers/Queue";
+import { removeFromOrder } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";

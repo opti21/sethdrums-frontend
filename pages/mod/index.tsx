@@ -1,35 +1,11 @@
 import {
   Container,
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalFooter,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-  AspectRatio,
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  FormErrorMessage,
   Box,
   Alert,
-  AlertIcon,
   HStack,
   Text,
   Stack,
   Avatar,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  PopoverArrow,
-  PopoverCloseButton,
-  PopoverHeader,
-  PopoverBody,
-  Link as ChakraLink,
-  StatUpArrow,
 } from "@chakra-ui/react";
 import axios from "axios";
 import { NextPage } from "next";
@@ -135,7 +111,6 @@ const Mod: NextPage = () => {
       channel.bind("lock-queue", (data: any) => {
         setQueueStatus("updating");
         setBeingUpdatedBy(data.beingUpdatedBy);
-        // console.log(data);
       });
 
       channel.bind("unlock-queue", (data: any) => {
