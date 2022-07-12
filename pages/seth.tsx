@@ -54,7 +54,6 @@ const SethView: NextPage = () => {
     if (!user) {
       return;
     }
-    console.log("connect pusher");
 
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
       cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
@@ -73,7 +72,7 @@ const SethView: NextPage = () => {
       });
 
       channel.bind("pusher:subscription_succeeded", (members) => {
-        console.log("succec");
+        console.log("pusher connected");
 
         members.each((member) => {
           setModsOnline((currModsOnline) => [...currModsOnline, member]);
@@ -100,12 +99,10 @@ const SethView: NextPage = () => {
       });
 
       channel.bind("pusher:member_added", (member) => {
-        console.log("mod joined");
         setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
       });
 
       channel.bind("pusher:member_removed", (member) => {
-        console.log("mod disconnected");
         setModsOnline((currOnlineMods) => {
           const updatedMods = currOnlineMods.filter((mod) => {
             return member.id != mod.id;
@@ -116,13 +113,11 @@ const SethView: NextPage = () => {
       });
 
       channel.bind("lock-queue", (data: any) => {
-        console.log("LOCKL QUEUE");
         setQueueStatus("updating");
         setBeingUpdatedBy(data.beingUpdatedBy);
       });
 
       channel.bind("unlock-queue", (data: any) => {
-        console.log("UNLOCKL QUEUE");
         if (beingUpdatedBy === user?.preferred_username) {
           setQueueStatus("ready");
           setBeingUpdatedBy("");
@@ -146,7 +141,6 @@ const SethView: NextPage = () => {
       });
 
       channel.bind("queue-add", (data: any) => {
-        console.log("queue add");
         axios
           .get("/api/mod/queue")
           .then((res) => {
@@ -168,7 +162,6 @@ const SethView: NextPage = () => {
       });
 
       channel.bind("update-queue", (data: any) => {
-        console.log("update queue");
         axios.get("/api/mod/queue").then((res) => {
           setQueue(res.data);
           setQueueStatus("ready");

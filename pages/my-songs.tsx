@@ -24,7 +24,6 @@ const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError } = useSWR(
     "/api/public/saved-songs"
   );
-  console.log(savedSongsData);
 
   return (
     <>

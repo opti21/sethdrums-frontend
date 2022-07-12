@@ -68,7 +68,6 @@ const publicRequestApiHandler = withApiAuthRequired(
           Video: true,
         },
       });
-      console.log(userAlreadyRequested);
 
       const videoAlreadyRequested = await prisma.request.findFirst({
         where: {
@@ -252,7 +251,6 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
       // Check if video is blocked from US
       if (video.contentDetails.regionRestriction) {
         if (!video.contentDetails.regionRestriction.allowed.includes("US")) {
-          console.log("Region Blocked");
           regionBlocked = true;
         }
       }

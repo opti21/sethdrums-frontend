@@ -85,7 +85,7 @@ const Mod: NextPage = () => {
       });
 
       channel.bind("pusher:subscription_succeeded", (members) => {
-        console.log("succec");
+        console.log("pusher connected");
 
         members.each((member) => {
           setModsOnline((currModsOnline) => [...currModsOnline, member]);
@@ -165,8 +165,6 @@ const Mod: NextPage = () => {
       pusher.disconnect();
     };
   }, [user]);
-
-  console.log(queue);
 
   return (
     <>

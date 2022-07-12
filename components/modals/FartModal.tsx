@@ -13,7 +13,6 @@ import { useFartModalStore } from "../../stateStore/modalState";
 const FartModal: FC = ({}: any) => {
   const isOpen = useFartModalStore((state) => state.isOpen);
   const closeFartModal = useFartModalStore((state) => state.close);
-  console.log(isOpen);
 
   return (
     <Modal isOpen={isOpen} onClose={closeFartModal} size="2xl">

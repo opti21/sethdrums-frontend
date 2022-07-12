@@ -80,7 +80,6 @@ const NowPlayingCard: FC<Props> = ({
             });
         } else {
           toast.error("Error removing now playing");
-          console.log(nowPlayingRes);
         }
       })
       .catch((err) => {

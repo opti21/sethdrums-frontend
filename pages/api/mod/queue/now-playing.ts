@@ -90,8 +90,6 @@ const queueApiHandler = withApiAuthRequired(
 export default queueApiHandler;
 
 const generateVodLink = async (requestID: number) => {
-  console.log("GENERATING LINK");
-
   try {
     const token_db = await prisma.twitchCreds
       .findUnique({
@@ -118,9 +116,6 @@ const generateVodLink = async (requestID: number) => {
             expires_in: tokenData.expires_in,
           },
         })
-        .then((response) => {
-          console.log("Token Created");
-        })
         .catch((e) => {
           console.error(e);
         });
@@ -145,7 +140,6 @@ const generateVodLink = async (requestID: number) => {
     let vod_link: string;
 
     if (vidFetch.status === 200) {
-      console.log("VOD FETCH SUCCESS");
       const vidJSON = await vidFetch.json();
       const { data: videos } = vidJSON;
 
@@ -158,13 +152,10 @@ const generateVodLink = async (requestID: number) => {
 
       vod_link = videos[0].url + "?t=" + offset;
 
-      console.log(vod_link);
     } else {
       const vidError = await vidFetch.json();
       console.error(vidError);
     }
-
-    console.log(vod_link);
 
     // Update request with vod link
 
@@ -176,9 +167,6 @@ const generateVodLink = async (requestID: number) => {
         data: {
           vod_link: vod_link,
         },
-      })
-      .then(async (doc) => {
-        console.log(doc);
       })
       .catch((e) => {
         console.error(e);

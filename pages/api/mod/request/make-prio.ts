@@ -52,7 +52,7 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
               priority: true,
             },
           });
-          console.log(requestID);
+
           const updatedRequest = await prisma.request.update({
             where: {
               id: requestID,

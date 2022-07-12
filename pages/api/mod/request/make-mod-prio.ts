@@ -65,7 +65,6 @@ const MakeRequestModPrioApiHandler = withApiAuthRequired(
             ],
           },
         });
-        console.log(requestID);
         await prisma.request.update({
           where: {
             id: requestID,

@@ -112,13 +112,11 @@ const RequestCard: FC<Props> = ({
   let bgGradient = regularGradient;
 
   if (request.priority) {
-    console.log("prio");
     borderColor = request.priority ? "orange.300" : "purple.700";
     bgGradient = request.priority ? prioGradient : regularGradient;
   }
 
   if (request.raffle_prio) {
-    console.log("raffle prio");
     borderColor = "blue.300";
     bgGradient = rafflePrioGradient;
   }
