@@ -6,10 +6,10 @@ import {
   usePGCheckerModalStore,
   usePGConfirmModalStore,
 } from "../stateStore/modalState";
-import { Status } from "../utils/types";
+import { IApiRequest, Status } from "../utils/types";
 
 type Props = {
-  requestID: string;
+  request: IApiRequest;
   pgStatus: any;
   video: Video;
   sethView?: boolean;
@@ -20,7 +20,7 @@ type SethProps = {
   width?: any;
 };
 
-const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
+const PGButton: FC<Props> = ({ request, pgStatus, video }) => {
   const buttonWidth = "100%";
   const openPGConfirmModal = usePGConfirmModalStore((state) => state.open);
   const setPGData = usePGCheckerModalStore((state) => state.setPGData);
@@ -29,7 +29,7 @@ const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
   const handlePGClick = async () => {
     setPGData({
       video: video,
-      requestID: requestID,
+      request: request,
       pgStatusID: pgStatus.id,
       currentStatus: pgStatus.status,
     });
@@ -71,7 +71,7 @@ const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
           onClick={() => {
             openPGConfirmModal();
             setPGData({
-              requestID: requestID,
+              request: request,
               video: video,
               pgStatusID: pgStatus.id,
               currentStatus: pgStatus.status,

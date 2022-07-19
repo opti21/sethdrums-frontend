@@ -10,9 +10,7 @@ import {
   ModalBody,
   Text,
 } from "@chakra-ui/react";
-import axios from "axios";
 import { Dispatch, FC } from "react";
-import { toast } from "react-toastify";
 import {
   usePGCheckerModalStore,
   usePGConfirmModalStore,
@@ -27,7 +25,7 @@ const PGConfirmModal: FC = ({}: any) => {
   const handlePGConfirmClose = () => {
     closePGConfirmModal();
     setPGData({
-      requestID: "",
+      request: null,
       video: null,
       pgStatusID: "",
       currentStatus: "",

@@ -171,7 +171,6 @@ const ModQueue: FC<Props> = ({}) => {
   };
 
   const onDragStart = async (event: any) => {
-    console.log("Drag Started");
     const { active } = event;
 
     setActiveId(active.id);
@@ -194,7 +193,6 @@ const ModQueue: FC<Props> = ({}) => {
   };
 
   const unlockQueue = async () => {
-    console.log("unlock queue");
     await axios.post("/api/mod/trigger", {
       eventName: "unlock-queue",
       data: { beingUpdatedBy: "" },

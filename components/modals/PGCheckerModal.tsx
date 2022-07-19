@@ -78,7 +78,7 @@ const PGCheckerModal: FC = ({}: any) => {
         });
         closePGModal();
         setPGData({
-          requestID: "",
+          request: null,
           video: null,
           pgStatusID: "",
           currentStatus: "",
@@ -89,7 +89,7 @@ const PGCheckerModal: FC = ({}: any) => {
     setBanLoading(true);
     axios
       .post("/api/mod/videos/banned", {
-        requestID: pgData.requestID,
+        requestID: pgData.request.id,
         videoID: pgData.video.id,
       })
       .then(async (res) => {
@@ -104,7 +104,7 @@ const PGCheckerModal: FC = ({}: any) => {
             data: {},
           });
           setPGData({
-            requestID: "",
+            request: null,
             video: null,
             pgStatusID: "",
             currentStatus: "",
@@ -143,6 +143,7 @@ const PGCheckerModal: FC = ({}: any) => {
             />
             <Text>{pgData.video?.title}</Text>
           </HStack>
+          <Text mb={2}>Requested by: {pgData.request?.requested_by}</Text>
           <AspectRatio maxW="100%" ratio={16 / 9}>
             <ReactPlayer
               url={`https://www.youtube.com/watch?v=${pgData.video?.youtube_id}`}

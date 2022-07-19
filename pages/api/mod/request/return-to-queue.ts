@@ -43,7 +43,6 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
         const requestIDStr = requestID.toString();
         if (updatedRequest.priority) {
           queue.order.splice(0, 0, requestIDStr);
-          console.log("updated order", queue);
 
           await updateOrderIdStrings(queue.order);
           await updateNowPlaying("");
@@ -59,7 +58,6 @@ const MakeRequestPrioApiHandler = withApiAuthRequired(
             },
           });
           queue.order.splice(numOfPrio, 0, requestIDStr);
-          console.log("updated order", queue);
 
           await updateOrderIdStrings(queue.order);
           await updateNowPlaying("");
