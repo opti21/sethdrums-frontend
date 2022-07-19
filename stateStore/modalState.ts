@@ -17,7 +17,7 @@ export const usePGConfirmModalStore = create<TPGConfirmModalState>((set) => ({
 
 // PG Checker Modal
 interface PGData {
-  requestID: string;
+  request: Request | null;
   pgStatusID: string;
   video: Video | null;
   currentStatus: string;
@@ -34,17 +34,17 @@ type TPGCheckerModalState = {
 export const usePGCheckerModalStore = create<TPGCheckerModalState>((set) => ({
   isOpen: false,
   pgData: {
-    requestID: "",
+    request: null,
     pgStatusID: "",
     video: null,
     currentStatus: "",
   },
   open: () => set(() => ({ isOpen: true })),
   close: () => set(() => ({ isOpen: false })),
-  setPGData: ({ requestID, pgStatusID, video, currentStatus }) =>
+  setPGData: ({ request, pgStatusID, video, currentStatus }) =>
     set(() => ({
       pgData: {
-        requestID,
+        request,
         pgStatusID,
         video,
         currentStatus,

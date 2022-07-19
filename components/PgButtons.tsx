@@ -1,5 +1,5 @@
 import { Box, Button } from "@chakra-ui/react";
-import { Video } from "@prisma/client";
+import { Request, Video } from "@prisma/client";
 import axios from "axios";
 import { FC } from "react";
 import {
@@ -9,7 +9,7 @@ import {
 import { Status } from "../utils/types";
 
 type Props = {
-  requestID: string;
+  request: Request;
   pgStatus: any;
   video: Video;
   sethView?: boolean;
@@ -20,7 +20,7 @@ type SethProps = {
   width?: any;
 };
 
-const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
+const PGButton: FC<Props> = ({ request, pgStatus, video }) => {
   const buttonWidth = "100%";
   const openPGConfirmModal = usePGConfirmModalStore((state) => state.open);
   const setPGData = usePGCheckerModalStore((state) => state.setPGData);
@@ -29,7 +29,7 @@ const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
   const handlePGClick = async () => {
     setPGData({
       video: video,
-      requestID: requestID,
+      request: request,
       pgStatusID: pgStatus.id,
       currentStatus: pgStatus.status,
     });
@@ -71,7 +71,7 @@ const PGButton: FC<Props> = ({ requestID, pgStatus, video }) => {
           onClick={() => {
             openPGConfirmModal();
             setPGData({
-              requestID: requestID,
+              request: request,
               video: video,
               pgStatusID: pgStatus.id,
               currentStatus: pgStatus.status,

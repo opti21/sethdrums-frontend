@@ -250,11 +250,7 @@ const RequestCard: FC<Props> = ({
             spacing={1.5}
           >
             {!publicView && !sethView && (
-              <PGButton
-                pgStatus={pgStatus}
-                requestID={request.id}
-                video={video}
-              />
+              <PGButton pgStatus={pgStatus} request={request} video={video} />
             )}
             {sethView && <SethPGButtons pgStatus={pgStatus} />}
             <HStack>
