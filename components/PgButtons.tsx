@@ -1,15 +1,15 @@
 import { Box, Button } from "@chakra-ui/react";
-import { Request, Video } from "@prisma/client";
+import { Video } from "@prisma/client";
 import axios from "axios";
 import { FC } from "react";
 import {
   usePGCheckerModalStore,
   usePGConfirmModalStore,
 } from "../stateStore/modalState";
-import { Status } from "../utils/types";
+import { IApiRequest, Status } from "../utils/types";
 
 type Props = {
-  request: Request;
+  request: IApiRequest;
   pgStatus: any;
   video: Video;
   sethView?: boolean;

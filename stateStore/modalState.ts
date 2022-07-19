@@ -1,4 +1,4 @@
-import { Request, Video } from "@prisma/client";
+import { Video } from "@prisma/client";
 import create from "zustand";
 import { IApiRequest } from "../utils/types";
 
@@ -17,7 +17,7 @@ export const usePGConfirmModalStore = create<TPGConfirmModalState>((set) => ({
 
 // PG Checker Modal
 interface PGData {
-  request: Request | null;
+  request: IApiRequest | null;
   pgStatusID: string;
   video: Video | null;
   currentStatus: string;
