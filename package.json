@@ -20,7 +20,7 @@
     "@dnd-kit/utilities": "^3.1.0",
     "@emotion/react": "11",
     "@emotion/styled": "11",
-    "@growthbook/growthbook-react": "^0.8.1",
+    "@growthbook/growthbook-react": "^0.10.0",
     "@next-auth/mongodb-adapter": "^1.0.2",
     "@next-auth/prisma-adapter": "^1.0.1",
     "@prisma/client": "^3.14.0",
