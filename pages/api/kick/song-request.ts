@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { addToQueue, removeFromOrder } from "../../../../../redis/handlers/Queue";
+import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";
 import { Request, Video } from "@prisma/client";
-import { YTApiResponse } from "../../../../../utils/types";
-import { parseYTDuration } from "../../../../../utils/utils";
-import prisma from "../../../../../utils/prisma";
+import { YTApiResponse } from "../../../utils/types";
+import { parseYTDuration } from "../../../utils/utils";
+import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Pusher from "pusher";
@@ -24,14 +24,17 @@ const pusher = new Pusher({
 const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "GET") {
-        const {username, youtubeURL} = req.query;
+      console.log("GET request to /api/kick/song-request")
+      console.log(req.query)
 
-      const parsed = urlParser.parse(youtubeURL as string);
+        const {username, sr} = req.query;
+
+      const parsed = urlParser.parse(sr as string);
       const youtubeID = parsed?.id;
 
       if (!youtubeID) {
         return res
-          .status(400)
+          .status(200)
           .send("Please use a valid youtube URL");
       }
 
@@ -59,13 +62,13 @@ const requestApiHandler = withApiAuthRequired(
 
       if (userAlreadyRequested) {
         return res
-          .status(406)
+          .status(200)
           .send("You have already requested a song. Please wait until it is played or removed from the queue.");
       }
 
       if (videoAlreadyRequested) {
         return res
-          .status(406)
+          .status(200)
           .send("This song has already been requested. Please wait until it is played or removed from the queue.");
       }
 
@@ -82,13 +85,13 @@ const requestApiHandler = withApiAuthRequired(
         const createdVideo = await createVideo(youtubeID).catch((error) => {
           console.error(error);
           return res
-            .status(500)
+            .status(200)
             .send("Error creating your request. Please try again.")
         });
 
         if (createdVideo) {
           if (createdVideo.region_blocked) {
-            return res.status(400)
+            return res.status(200)
             .send("Error: Video must be playable in the US");
           }
           const createdRequest = await createRequest(
@@ -101,7 +104,7 @@ const requestApiHandler = withApiAuthRequired(
 
           if (!addedToQueue) {
             return res
-              .status(500)
+              .status(200)
               .send("Error adding to queue");
           }
 
@@ -117,12 +120,12 @@ const requestApiHandler = withApiAuthRequired(
 
       if (videoInDB.banned) {
         return res
-          .status(422)
+          .status(200)
           .send("Unfortunately this video cannot be requested, please try another.");
       }
 
       if (videoInDB.region_blocked) {
-        return res.status(400)
+        return res.status(200)
             .send("Error: Video must be playable in the US");
       }
 
@@ -135,7 +138,7 @@ const requestApiHandler = withApiAuthRequired(
 
       if (!createRequest) {
         return res
-          .status(500)
+          .status(200)
           .send("Error creating your request. Please try again.")
       }
 
@@ -143,7 +146,7 @@ const requestApiHandler = withApiAuthRequired(
 
       if (!addedToQueue) {
         return res
-          .status(500)
+          .status(200)
           .send("Error creating your request. Please try again.")
       }
 
