@@ -23,8 +23,7 @@ const pusher = new Pusher({
 
 const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    if (req.method === "GET") {
-      console.log("GET request to /api/kick/song-request")
+      console.log(`${req.method} request to /api/kick/song-request`)
       console.log(req.query)
 
         const {username, sr} = req.query;
@@ -157,7 +156,6 @@ const requestApiHandler = withApiAuthRequired(
       );
 
       res.status(200).send("Your request has been added to the queue. :D");
-    } 
     // else if (req.method === "PUT") {
     //   if (!req.body.requestID) {
     //     console.error("Missing requestID in body");
