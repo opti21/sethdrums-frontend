@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
+import { addToQueue, getQueue, removeFromOrder } from "../../../redis/handlers/Queue";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
@@ -21,20 +21,34 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
+function isValidYouTubeId(id) {
+  const regex = /^[a-zA-Z0-9_-]{11}$/;
+  return regex.test(id);
+}
+
 const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log(`${req.method} request to /api/kick/song-request`)
       console.log(req.query)
 
-        const {username, sr} = req.query;
+      const queue = await getQueue();
 
-      const parsed = urlParser.parse(sr as string);
-      const youtubeID = parsed?.id;
-
-      if (!youtubeID) {
+      if (!queue.is_open) {
         return res
           .status(200)
-          .send("Please use a valid youtube URL");
+          .send("Queue is currently closed, please wait until it opens to request a song.")
       }
+
+      const { username, sr } = req.query;
+
+      const isValidYTId = isValidYouTubeId(sr as string);
+
+      if (!isValidYTId) {
+        return res
+          .status(200)
+          .send("Please use a valid youtube ID");
+      }
+
+      const youtubeID = sr as string;
 
       const userAlreadyRequested = await prisma.request.findFirst({
         where: {
@@ -49,7 +63,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       const videoAlreadyRequested = await prisma.request.findFirst({
         where: {
           Video: {
-            youtube_id: parsed?.id,
+            youtube_id: youtubeID,
           },
           played: false,
         },
@@ -73,7 +87,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       // Check if video is in database
       const videoInDB = await prisma.video.findUnique({
         where: {
-          youtube_id: parsed.id,
+          youtube_id: youtubeID,
         },
       });
 
