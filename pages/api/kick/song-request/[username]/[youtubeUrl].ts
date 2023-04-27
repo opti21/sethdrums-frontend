@@ -1,13 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
+import { addToQueue, removeFromOrder } from "../../../../../redis/handlers/Queue";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";
 import { Request, Video } from "@prisma/client";
-import { YTApiResponse } from "../../../utils/types";
-import { parseYTDuration } from "../../../utils/utils";
-import prisma from "../../../utils/prisma";
+import { YTApiResponse } from "../../../../../utils/types";
+import { parseYTDuration } from "../../../../../utils/utils";
+import prisma from "../../../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Pusher from "pusher";
@@ -24,9 +24,9 @@ const pusher = new Pusher({
 const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "GET") {
-        const {username, sr} = req.query;
+        const {username, youtubeURL} = req.query;
 
-      const parsed = urlParser.parse(sr as string);
+      const parsed = urlParser.parse(youtubeURL as string);
       const youtubeID = parsed?.id;
 
       if (!youtubeID) {
