@@ -10,7 +10,16 @@ import { parseYTDuration } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import Pusher from "pusher";
 dayjs.extend(utc);
+
+const pusher = new Pusher({
+  appId: process.env.PUSHER_APP_ID!,
+  key: process.env.PUSHER_KEY!,
+  secret: process.env.PUSHER_SECRET!,
+  cluster: process.env.PUSHER_CLUSTER!,
+  useTLS: true,
+});
 
 const requestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -23,7 +32,7 @@ const requestApiHandler = withApiAuthRequired(
       if (!youtubeID) {
         return res
           .status(400)
-          .json({ success: false, error: "not a valid youtube URL" });
+          .send("Please use a valid youtube URL");
       }
 
       const userAlreadyRequested = await prisma.request.findFirst({
@@ -96,7 +105,12 @@ const requestApiHandler = withApiAuthRequired(
               .send("Error adding to queue");
           }
 
-          return res.status(200).json({ success: true });
+          pusher.trigger(
+            process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+            "update-queue",
+            {}
+          );
+          return res.status(200).send("Your request has been added to the queue. :)");
         }
         return;
       }
@@ -132,6 +146,12 @@ const requestApiHandler = withApiAuthRequired(
           .status(500)
           .send("Error creating your request. Please try again.")
       }
+
+      pusher.trigger(
+        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
+        "update-queue",
+        {}
+      );
 
       res.status(200).send("Your request has been added to the queue. :D");
     } 
