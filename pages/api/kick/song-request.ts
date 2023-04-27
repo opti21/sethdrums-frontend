@@ -1,5 +1,3 @@
-import // removeNonPlayedRequests,
-"../../../../redis/handlers/Request";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addToQueue, removeFromOrder } from "../../../redis/handlers/Queue";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
