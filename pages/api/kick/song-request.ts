@@ -21,8 +21,7 @@ const pusher = new Pusher({
   useTLS: true,
 });
 
-const requestApiHandler = withApiAuthRequired(
-  async (req: NextApiRequest, res: NextApiResponse) => {
+const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log(`${req.method} request to /api/kick/song-request`)
       console.log(req.query)
 
@@ -201,8 +200,7 @@ const requestApiHandler = withApiAuthRequired(
     // } else {
     //   return res.status(405).send(`${req.method} is not a valid method`);
     // }
-  }
-);
+};
 
 export default requestApiHandler;
 
