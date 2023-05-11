@@ -75,13 +75,13 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (userAlreadyRequested) {
         return res
           .status(200)
-          .send(`@${username} You have already requested a song. Please wait until it is played or removed from the queue.`);
+          .send(`@${username} You have already suggested a song. Please wait until it is played or removed from the queue.`);
       }
 
       if (videoAlreadyRequested) {
         return res
           .status(200)
-          .send(`@${username} This song has already been requested. Please wait until it is played or removed from the queue.`);
+          .send(`@${username} This song has already been suggested. Please wait until it is played or removed from the queue.`);
       }
 
       // Check if video is in database
@@ -125,7 +125,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
             "update-queue",
             {}
           );
-          return res.status(200).send(`@${username} Your request has been added to the queue. :D`);
+          return res.status(200).send(`@${username} Your suggestion has been added to the queue. :D`);
         }
         return;
       }
@@ -133,7 +133,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (videoInDB.banned) {
         return res
           .status(200)
-          .send(`@${username} Unfortunately this video cannot be requested, please try another.`);
+          .send(`@${username} your song was not added, all songs must be PG/family friendly`);
       }
 
       if (videoInDB.region_blocked) {
@@ -151,7 +151,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!createRequest) {
         return res
           .status(200)
-          .send(`@${username} Error creating your request. Please try again.`)
+          .send(`@${username} Error creating your suggestion. Please try again.`)
       }
 
       const addedToQueue = await addToQueue(createdRequest?.id.toString());
@@ -168,7 +168,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         {}
       );
 
-      res.status(200).send(`@${username} Your request has been added to the queue. :D`);
+      res.status(200).send(`@${username} Your suggestion has been added to the list. :D`);
     // else if (req.method === "PUT") {
     //   if (!req.body.requestID) {
     //     console.error("Missing requestID in body");
