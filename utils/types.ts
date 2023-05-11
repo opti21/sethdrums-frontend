@@ -88,6 +88,7 @@ export interface ContentDetails {
 
 export interface RegionRestriction {
   allowed: string[];
+  blocked: string[];
 }
 
 export interface Statistics {

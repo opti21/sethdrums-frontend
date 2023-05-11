@@ -178,8 +178,14 @@ async function createVideo(videoID: string): Promise<Video | undefined> {
       let regionBlocked = false;
 
       // Check if video is blocked from US
-      if (video.contentDetails.regionRestriction) {
+      if (video.contentDetails.regionRestriction && video.contentDetails.regionRestriction.allowed) {
         if (!video.contentDetails.regionRestriction.allowed.includes("US")) {
+          console.log("Region Blocked");
+          regionBlocked = true;
+        }
+      } else if (video.contentDetails.regionRestriction && video.contentDetails.regionRestriction.blocked) {
+        console.log(video.contentDetails.regionRestriction.blocked)
+        if (video.contentDetails.regionRestriction.blocked.includes("US")) {
           console.log("Region Blocked");
           regionBlocked = true;
         }
