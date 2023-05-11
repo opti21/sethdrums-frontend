@@ -37,7 +37,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!queue.is_open) {
         return res
           .status(200)
-          .send(`@${username} Queue is currently closed, please wait until it opens to request a song.`)
+          .send(`@${username} Queue is currently closed, please wait until it opens to suggest a song.`)
       }
 
       const isValidYTId = isValidYouTubeId(sr as string);
@@ -75,13 +75,13 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (userAlreadyRequested) {
         return res
           .status(200)
-          .send(`@${username} You have already suggested a song. Please wait until it is played or removed from the queue.`);
+          .send(`@${username} You have already suggested a song. Please wait until it is played or removed from the suggestion list.`);
       }
 
       if (videoAlreadyRequested) {
         return res
           .status(200)
-          .send(`@${username} This song has already been suggested. Please wait until it is played or removed from the queue.`);
+          .send(`@${username} This song has already been suggested. Please wait until it is played or removed from the suggestion list.`);
       }
 
       // Check if video is in database
@@ -125,7 +125,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
             "update-queue",
             {}
           );
-          return res.status(200).send(`@${username} Your suggestion has been added to the queue. :D`);
+          return res.status(200).send(`@${username} Your song has been added to the suggestion list. :D`);
         }
         return;
       }

@@ -48,7 +48,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!userHasRequest) {
         return res
           .status(200)
-          .send(`@${username} I don't see a suggestion from you in the queue, try doing !sr instead`);
+          .send(`@${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`);
       }
 
       try {
