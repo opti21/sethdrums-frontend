@@ -48,7 +48,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!userHasRequest) {
         return res
           .status(200)
-          .send(`@${username} I don't see a request from you in the queue, try doing !sr instead`);
+          .send(`@${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`);
       }
 
       try {
@@ -66,13 +66,13 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         {}
       );
 
-      return res.status(200).send(`@${username} Your request has been removed.`);
+      return res.status(200).send(`@${username} Your suggestion has been removed.`);
       
       } catch (err) {
         console.error(err);
         return res
           .status(200)
-          .send(`@${username} There was an error removing your request.`);
+          .send(`@${username} There was an error removing your suggestion.`);
       }
 };
 

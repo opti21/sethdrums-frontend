@@ -58,7 +58,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!userHasRequest) {
         return res
           .status(200)
-          .send(`${username} I don't see a request from you in the queue, try doing !sr instead`);
+          .send(`${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`);
       }
 
       const videoAlreadyRequested = await prisma.request.findFirst({
@@ -76,7 +76,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (videoAlreadyRequested) {
         return res
           .status(200)
-          .send(`@${username} that song is already in the queue, maybe try another song?`);
+          .send(`@${username} that song is already in the suggestion list, maybe try another song?`);
       }
 
       // Check if video is in database
@@ -93,7 +93,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           console.error(error);
           return res
             .status(200)
-            .send(`@${username} Error creating your request. Please try again.`)
+            .send(`@${username} Error creating your suggestion. Please try again.`)
         });
 
         if (!createdVideo) {
@@ -115,7 +115,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         if (!requestUpdated) {
           return res
             .status(200)
-            .send(`@${username} Error replacing your request. Please try again.`)
+            .send(`@${username} Error replacing your suggestion. Please try again.`)
         }
     
         pusher.trigger(
@@ -123,14 +123,14 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           "update-queue",
           {}
         );
-        return res.status(200).send(`@${username} Your request has been replaced. :D`);
+        return res.status(200).send(`@${username} Your suggestion has been replaced. :D`);
 
       }
 
       if (videoInDB.banned) {
         return res
           .status(200)
-          .send(`${username} Unfortunately this video cannot be requested, please try another.`);
+          .send(`${username} your song was not added, all songs must be PG/family friendly`);
       }
 
       if (videoInDB.region_blocked) {
@@ -147,7 +147,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!requestUpdated) {
         return res
           .status(200)
-          .send(`@${username} Error replacing your request. Please try again.`)
+          .send(`@${username} Error replacing your suggestion. Please try again.`)
       }
 
       pusher.trigger(
@@ -156,7 +156,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         {}
       );
 
-      res.status(200).send(`@${username} Your request has been replaced. :D`);
+      res.status(200).send(`@${username} Your suggestion has been replaced. :D`);
 };
 
 export default requestApiHandler;
