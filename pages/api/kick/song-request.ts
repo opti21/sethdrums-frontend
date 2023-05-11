@@ -30,22 +30,22 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       console.log(`${req.method} request to /api/kick/song-request`)
       console.log(req.query)
 
+      const { username, sr } = req.query;
+
       const queue = await getQueue();
 
       if (!queue.is_open) {
         return res
           .status(200)
-          .send("Queue is currently closed, please wait until it opens to request a song.")
+          .send(`@${username} Queue is currently closed, please wait until it opens to request a song.`)
       }
-
-      const { username, sr } = req.query;
 
       const isValidYTId = isValidYouTubeId(sr as string);
 
       if (!isValidYTId) {
         return res
           .status(200)
-          .send("Please use a valid youtube ID");
+          .send(`@${username} Please use a valid youtube ID`);
       }
 
       const youtubeID = sr as string;
@@ -75,13 +75,13 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (userAlreadyRequested) {
         return res
           .status(200)
-          .send("You have already requested a song. Please wait until it is played or removed from the queue.");
+          .send(`@${username} You have already requested a song. Please wait until it is played or removed from the queue.`);
       }
 
       if (videoAlreadyRequested) {
         return res
           .status(200)
-          .send("This song has already been requested. Please wait until it is played or removed from the queue.");
+          .send(`@${username} This song has already been requested. Please wait until it is played or removed from the queue.`);
       }
 
       // Check if video is in database
@@ -98,13 +98,13 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           console.error(error);
           return res
             .status(200)
-            .send("Error creating your request. Please try again.")
+            .send(`@${username} Error creating video. Please try again.`)
         });
 
         if (createdVideo) {
           if (createdVideo.region_blocked) {
             return res.status(200)
-            .send("Error: Video must be playable in the US");
+            .send(`@${username} Error: Video must be playable in the US`);
           }
           const createdRequest = await createRequest(
             createdVideo.id,
@@ -125,7 +125,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
             "update-queue",
             {}
           );
-          return res.status(200).send("Your request has been added to the queue. :)");
+          return res.status(200).send(`@${username} Your request has been added to the queue. :D`);
         }
         return;
       }
@@ -133,12 +133,12 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (videoInDB.banned) {
         return res
           .status(200)
-          .send("Unfortunately this video cannot be requested, please try another.");
+          .send(`@${username} Unfortunately this video cannot be requested, please try another.`);
       }
 
       if (videoInDB.region_blocked) {
         return res.status(200)
-            .send("Error: Video must be playable in the US");
+            .send(`@${username} unfortunately this video cannot be played in the US, please try another.`);
       }
 
       // If video is already in DB just create a request
@@ -151,7 +151,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!createRequest) {
         return res
           .status(200)
-          .send("Error creating your request. Please try again.")
+          .send(`@${username} Error creating your request. Please try again.`)
       }
 
       const addedToQueue = await addToQueue(createdRequest?.id.toString());
@@ -159,7 +159,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!addedToQueue) {
         return res
           .status(200)
-          .send("Error creating your request. Please try again.")
+          .send(`@${username} Error adding to queue`);
       }
 
       pusher.trigger(
@@ -168,7 +168,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         {}
       );
 
-      res.status(200).send("Your request has been added to the queue. :D");
+      res.status(200).send(`@${username} Your request has been added to the queue. :D`);
     // else if (req.method === "PUT") {
     //   if (!req.body.requestID) {
     //     console.error("Missing requestID in body");
