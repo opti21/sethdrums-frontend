@@ -40,7 +40,7 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           .send(`@${username} Queue is currently closed, please wait until it opens to suggest a song.`)
       }
 
-      const parsed = urlParser.parse(req.body.ytLink);
+      const parsed = urlParser.parse(sr as string);
 
       if (!parsed) {
         return res
