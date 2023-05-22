@@ -6,6 +6,7 @@ import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Pusher from "pusher";
+import urlParser from "js-video-url-parser";
 dayjs.extend(utc);
 
 const pusher = new Pusher({
@@ -35,15 +36,15 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           .send(`@${username} Queue is currently closed, please wait until it opens to replace a song.`)
       }
 
-      const isValidYTId = isValidYouTubeId(sr as string);
+      const parsed = urlParser.parse(req.body.ytLink);
 
-      if (!isValidYTId) {
+      if (!parsed) {
         return res
           .status(200)
           .send(`@${username} please provide a valid YouTube ID.`);
       }
 
-      const youtubeID = sr as string;
+      const youtubeID = parsed?.id;
 
       const userHasRequest = await prisma.request.findFirst({
         where: {

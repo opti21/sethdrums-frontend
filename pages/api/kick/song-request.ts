@@ -40,15 +40,15 @@ const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           .send(`@${username} Queue is currently closed, please wait until it opens to suggest a song.`)
       }
 
-      const isValidYTId = isValidYouTubeId(sr as string);
+      const parsed = urlParser.parse(req.body.ytLink);
 
-      if (!isValidYTId) {
+      if (!parsed) {
         return res
           .status(200)
-          .send(`@${username} Please use a valid youtube ID`);
+          .send(`@${username} please provide a valid YouTube ID.`);
       }
 
-      const youtubeID = sr as string;
+      const youtubeID = parsed?.id;
 
       const userAlreadyRequested = await prisma.request.findFirst({
         where: {
