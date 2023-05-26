@@ -1,12 +1,15 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getQueue } from "../../../redis/handlers/Queue";
 import "js-video-url-parser/lib/provider/youtube";
-import { createVideo } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Pusher from "pusher";
 import urlParser from "js-video-url-parser";
+import { Video } from "@prisma/client";
+import axios from "axios";
+import { YTApiResponse } from "../../../utils/types";
+import { parseYTDuration } from "../../../utils/utils";
 dayjs.extend(utc);
 
 const pusher = new Pusher({
@@ -180,5 +183,50 @@ async function updateRequest(
   } catch (e) {
     console.error("Error updating request: ", e);
     return false;
+  }
+}
+
+async function createVideo(videoID: string): Promise<Video | undefined> {
+  try {
+    const axiosResponse = await axios.get(
+      `https://youtube.googleapis.com/youtube/v3/videos?part=snippet%2CcontentDetails%2Cstatistics&id=${videoID}&key=${process.env.GOOGLE_API_KEY}`
+    );
+
+    if (axiosResponse.data.items[0]) {
+      const apiData: YTApiResponse = axiosResponse.data;
+      const video = apiData.items[0];
+      const duration = parseYTDuration(video.contentDetails.duration);
+      let regionBlocked = false;
+
+      // Check if video is blocked from US
+      if (video.contentDetails.regionRestriction) {
+        if (!video.contentDetails.regionRestriction.allowed.includes("US")) {
+          console.log("Region Blocked");
+          regionBlocked = true;
+        }
+      }
+
+      const createdVideo = await prisma.video.create({
+        data: {
+          youtube_id: videoID,
+          title: video.snippet.title,
+          duration: duration,
+          thumbnail: `https://i.ytimg.com/vi/${videoID}/mqdefault.jpg`,
+          region_blocked: regionBlocked,
+          embed_blocked: false,
+          channel: video.snippet.channelTitle,
+          PG_Status: {
+            create: {
+              status: "NOT_CHECKED",
+            },
+          },
+        },
+      });
+
+      return Promise.resolve(createdVideo);
+    }
+  } catch (e) {
+    console.error(e);
+    return Promise.reject(e);
   }
 }

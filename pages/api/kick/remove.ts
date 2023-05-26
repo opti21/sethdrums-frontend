@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { getQueue, removeFromOrder } from "../../../redis/handlers/Queue";
 import "js-video-url-parser/lib/provider/youtube";
-import { createVideo } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
