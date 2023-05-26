@@ -3,6 +3,7 @@ import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import { YTApiResponse } from "./types";
 import { Video } from "@prisma/client";
+import prisma from "./prisma";
 
 export function parseYTDuration(duration: string): number {
   const match = duration.match(/P(\d+Y)?(\d+W)?(\d+D)?T(\d+H)?(\d+M)?(\d+S)?/);
