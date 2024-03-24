@@ -24,7 +24,6 @@ import {
   PopoverHeader,
   PopoverBody,
 } from "@chakra-ui/react";
-import { Status } from "@prisma/client";
 import axios from "axios";
 import { Field, Form, Formik, FormikProps } from "formik";
 import { request } from "https";
