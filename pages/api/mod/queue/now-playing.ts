@@ -4,7 +4,6 @@ import {
 } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -12,6 +11,7 @@ import duration from "dayjs/plugin/duration";
 dayjs.extend(utc);
 dayjs.extend(duration);
 import axios from "axios";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const queueApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -151,7 +151,6 @@ const generateVodLink = async (requestID: number) => {
       // console.log(offset);
 
       vod_link = videos[0].url + "?t=" + offset;
-
     } else {
       const vidError = await vidFetch.json();
       console.error(vidError);

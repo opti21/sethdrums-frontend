@@ -6,7 +6,7 @@ import {
   updateOrderIdStrings,
 } from "../../../../redis/handlers/Queue";
 import prisma from "../../../../utils/prisma";
-import { PrismaClientKnownRequestError } from "@prisma/client/runtime";
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const MakeRequestPrioApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
