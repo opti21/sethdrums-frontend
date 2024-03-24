@@ -1,13 +1,11 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["referentialIntegrity"]
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider             = "mysql"
-  url                  = env("PLANETSCALE_URL")
-  shadowDatabaseUrl    = env("PLANETSCALE_SHADOW")
-  referentialIntegrity = "prisma"
+  provider             = "sqlite"
+  url                  = env("TURSO_DATABASE_URL")
 }
 
 model Request {
@@ -46,7 +44,7 @@ model TagsOnRequests {
 model PG_Status {
   id               Int     @id @default(autoincrement())
   video_id         Int     @unique
-  status           Status  @default(NOT_CHECKED)
+  status           String  @default("NOT_CHECKED")
   checker          String?
   timestamp        Int?
   previous_status  String?
@@ -62,7 +60,7 @@ model Video {
   region_blocked Boolean?
   embed_blocked  Boolean?
   duration       Int?
-  notes          String         @default("") @db.VarChar(1000)
+  notes          String         @default("")
   banned         Boolean        @default(false)
   thumbnail      String
   banned_by      String?
@@ -108,9 +106,3 @@ model SavedSongs {
   saved_videos Video[]
 }
 
-enum Status {
-  NOT_CHECKED
-  BEING_CHECKED
-  PG
-  NON_PG
-}

@@ -26,7 +26,6 @@ import {
   IconButton,
   ButtonGroup,
 } from "@chakra-ui/react";
-import { Status } from "@prisma/client";
 import axios from "axios";
 import { Field, Form, Formik, FormikProps } from "formik";
 import { request } from "https";
@@ -35,6 +34,7 @@ import { MdCopyAll } from "react-icons/md";
 import ReactPlayer from "react-player";
 import { toast } from "react-toastify";
 import { usePGCheckerModalStore } from "../../stateStore/modalState";
+import { Status } from "../../utils/types";
 
 const VIDEO_RATES = [0.25, 0.5, 0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
@@ -96,7 +96,7 @@ const PGCheckerModal: FC = ({}: any) => {
         if (res.status === 200) {
           axios.put("/api/mod/pg-status", {
             pgStatusID,
-            status: Status.NON_PG,
+            status: Status.NonPG,
           });
 
           await axios.post("/api/mod/trigger", {
