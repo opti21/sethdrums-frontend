@@ -86,7 +86,7 @@ const AddModal: FC<Props> = ({ queue }) => {
             }}
           >
             {(props: FormikProps<any>) => (
-              <form>
+              <Form>
                 <Field
                   name="ytLink"
                   validate={(value) => validateYTUrl(value, queue)}
@@ -148,7 +148,7 @@ const AddModal: FC<Props> = ({ queue }) => {
                 >
                   Submit
                 </Button>
-              </form>
+              </Form>
             )}
           </Formik>
         </ModalBody>
