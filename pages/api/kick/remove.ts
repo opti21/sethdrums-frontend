@@ -9,9 +9,10 @@ dayjs.extend(utc);
 
 const pusher = new Pusher({
   appId: process.env.PUSHER_APP_ID!,
+  host: process.env.PUSHER_HOST!,
+  port: process.env.PUSHER_PORT!,
   key: process.env.PUSHER_KEY!,
   secret: process.env.PUSHER_SECRET!,
-  cluster: process.env.PUSHER_CLUSTER!,
   useTLS: true,
 });
 
@@ -21,58 +22,59 @@ function isValidYouTubeId(id) {
 }
 
 const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-      console.log(`${req.method} request to /api/kick/remove`)
-      console.log(req.query)
+  console.log(`${req.method} request to /api/kick/remove`);
+  console.log(req.query);
 
-      const queue = await getQueue();
+  const queue = await getQueue();
 
-      const { username } = req.query;
+  const { username } = req.query;
 
-      if (!queue.is_open) {
-        return res
-          .status(200)
-          .send(`@${username} Queue is currently closed, please wait until it opens to replace a song.`)
-      }
-
-      const userHasRequest = await prisma.request.findFirst({
-        where: {
-          requested_by: "kick-" + username as string,
-          played: false,
-        },
-        include: {
-          Video: true,
-        },
-      });
-
-      if (!userHasRequest) {
-        return res
-          .status(200)
-          .send(`@${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`);
-      }
-
-      try {
-        await prisma.request.delete({
-          where: {
-            id: userHasRequest.id,
-          },
-        });
-
-        await removeFromOrder(userHasRequest.id.toString());
-
-      pusher.trigger(
-        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
-        "update-queue",
-        {}
+  if (!queue.is_open) {
+    return res
+      .status(200)
+      .send(
+        `@${username} Queue is currently closed, please wait until it opens to replace a song.`
       );
+  }
 
-      return res.status(200).send(`@${username} Your suggestion has been removed.`);
-      
-      } catch (err) {
-        console.error(err);
-        return res
-          .status(200)
-          .send(`@${username} There was an error removing your suggestion.`);
-      }
+  const userHasRequest = await prisma.request.findFirst({
+    where: {
+      requested_by: ("kick-" + username) as string,
+      played: false,
+    },
+    include: {
+      Video: true,
+    },
+  });
+
+  if (!userHasRequest) {
+    return res
+      .status(200)
+      .send(
+        `@${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`
+      );
+  }
+
+  try {
+    await prisma.request.delete({
+      where: {
+        id: userHasRequest.id,
+      },
+    });
+
+    await removeFromOrder(userHasRequest.id.toString());
+
+    pusher.trigger(process.env.NEXT_PUBLIC_PUSHER_CHANNEL, "update-queue", {});
+
+    return res
+      .status(200)
+      .send(`@${username} Your suggestion has been removed.`);
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(200)
+      .send(`@${username} There was an error removing your suggestion.`);
+  }
 };
 
 export default requestApiHandler;
