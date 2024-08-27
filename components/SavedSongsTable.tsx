@@ -29,6 +29,7 @@ import {
   Image,
   Icon,
   HStack,
+  Box,
 } from "@chakra-ui/react";
 import {
   ArrowRightIcon,
@@ -153,7 +154,7 @@ const SavedSongsTable: FC<Props> = ({ data }) => {
 
   // Render the UI for your table
   return (
-    <>
+    <Box width={"100%"}>
       <Table {...getTableProps()}>
         <Thead>
           {headerGroups.map((headerGroup, headerGroupIndex) => (
@@ -278,7 +279,7 @@ const SavedSongsTable: FC<Props> = ({ data }) => {
           </Tooltip>
         </Flex>
       </Flex>
-    </>
+    </Box>
   );
 };
 

@@ -8,6 +8,10 @@ import {
   BreadcrumbLink,
   AlertIcon,
   Code,
+  HStack,
+  Grid,
+  GridItem,
+  AspectRatio,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -19,6 +23,8 @@ import Link from "next/link";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import SavedSongsTable from "../components/SavedSongsTable";
 import { withPageAuthRequired } from "@auth0/nextjs-auth0";
+import ReactPlayer from 'react-player/youtube'
+
 
 const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError } = useSWR(
@@ -58,9 +64,16 @@ const MySongs: NextPage = () => {
         )}
         {!savedSongsError && savedSongsData ? (
           savedSongsData.length > 0 ? (
-            <Box py={2}>
-              <SavedSongsTable data={savedSongsData} />
-            </Box>
+            <Grid py={2} templateColumns='repeat(5, 1fr)' width={"100%"}>
+              <GridItem colSpan={3} width={"100%"}>
+                <AspectRatio ratio={ 16/9} >
+                <ReactPlayer width={"100%"} height={"100%"} url={savedSongsData.map((video) => `https://www.youtube.com/watch?v=${video.youtube_id}`)} />
+                </AspectRatio>
+              </GridItem>
+              <GridItem colSpan={2} width={"100%"}>
+                <SavedSongsTable data={savedSongsData} />
+              </GridItem>
+            </Grid>
           ) : (
             <Alert mt={2} status="info">
               <AlertIcon />
