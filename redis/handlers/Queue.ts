@@ -6,6 +6,7 @@ const QUEUE_ID = process.env.QUEUE_ID ? process.env.QUEUE_ID : "";
 interface Queue {
   order: string[];
   is_updating: boolean;
+  is_paused: boolean;
   being_updated_by: string;
   now_playing: string;
   is_open: boolean;
@@ -19,6 +20,7 @@ const queueSchema = new Schema(
   {
     order: { type: "string[]" },
     is_updating: { type: "boolean" },
+    is_paused: { type: "boolean" },
     being_updated_by: { type: "string" },
     now_playing: { type: "string" },
     is_open: { type: "boolean" },

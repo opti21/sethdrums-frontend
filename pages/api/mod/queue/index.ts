@@ -70,6 +70,7 @@ const queueApiHandler = withApiAuthRequired(
           order: requests,
           now_playing: nowPlaying,
           is_updating: queue.is_updating,
+          is_paused: queue.is_paused,
           being_updated_by: queue.being_updated_by,
           is_open: queue.is_open,
         };
