@@ -254,7 +254,8 @@ const Home: NextPage = () => {
                         Sign In to Suggest
                       </Button>
                     </Link>
-                  ) : (
+                  ) : 
+                    !queue.is_paused ?
                     <Button
                       className="request-button"
                       my={2}
@@ -262,7 +263,8 @@ const Home: NextPage = () => {
                     >
                       Add Suggestion
                     </Button>
-                  )}
+                    : <p>Suggestion List is paused ⏸️</p>
+                  }
                   <Box
                     className="request-queue-list"
                     maxH={[500, 1000]}

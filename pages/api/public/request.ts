@@ -48,7 +48,13 @@ const publicRequestApiHandler = withApiAuthRequired(
       if (!queue.is_open) {
         return res
           .status(406)
-          .json({ success: false, error: "Queue is currently closed" });
+          .json({ success: false, error: "Suggestion List is currently closed" });
+      }
+
+      if (queue.is_paused) {
+        return res
+          .status(406)
+          .json({ success: false, error: "Suggestion List is currently paused"})
       }
 
       const parsed = urlParser.parse(req.body.ytLink);
