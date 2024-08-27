@@ -205,12 +205,19 @@ const Mod: NextPage = () => {
                 <Box px={[4, 5]} w={["100%", "80%"]}>
                   <Box
                     rounded="lg"
-                    bgColor={queue?.is_open ? "green.500" : "red.700"}
+                    bgColor={
+                      queue?.is_paused
+                        ? "yellow.500"
+                        : queue?.is_open
+                          ? "green.500"
+                          : "red.700"
+                    }
                     textAlign="center"
                     p={2}
+                    mb={2}
                   >
                     <Text fontWeight="bold">
-                      Suggestion List is {queue?.is_open ? "Open" : "Closed"}
+                      Suggestion List is {queue?.is_paused ? "Paused" : queue?.is_open ? "Open" : "Closed"}
                     </Text>
                   </Box>
                   <ModQueue />
