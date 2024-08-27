@@ -199,11 +199,19 @@ const Home: NextPage = () => {
                 <Box px={[4, 5]} w={["100%", "50%"]}>
                   <Box
                     rounded="lg"
-                    bgColor={"green.500"}
+                    bgColor={
+                      queue?.is_paused
+                        ? "yellow.500"
+                        : queue?.is_open
+                          ? "green.500"
+                          : "red.700"
+                    }
                     textAlign="center"
                     p={2}
                   >
-                    <Text fontWeight="bold">Suggestion List is Open</Text>
+                    <Text fontWeight="bold">
+                      Suggestion List is {queue?.is_paused ? "Paused" : queue?.is_open ? "Open" : "Closed"}
+                    </Text>
                   </Box>
                   <Box width={"100%"}>
                     <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
