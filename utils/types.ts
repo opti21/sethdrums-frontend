@@ -112,6 +112,7 @@ export interface AlreadyRequestedResponse {
 export interface IQueue {
   order: IApiRequest[];
   is_updating: boolean;
+  is_paused: boolean;
   being_updated_by: string;
   now_playing: IApiRequest | null;
   is_open: boolean;
