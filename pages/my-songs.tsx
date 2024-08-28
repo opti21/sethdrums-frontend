@@ -46,13 +46,6 @@ const MySongs: NextPage = () => {
 
   const playerRef = useRef(null);
 
-  useEffect(() => {
-    const storedSortPreference = localStorage.getItem("sortByRecent");
-    if (storedSortPreference !== null) {
-      setSortByRecent(JSON.parse(storedSortPreference));
-    }
-  }, []);
-
   const toggleSort = () => {
     setSortByRecent((prev) => {
       const newSortByRecent = !prev;
@@ -77,14 +70,32 @@ const MySongs: NextPage = () => {
   };
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const playlist = savedSongsData
-    ? savedSongsData.map((video: { title: any; youtube_id: any; }) => {
-      return {
-        title: video.title,
-        url: `https://www.youtube.com/watch?v=${video.youtube_id}`
+  const playlist = useMemo(() => {
+    return savedSongsData
+      ? savedSongsData.map((video: { title: any; youtube_id: any; }) => ({
+          title: video.title,
+          url: `https://www.youtube.com/watch?v=${video.youtube_id}`,
+        }))
+      : [];
+  }, [savedSongsData]);
+
+
+  useEffect(() => {
+    if (playlist.length > 0) {  // Ensure that the playlist is not empty
+      const storedSortPreference = localStorage.getItem("sortByRecent");
+      if (storedSortPreference !== null) {
+        const parsedSortPreference = JSON.parse(storedSortPreference);
+        setSortByRecent(parsedSortPreference);
+        
+        // Set the current video index based on the sorting order
+        if (parsedSortPreference) {
+          setCurrentVideo(playlist.length - 1);  // Select the most recent song
+        } else {
+          setCurrentVideo(0);  // Select the oldest song
+        }
       }
-    })
-    : [];
+    }
+  }, [playlist]); // Run this effect whenever the playlist changes
 
   // Filter and sort playlist
   const sortedAndFilteredPlaylist = useMemo(() => {
@@ -107,22 +118,30 @@ const MySongs: NextPage = () => {
   const scrollToCurrentSong = () => {
     // Clear the search query
     setSearchQuery("");
-
-    // Calculate the page where the current video is located
-    const currentSongPage = Math.ceil((currentVideo + 1) / itemsPerPage);
-
-    // Set the current page to the page with the current video
-    setCurrentPage(currentSongPage);
-
-    // Scroll to the current video in the playlist
-    setTimeout(() => {
-      if (listItemRefs.current[currentVideo]) {
-        listItemRefs.current[currentVideo].scrollIntoView({
-          behavior: "smooth",
-          block: "nearest",
-        });
-      }
-    }, 0);
+  
+    // Find the current song URL in the original playlist
+    const currentSongUrl = playlist[currentVideo]?.url;
+  
+    // Find the index of the current song in the sorted and filtered playlist
+    const sortedIndex = sortedAndFilteredPlaylist.findIndex(video => video.url === currentSongUrl);
+  
+    if (sortedIndex !== -1) {
+      // Calculate the page where the current video is located
+      const currentSongPage = Math.ceil((sortedIndex + 1) / itemsPerPage);
+  
+      // Set the current page to the page with the current video
+      setCurrentPage(currentSongPage);
+  
+      // Scroll to the current video in the playlist
+      setTimeout(() => {
+        if (listItemRefs.current[sortedIndex]) {
+          listItemRefs.current[sortedIndex].scrollIntoView({
+            behavior: "smooth",
+            block: "nearest",
+          });
+        }
+      }, 0);
+    }
   };
 
   const handlePlayPause = () => {
@@ -138,15 +157,17 @@ const MySongs: NextPage = () => {
   };
 
   const handleVideoSelect = (index) => {
-    // Calculate the global index of the selected video
+    // Calculate the global index in the sorted and filtered list
     const globalIndex = index + (currentPage - 1) * itemsPerPage;
-
-    // Find the actual index of this video in the original playlist
+  
+    // Get the selected video URL from the sorted and filtered list
     const selectedVideoUrl = sortedAndFilteredPlaylist[globalIndex]?.url;
-    const newIndex = playlist.findIndex(video => video.url === selectedVideoUrl);
-
-    if (newIndex !== -1) {
-      setCurrentVideo(newIndex);
+  
+    // Find the corresponding index in the original playlist
+    const originalIndex = playlist.findIndex(video => video.url === selectedVideoUrl);
+  
+    if (originalIndex !== -1) {
+      setCurrentVideo(originalIndex);
       setIsPlaying(true);
     }
   };
