@@ -29,9 +29,9 @@ import ReactPlayer from 'react-player/youtube'
 const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError } = useSWR(
     "/api/public/saved-songs", null, {
-      refreshInterval: 0,
-      refreshWhenHidden: false
-    }
+    refreshInterval: 0,
+    refreshWhenHidden: false
+  }
   );
 
   return (
@@ -67,13 +67,21 @@ const MySongs: NextPage = () => {
         )}
         {!savedSongsError && savedSongsData ? (
           savedSongsData.length > 0 ? (
-            <Grid py={2} templateColumns='repeat(5, 1fr)' width={"100%"}>
-              <GridItem colSpan={3} width={"100%"}>
-                <AspectRatio ratio={ 16/9} >
-                <ReactPlayer width={"100%"} height={"100%"} url={savedSongsData.map((video) => `https://www.youtube.com/watch?v=${video.youtube_id}`)} />
+            <Grid
+              py={2}
+              templateColumns={{ base: '1fr', md: 'repeat(5, 1fr)' }}
+              width={"100%"}
+            >
+              <GridItem colSpan={{ base: 1, md: 3 }} width={"100%"}>
+                <AspectRatio ratio={16 / 9}>
+                  <ReactPlayer
+                    width={"100%"}
+                    height={"100%"}
+                    url={savedSongsData.map((video) => `https://www.youtube.com/watch?v=${video.youtube_id}`)}
+                  />
                 </AspectRatio>
               </GridItem>
-              <GridItem colSpan={2} width={"100%"}>
+              <GridItem colSpan={{ base: 1, md: 2 }} width={"100%"}>
                 <SavedSongsTable data={savedSongsData} />
               </GridItem>
             </Grid>
