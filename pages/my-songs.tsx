@@ -28,7 +28,10 @@ import ReactPlayer from 'react-player/youtube'
 
 const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError } = useSWR(
-    "/api/public/saved-songs"
+    "/api/public/saved-songs", null, {
+      refreshInterval: 0,
+      refreshWhenHidden: false
+    }
   );
 
   return (
