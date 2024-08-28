@@ -32,6 +32,7 @@
     "formik": "^2.4.5",
     "framer-motion": "11.0.20",
     "js-video-url-parser": "^0.5.1",
+    "lucide-react": "^0.436.0",
     "mongodb": "^4.5.0",
     "mongoose": "^6.2.10",
     "next": "12",
