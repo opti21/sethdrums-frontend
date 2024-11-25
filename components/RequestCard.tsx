@@ -144,7 +144,7 @@ const RequestCard: FC<Props> = ({
           className="request-thumbnail-duration-container"
           direction={"row"}
         >
-          {!sethView && !publicView && (
+          {!publicView && (
             <Icon
               as={MdDragIndicator}
               w={10}
@@ -254,8 +254,7 @@ const RequestCard: FC<Props> = ({
             )}
             {sethView && <SethPGButtons pgStatus={pgStatus} />}
             <HStack>
-              {!sethView &&
-                !publicView &&
+              {!publicView &&
                 !request.mod_prio &&
                 (!request.priority ? (
                   <Button
@@ -315,8 +314,7 @@ const RequestCard: FC<Props> = ({
                     <Icon as={AiFillCrown} w={5} h={5} />
                   </Button>
                 ))}
-              {!sethView &&
-                !publicView &&
+              {!publicView &&
                 !request.priority &&
                 (!request.mod_prio ? (
                   <Button
@@ -375,35 +373,35 @@ const RequestCard: FC<Props> = ({
                     <Icon as={RiSwordFill} w={5} h={5} />
                   </Button>
                 ))}
-              {typeof user != undefined && publicView
-                ? user?.sub.split("|")[2] === request.requested_by_id && (
-                    <>
-                      {!request.played && (
-                        <Button
-                          onClick={() => {
-                            openDeleteModal(request, video);
-                          }}
-                          bgColor={"#BD0000"}
-                        >
-                          <Icon as={IoMdTrash} w={5} h={5} />
-                        </Button>
-                      )}
-                    </>
-                  )
-                : !sethView && (
-                    <>
-                      {!request.played && (
-                        <Button
-                          onClick={() => {
-                            openDeleteModal(request, video);
-                          }}
-                          bgColor={"#BD0000"}
-                        >
-                          <Icon as={IoMdTrash} w={5} h={5} />
-                        </Button>
-                      )}
-                    </>
+              {typeof user != undefined && publicView ? (
+                user?.sub.split("|")[2] === request.requested_by_id && (
+                  <>
+                    {!request.played && (
+                      <Button
+                        onClick={() => {
+                          openDeleteModal(request, video);
+                        }}
+                        bgColor={"#BD0000"}
+                      >
+                        <Icon as={IoMdTrash} w={5} h={5} />
+                      </Button>
+                    )}
+                  </>
+                )
+              ) : (
+                <>
+                  {!request.played && (
+                    <Button
+                      onClick={() => {
+                        openDeleteModal(request, video);
+                      }}
+                      bgColor={"#BD0000"}
+                    >
+                      <Icon as={IoMdTrash} w={5} h={5} />
+                    </Button>
                   )}
+                </>
+              )}
             </HStack>
           </Stack>
           {!publicView && video.PG_Status.checker && (
