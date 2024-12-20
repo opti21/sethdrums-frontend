@@ -98,6 +98,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         now_playing: nowPlaying,
         recentlyPlayed,
         is_open: queue.is_open,
+        is_subOnly: queue.is_subOnly,
       };
       return res.status(200).json(queueResponse);
     } catch (err) {

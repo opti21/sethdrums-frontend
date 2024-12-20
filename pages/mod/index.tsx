@@ -209,15 +209,22 @@ const Mod: NextPage = () => {
                       queue?.is_paused
                         ? "yellow.500"
                         : queue?.is_open
-                          ? "green.500"
-                          : "red.700"
+                        ? "green.500"
+                        : "red.700"
                     }
                     textAlign="center"
                     p={2}
                     mb={2}
                   >
                     <Text fontWeight="bold">
-                      Suggestion List is {queue?.is_paused ? "Paused" : queue?.is_open ? "Open" : "Closed"}
+                      Suggestion List is{" "}
+                      {queue?.is_paused
+                        ? "Paused"
+                        : queue?.is_open
+                        ? queue?.is_subOnly
+                          ? "Open To Subs Only"
+                          : "Open To Everyone"
+                        : "Closed"}
                     </Text>
                   </Box>
                   <ModQueue />

@@ -73,6 +73,7 @@ const queueApiHandler = withApiAuthRequired(
           is_paused: queue.is_paused,
           being_updated_by: queue.being_updated_by,
           is_open: queue.is_open,
+          is_subOnly: queue.is_subOnly,
         };
         return res.status(200).json(queueResponse);
       } catch (err) {

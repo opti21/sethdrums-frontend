@@ -116,6 +116,7 @@ export interface IQueue {
   being_updated_by: string;
   now_playing: IApiRequest | null;
   is_open: boolean;
+  is_subOnly: boolean;
 }
 
 export interface IAPiVideo extends Video {
