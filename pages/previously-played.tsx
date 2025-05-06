@@ -33,8 +33,14 @@ const PreviouslyPlayed: NextPage = () => {
     ? (datesData as string[]).map((d) => new Date(d))
     : [];
 
-  // Build SWR key based on selected date
-  const dateQuery = startDate ? startDate.toISOString().split("T")[0] : null;
+  // Always send date as UTC YYYY-MM-DD
+  function formatDateUTC(date: Date) {
+    const year = date.getUTCFullYear();
+    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+    const day = String(date.getUTCDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  const dateQuery = startDate ? formatDateUTC(startDate) : null;
   const historyKey = dateQuery
     ? `/api/public/previously-played?date=${dateQuery}`
     : "/api/public/previously-played";

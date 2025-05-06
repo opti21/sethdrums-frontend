@@ -19,11 +19,14 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(Array.from(dateSet));
       }
       const whereClause: any = { played: true };
+      let take = undefined;
       if (typeof date === "string") {
         const start = new Date(`${date}T00:00:00.000Z`);
         const end = new Date(start);
         end.setUTCDate(end.getUTCDate() + 1);
         whereClause.played_at = { gte: start, lt: end };
+      } else {
+        take = 50;
       }
       const playedSongs = await prisma.request.findMany({
         where: whereClause,
@@ -45,6 +48,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           },
         },
         orderBy: { played_at: "desc" },
+        ...(take ? { take } : {}),
       });
       return res.status(200).json(playedSongs);
     } catch (err) {
