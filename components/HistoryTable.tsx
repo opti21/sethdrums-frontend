@@ -76,6 +76,7 @@ const HistoryTable: FC<Props> = ({
             Header: "Video",
             accessor: "Video.title",
             Cell: ({ value, row }) => {
+              if (!row.original.Video) return <Text>No video data</Text>;
               return (
                 <HStack>
                   <Image
