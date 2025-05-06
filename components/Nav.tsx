@@ -67,6 +67,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   return (
     <>
       <chakra.header
+        color="white"
         bgGradient={headerBg}
         w="full"
         px={{ base: 2, sm: 4 }}
@@ -153,14 +154,19 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     {username}
                   </chakra.h1>
                   <Link href={"/api/auth/logout"} passHref>
-                    <Button size={"sm"} isLoading={isLoading} variant="ghost">
+                    <Button
+                      size={"sm"}
+                      isLoading={isLoading}
+                      variant="ghost"
+                      color="white"
+                    >
                       Sign out
                     </Button>
                   </Link>
                 </>
               ) : (
                 <Link href={`/api/auth/login?returnTo=${returnTo}`} passHref>
-                  <Button isLoading={isLoading} variant="ghost">
+                  <Button isLoading={isLoading} variant="ghost" color="white">
                     Sign in
                   </Button>
                 </Link>
@@ -240,7 +246,11 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 {user ? (
                   <>
                     <Link href={"/api/auth/logout"} passHref>
-                      <Button isLoading={isLoading} variant="ghost">
+                      <Button
+                        isLoading={isLoading}
+                        variant="ghost"
+                        color="white"
+                      >
                         Sign out
                       </Button>
                     </Link>
@@ -248,7 +258,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   </>
                 ) : (
                   <Link href={"/api/auth/login"} passHref>
-                    <Button isLoading={isLoading} variant="ghost">
+                    <Button isLoading={isLoading} variant="ghost" color="white">
                       Sign in
                     </Button>
                   </Link>

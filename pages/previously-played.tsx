@@ -7,6 +7,7 @@ import {
   Breadcrumb,
   BreadcrumbItem,
   BreadcrumbLink,
+  Input,
 } from "@chakra-ui/react";
 import { NextPage } from "next";
 import Head from "next/head";
@@ -17,14 +18,27 @@ import Image from "next/image";
 import useSWR from "swr";
 import Link from "next/link";
 import HistoryTable from "../components/HistoryTable";
+import DatePicker from "react-datepicker";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 
 const PreviouslyPlayed: NextPage = () => {
-  const [startDate, setStartDate] = useState(new Date());
+  // Selected date for filtering; null shows all
+  const [startDate, setStartDate] = useState<Date | null>(null);
 
-  const { data: historyData, error: historyError } = useSWR(
-    "/api/public/previously-played"
+  // Fetch available dates to highlight on calendar
+  const { data: datesData, error: datesError } = useSWR(
+    "/api/public/previously-played?datesOnly=true"
   );
+  const highlightDates = datesData
+    ? (datesData as string[]).map((d) => new Date(d))
+    : [];
+
+  // Build SWR key based on selected date
+  const dateQuery = startDate ? startDate.toISOString().split("T")[0] : null;
+  const historyKey = dateQuery
+    ? `/api/public/previously-played?date=${dateQuery}`
+    : "/api/public/previously-played";
+  const { data: historyData, error: historyError } = useSWR(historyKey);
 
   // if (comingSoon) {
   //   return (
@@ -78,17 +92,18 @@ const PreviouslyPlayed: NextPage = () => {
         )}
         {!historyError && historyData ? (
           <Box py={2}>
-            <Alert status="info">
-              <AlertIcon />
-              <Text>Date picker coming soon</Text>
-            </Alert>
+            {/* Date picker to filter by day and highlight available dates */}
+            <Box mb={4}>
+              <DatePicker
+                selected={startDate}
+                onChange={(date: Date | null) => setStartDate(date)}
+                highlightDates={highlightDates}
+                customInput={<Input w={200} />}
+                placeholderText="Select a date"
+                isClearable
+              />
+            </Box>
             <HistoryTable data={historyData} />
-            {/* <DatePicker
-              selected={startDate}
-              customInput={<Input w={200} />}
-              highlightDates={[new Date("04-23-2022"), new Date("04-19-2022")]}
-              onChange={(date: Date) => setStartDate(date)}
-            /> */}
           </Box>
         ) : (
           <Box w={"100%"} alignContent="center">
