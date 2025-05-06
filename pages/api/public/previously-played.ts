@@ -13,7 +13,8 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         const dateSet = new Set<string>();
         songs.forEach((song) => {
           if (song.played_at) {
-            dateSet.add(song.played_at.toISOString().split("T")[0]);
+            const localDate = song.played_at.toLocaleDateString("en-CA");
+            dateSet.add(localDate);
           }
         });
         return res.status(200).json(Array.from(dateSet));
@@ -23,10 +24,9 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       let skip = req.query.skip ? parseInt(req.query.skip as string, 10) : 0;
 
       if (typeof date === "string") {
-        const start = new Date(`${date}T00:00:00.000Z`);
-        const end = new Date(start);
-        end.setUTCDate(end.getUTCDate() + 1);
-        whereClause.played_at = { gte: start, lt: end };
+        const start = new Date(`${date}T00:00:00`);
+        const end = new Date(`${date}T23:59:59.999`);
+        whereClause.played_at = { gte: start, lte: end };
       }
 
       const playedSongs = await prisma.request.findMany({

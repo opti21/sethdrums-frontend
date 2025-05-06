@@ -33,17 +33,22 @@ const PreviouslyPlayed: NextPage = () => {
     "/api/public/previously-played?datesOnly=true"
   );
   const highlightDates = datesData
-    ? (datesData as string[]).map((d) => new Date(d))
+    ? (datesData as string[]).map((d) => {
+        // Parse date string as YYYY-MM-DD without adding UTC timezone offset
+        const [year, month, day] = d.split("-").map(Number);
+        return new Date(year, month - 1, day); // month is 0-indexed in JS Date
+      })
     : [];
 
-  // Always send date as UTC YYYY-MM-DD
-  function formatDateUTC(date: Date) {
-    const year = date.getUTCFullYear();
-    const month = String(date.getUTCMonth() + 1).padStart(2, "0");
-    const day = String(date.getUTCDate()).padStart(2, "0");
+  // Format selected date in YYYY-MM-DD format
+  function formatDateForAPI(date: Date) {
+    // Get the date in local timezone (not UTC)
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-  const dateQuery = startDate ? formatDateUTC(startDate) : null;
+  const dateQuery = startDate ? formatDateForAPI(startDate) : null;
   // Build API key with pagination
   const historyKey = dateQuery
     ? `/api/public/previously-played?date=${dateQuery}&skip=${pageIndex * pageSize}&take=${pageSize}`
