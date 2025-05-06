@@ -19,17 +19,16 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         return res.status(200).json(Array.from(dateSet));
       }
       const whereClause: any = { played: true };
-      let take = undefined;
-      let skip = undefined;
+      let take = req.query.take ? parseInt(req.query.take as string, 10) : 50;
+      let skip = req.query.skip ? parseInt(req.query.skip as string, 10) : 0;
+
       if (typeof date === "string") {
         const start = new Date(`${date}T00:00:00.000Z`);
         const end = new Date(start);
         end.setUTCDate(end.getUTCDate() + 1);
         whereClause.played_at = { gte: start, lt: end };
-      } else {
-        take = req.query.take ? parseInt(req.query.take as string, 10) : 50;
-        skip = req.query.skip ? parseInt(req.query.skip as string, 10) : 0;
       }
+
       const playedSongs = await prisma.request.findMany({
         where: whereClause,
         select: {
