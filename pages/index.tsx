@@ -203,8 +203,8 @@ const Home: NextPage = () => {
                       queue?.is_paused
                         ? "yellow.500"
                         : queue?.is_open
-                        ? "green.500"
-                        : "red.700"
+                          ? "green.500"
+                          : "red.700"
                     }
                     textAlign="center"
                     p={2}
@@ -214,10 +214,10 @@ const Home: NextPage = () => {
                       {queue?.is_paused
                         ? "Paused"
                         : queue?.is_open
-                        ? queue?.is_subOnly
-                          ? "Open To Subs Only"
-                          : "Open To Everyone"
-                        : "Closed"}
+                          ? queue?.is_subOnly
+                            ? "Open To Subs Only"
+                            : "Open To Everyone"
+                          : "Closed"}
                     </Text>
                   </Box>
                   <Box width={"100%"}>

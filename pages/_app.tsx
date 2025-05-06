@@ -54,7 +54,7 @@ function App({ Component, pageProps }: AppProps) {
             draggable
             pauseOnHover
           />
-          <ChakraProvider>
+          <ChakraProvider theme={theme}>
             <ColorModeScript initialColorMode={theme.config.initialColorMode} />
             <ReactShortcut
               keys="Up Up Down Down Left Right Left Right B A"

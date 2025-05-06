@@ -30,13 +30,17 @@ type NavProps = {
 
 const Nav: FC<NavProps> = ({ returnTo }) => {
   const { user, error, isLoading } = useUser();
-  const bg = useColorModeValue("pink", "pink.400");
   const mobileNav = useDisclosure();
   const { colorMode, toggleColorMode } = useColorMode();
   // Until Auth0 fixes their twitch integration or rules
   const username = user?.preferred_username as string;
   const [isMod, setIsMod] = useState(false);
   const [isSeth, setIsSeth] = useState(false);
+
+  const headerBg = useColorModeValue(
+    "radial-gradient(circle at 50% 50%, #ffe066 0%, #ff6ad5 20%, #6a0572 60%, #12002f 100%)",
+    "radial-gradient(circle at 50% 50%, #ffe066 0%, #ff6ad5 20%, #6a0572 60%, #12002f 100%)"
+  );
 
   useEffect(() => {
     if (user && !isLoading) {
@@ -63,11 +67,12 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
   return (
     <>
       <chakra.header
-        bg={bg}
+        bgGradient={headerBg}
         w="full"
         px={{ base: 2, sm: 4 }}
         py={4}
         shadow="md"
+        roundedBottom="lg"
       >
         <Flex alignItems="center" justifyContent="space-between" mx="auto">
           <Flex>
@@ -183,7 +188,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 p={2}
                 pb={4}
                 m={2}
-                bg={bg}
+                bgGradient={headerBg}
                 spacing={3}
                 rounded="sm"
                 shadow="sm"
