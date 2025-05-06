@@ -20,13 +20,15 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
       }
       const whereClause: any = { played: true };
       let take = undefined;
+      let skip = undefined;
       if (typeof date === "string") {
         const start = new Date(`${date}T00:00:00.000Z`);
         const end = new Date(start);
         end.setUTCDate(end.getUTCDate() + 1);
         whereClause.played_at = { gte: start, lt: end };
       } else {
-        take = 50;
+        take = req.query.take ? parseInt(req.query.take as string, 10) : 50;
+        skip = req.query.skip ? parseInt(req.query.skip as string, 10) : 0;
       }
       const playedSongs = await prisma.request.findMany({
         where: whereClause,
@@ -49,8 +51,10 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
         },
         orderBy: { played_at: "desc" },
         ...(take ? { take } : {}),
+        ...(skip ? { skip } : {}),
       });
-      return res.status(200).json(playedSongs);
+      const total = await prisma.request.count({ where: whereClause });
+      return res.status(200).json({ data: playedSongs, total });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: "Server error" });

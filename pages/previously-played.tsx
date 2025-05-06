@@ -24,6 +24,9 @@ import { ChevronRightIcon } from "@chakra-ui/icons";
 const PreviouslyPlayed: NextPage = () => {
   // Selected date for filtering; null shows all
   const [startDate, setStartDate] = useState<Date | null>(null);
+  // Pagination state
+  const [pageIndex, setPageIndex] = useState(0);
+  const [pageSize, setPageSize] = useState(50);
 
   // Fetch available dates to highlight on calendar
   const { data: datesData, error: datesError } = useSWR(
@@ -41,10 +44,16 @@ const PreviouslyPlayed: NextPage = () => {
     return `${year}-${month}-${day}`;
   }
   const dateQuery = startDate ? formatDateUTC(startDate) : null;
+  // Build API key with pagination
   const historyKey = dateQuery
-    ? `/api/public/previously-played?date=${dateQuery}`
-    : "/api/public/previously-played";
-  const { data: historyData, error: historyError } = useSWR(historyKey);
+    ? `/api/public/previously-played?date=${dateQuery}&skip=${pageIndex * pageSize}&take=${pageSize}`
+    : `/api/public/previously-played?skip=${pageIndex * pageSize}&take=${pageSize}`;
+  const { data: historyData, error: historyError, mutate } = useSWR(historyKey);
+
+  // Reset to first page when date changes
+  useEffect(() => {
+    setPageIndex(0);
+  }, [startDate]);
 
   // if (comingSoon) {
   //   return (
@@ -109,7 +118,15 @@ const PreviouslyPlayed: NextPage = () => {
                 isClearable
               />
             </Box>
-            <HistoryTable data={historyData} />
+            <HistoryTable
+              data={historyData.data}
+              total={historyData.total}
+              pageIndex={pageIndex}
+              pageSize={pageSize}
+              onPageChange={setPageIndex}
+              onPageSizeChange={setPageSize}
+              isLoading={!historyData}
+            />
           </Box>
         ) : (
           <Box w={"100%"} alignContent="center">
