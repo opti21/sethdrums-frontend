@@ -17,7 +17,6 @@ const queueApiHandler = withApiAuthRequired(
     }
 
     if (req.method === "POST") {
-      // TODO: validate body
       const queue = await getQueue();
 
       if (!queue) {

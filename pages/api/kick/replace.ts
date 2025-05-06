@@ -4,22 +4,13 @@ import "js-video-url-parser/lib/provider/youtube";
 import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import Pusher from "pusher";
 import urlParser from "js-video-url-parser";
 import { Video } from "@prisma/client";
 import axios from "axios";
 import { YTApiResponse } from "../../../utils/types";
 import { parseYTDuration } from "../../../utils/utils";
+import { pusher } from "../../../lib/pusher";
 dayjs.extend(utc);
-
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  host: process.env.PUSHER_HOST!,
-  port: process.env.PUSHER_PORT!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  useTLS: true,
-});
 
 function isValidYouTubeId(id) {
   const regex = /^[a-zA-Z0-9_-]{11}$/;
@@ -27,141 +18,147 @@ function isValidYouTubeId(id) {
 }
 
 const requestApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
-      console.log(`${req.method} request to /api/kick/replace`)
-      console.log(req.query)
+  console.log(`${req.method} request to /api/kick/replace`);
+  console.log(req.query);
 
-      const { username, sr } = req.query;
+  const { username, sr } = req.query;
 
-      const queue = await getQueue();
+  const queue = await getQueue();
 
-      if (!queue.is_open) {
-        return res
-          .status(200)
-          .send(`@${username} Queue is currently closed, please wait until it opens to replace a song.`)
-      }
-
-      const parsed = urlParser.parse(sr as string);
-
-      if (!parsed) {
-        return res
-          .status(200)
-          .send(`@${username} please provide a valid YouTube ID.`);
-      }
-
-      const youtubeID = parsed?.id;
-
-      const userHasRequest = await prisma.request.findFirst({
-        where: {
-          requested_by: "kick-" + username as string,
-          played: false,
-        },
-        include: {
-          Video: true,
-        },
-      });
-
-      if (!userHasRequest) {
-        return res
-          .status(200)
-          .send(`${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`);
-      }
-
-      const videoAlreadyRequested = await prisma.request.findFirst({
-        where: {
-          Video: {
-            youtube_id: youtubeID,
-          },
-          played: false,
-        },
-        include: {
-          Video: true,
-        },
-      });
-
-      if (videoAlreadyRequested) {
-        return res
-          .status(200)
-          .send(`@${username} that song is already in the suggestion list, maybe try another song?`);
-      }
-
-      // Check if video is in database
-      const videoInDB = await prisma.video.findUnique({
-        where: {
-          youtube_id: youtubeID,
-        },
-      });
-
-      if (!videoInDB) {
-        // Video doesn't exist on database
-        // Make new video then request
-        const createdVideo = await createVideo(youtubeID).catch((error) => {
-          console.error(error);
-          return res
-            .status(200)
-            .send(`@${username} Error creating your suggestion. Please try again.`)
-        });
-
-        if (!createdVideo) {
-          return res
-            .status(200)
-            .send(`@${username} Error creating video. Please try again.`)
-        }
-
-        if (createdVideo.region_blocked) {
-          return res.status(200)
-          .send(`@${username} Video must be playable in the US, please try another video.`);
-        }
-
-        const requestUpdated = await updateRequest(
-          userHasRequest.id,
-          createdVideo.id,
-        );
-    
-        if (!requestUpdated) {
-          return res
-            .status(200)
-            .send(`@${username} Error replacing your suggestion. Please try again.`)
-        }
-    
-        pusher.trigger(
-          process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
-          "update-queue",
-          {}
-        );
-        return res.status(200).send(`@${username} Your suggestion has been replaced. :D`);
-
-      }
-
-      if (videoInDB.banned) {
-        return res
-          .status(200)
-          .send(`${username} your song was not added, all songs must be PG/family friendly`);
-      }
-
-      if (videoInDB.region_blocked) {
-        return res.status(200)
-          .send(`${username} Video must be playable in the US, please try another video.`);
-      }
-
-      // If video is already in DB just create a request
-      const requestUpdated = await updateRequest(
-        userHasRequest.id,
-        videoInDB.id,
+  if (!queue.is_open) {
+    return res
+      .status(200)
+      .send(
+        `@${username} Queue is currently closed, please wait until it opens to replace a song.`
       );
-    
-      if (!requestUpdated) {
-        return res
-          .status(200)
-          .send(`@${username} Error replacing your suggestion. Please try again.`)
-      }
+  }
 
-      pusher.trigger(
-        process.env.NEXT_PUBLIC_PUSHER_CHANNEL,
-        "update-queue",
-        {}
+  const parsed = urlParser.parse(sr as string);
+
+  if (!parsed) {
+    return res
+      .status(200)
+      .send(`@${username} please provide a valid YouTube ID.`);
+  }
+
+  const youtubeID = parsed?.id;
+
+  const userHasRequest = await prisma.request.findFirst({
+    where: {
+      requested_by: ("kick-" + username) as string,
+      played: false,
+    },
+    include: {
+      Video: true,
+    },
+  });
+
+  if (!userHasRequest) {
+    return res
+      .status(200)
+      .send(
+        `${username} I don't see a suggestion from you in the suggestion list, try doing !sr instead`
       );
+  }
 
-      res.status(200).send(`@${username} Your suggestion has been replaced. :D`);
+  const videoAlreadyRequested = await prisma.request.findFirst({
+    where: {
+      Video: {
+        youtube_id: youtubeID,
+      },
+      played: false,
+    },
+    include: {
+      Video: true,
+    },
+  });
+
+  if (videoAlreadyRequested) {
+    return res
+      .status(200)
+      .send(
+        `@${username} that song is already in the suggestion list, maybe try another song?`
+      );
+  }
+
+  // Check if video is in database
+  const videoInDB = await prisma.video.findUnique({
+    where: {
+      youtube_id: youtubeID,
+    },
+  });
+
+  if (!videoInDB) {
+    // Video doesn't exist on database
+    // Make new video then request
+    const createdVideo = await createVideo(youtubeID).catch((error) => {
+      console.error(error);
+      return res
+        .status(200)
+        .send(`@${username} Error creating your suggestion. Please try again.`);
+    });
+
+    if (!createdVideo) {
+      return res
+        .status(200)
+        .send(`@${username} Error creating video. Please try again.`);
+    }
+
+    if (createdVideo.region_blocked) {
+      return res
+        .status(200)
+        .send(
+          `@${username} Video must be playable in the US, please try another video.`
+        );
+    }
+
+    const requestUpdated = await updateRequest(
+      userHasRequest.id,
+      createdVideo.id
+    );
+
+    if (!requestUpdated) {
+      return res
+        .status(200)
+        .send(
+          `@${username} Error replacing your suggestion. Please try again.`
+        );
+    }
+
+    pusher.trigger(process.env.NEXT_PUBLIC_PUSHER_CHANNEL, "update-queue", {});
+    return res
+      .status(200)
+      .send(`@${username} Your suggestion has been replaced. :D`);
+  }
+
+  if (videoInDB.banned) {
+    return res
+      .status(200)
+      .send(
+        `${username} your song was not added, all songs must be PG/family friendly`
+      );
+  }
+
+  if (videoInDB.region_blocked) {
+    return res
+      .status(200)
+      .send(
+        `${username} Video must be playable in the US, please try another video.`
+      );
+  }
+
+  // If video is already in DB just create a request
+  const requestUpdated = await updateRequest(userHasRequest.id, videoInDB.id);
+
+  if (!requestUpdated) {
+    return res
+      .status(200)
+      .send(`@${username} Error replacing your suggestion. Please try again.`);
+  }
+
+  pusher.trigger(process.env.NEXT_PUBLIC_PUSHER_CHANNEL, "update-queue", {});
+
+  res.status(200).send(`@${username} Your suggestion has been replaced. :D`);
 };
 
 export default requestApiHandler;

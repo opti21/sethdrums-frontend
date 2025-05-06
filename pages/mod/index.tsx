@@ -48,9 +48,7 @@ const Mod: NextPage = () => {
     console.log("connect pusher");
 
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
-      wsPort: Number(process.env.NEXT_PUBLIC_PUSHER_PORT),
-      enabledTransports: ["ws", "wss"],
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
       authEndpoint: "/api/pusher/auth",
     });
 
@@ -209,8 +207,8 @@ const Mod: NextPage = () => {
                       queue?.is_paused
                         ? "yellow.500"
                         : queue?.is_open
-                        ? "green.500"
-                        : "red.700"
+                          ? "green.500"
+                          : "red.700"
                     }
                     textAlign="center"
                     p={2}
@@ -221,10 +219,10 @@ const Mod: NextPage = () => {
                       {queue?.is_paused
                         ? "Paused"
                         : queue?.is_open
-                        ? queue?.is_subOnly
-                          ? "Open To Subs Only"
-                          : "Open To Everyone"
-                        : "Closed"}
+                          ? queue?.is_subOnly
+                            ? "Open To Subs Only"
+                            : "Open To Everyone"
+                          : "Closed"}
                     </Text>
                   </Box>
                   <ModQueue />

@@ -56,9 +56,7 @@ const SethView: NextPage = () => {
     }
 
     const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
-      wsHost: process.env.NEXT_PUBLIC_PUSHER_HOST,
-      wsPort: Number(process.env.NEXT_PUBLIC_PUSHER_PORT),
-      enabledTransports: ["ws", "wss"],
+      cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER,
       authEndpoint: "/api/pusher/auth",
     });
 
@@ -361,22 +359,27 @@ const SethView: NextPage = () => {
               <Stack direction={"row"} pt={5}>
                 <Box px={[4, 5]} w={["100%", "80%"]}>
                   <Box width={"100%"}>
-                  <Box
-                    rounded="lg"
-                    bgColor={
-                      queue?.is_paused
-                        ? "yellow.500"
-                        : queue?.is_open
-                          ? "green.500"
-                          : "red.700"
-                    }
-                    textAlign="center"
-                    p={2}
-                  >
-                    <Text fontWeight="bold">
-                      Suggestion List is {queue?.is_paused ? "Paused" : queue?.is_open ? "Open" : "Closed"}
-                    </Text>
-                  </Box>
+                    <Box
+                      rounded="lg"
+                      bgColor={
+                        queue?.is_paused
+                          ? "yellow.500"
+                          : queue?.is_open
+                            ? "green.500"
+                            : "red.700"
+                      }
+                      textAlign="center"
+                      p={2}
+                    >
+                      <Text fontWeight="bold">
+                        Suggestion List is{" "}
+                        {queue?.is_paused
+                          ? "Paused"
+                          : queue?.is_open
+                            ? "Open"
+                            : "Closed"}
+                      </Text>
+                    </Box>
                     <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                       Now Playing
                     </Text>

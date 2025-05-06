@@ -11,26 +11,8 @@ import { Request, Video } from "@prisma/client";
 import { YTApiResponse } from "../../../utils/types";
 import { parseYTDuration } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
-import Pusher from "pusher";
 import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
-
-if (
-  !process.env.PUSHER_APP_ID ||
-  !process.env.PUSHER_KEY ||
-  !process.env.PUSHER_SECRET ||
-  !process.env.PUSHER_CLUSTER
-) {
-  throw new Error("Missing Pusher environment variables");
-}
-
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID,
-  host: process.env.PUSHER_HOST!,
-  port: process.env.PUSHER_PORT!,
-  key: process.env.PUSHER_KEY,
-  secret: process.env.PUSHER_SECRET,
-  useTLS: true,
-});
+import { pusher } from "../../../lib/pusher";
 
 const publicRequestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
@@ -48,13 +30,19 @@ const publicRequestApiHandler = withApiAuthRequired(
       if (!queue.is_open) {
         return res
           .status(406)
-          .json({ success: false, error: "Suggestion List is currently closed" });
+          .json({
+            success: false,
+            error: "Suggestion List is currently closed",
+          });
       }
 
       if (queue.is_paused) {
         return res
           .status(406)
-          .json({ success: false, error: "Suggestion List is currently paused"})
+          .json({
+            success: false,
+            error: "Suggestion List is currently paused",
+          });
       }
 
       const parsed = urlParser.parse(req.body.ytLink);

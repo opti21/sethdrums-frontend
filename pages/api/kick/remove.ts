@@ -5,16 +5,8 @@ import prisma from "../../../utils/prisma";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import Pusher from "pusher";
+import { pusher } from "../../../lib/pusher";
 dayjs.extend(utc);
-
-const pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  host: process.env.PUSHER_HOST!,
-  port: process.env.PUSHER_PORT!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  useTLS: true,
-});
 
 function isValidYouTubeId(id) {
   const regex = /^[a-zA-Z0-9_-]{11}$/;
