@@ -74,24 +74,25 @@ const HistoryTable: FC<Props> = ({
         columns: [
           {
             Header: "Video",
-            accessor: "Video.title",
-            Cell: ({ value, row }) => {
-              if (!row.original.Video) return <Text>No video data</Text>;
+            accessor: "Video",
+            Cell: ({ row }) => {
+              const video = row.original.Video;
+              if (!video) return <Text>No video data</Text>;
               return (
                 <HStack>
                   <Image
-                    src={row.original.Video.thumbnail}
+                    src={video.thumbnail}
                     maxW={"100px"}
                     rounded="lg"
                     objectFit="cover"
                     alt="video thumbnail"
                   />
                   <Link
-                    href={`https://www.youtube.com/watch?v=${row.original.Video.youtube_id}`}
+                    href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
                     passHref
                   >
                     <ChakraLink fontWeight={"medium"} isExternal>
-                      {value}
+                      {video.title}
                     </ChakraLink>
                   </Link>
                 </HStack>
@@ -112,16 +113,16 @@ const HistoryTable: FC<Props> = ({
             Header: "Request By",
             accessor: "requested_by",
             Cell: ({ value }) => {
-              return <Text fontWeight={"medium"}>{value}</Text>;
+              return value ? <Text fontWeight={"medium"}>{value}</Text> : null;
             },
           },
           {
             Header: "Time Played",
             accessor: "played_at",
             Cell: ({ value }) => {
-              return (
+              return value ? (
                 <Text fontWeight={"medium"}>{dayjs(value).format("LLL")}</Text>
-              );
+              ) : null;
             },
           },
           {
@@ -148,6 +149,19 @@ const HistoryTable: FC<Props> = ({
   // Calculate page count
   const pageCount = Math.ceil(total / pageSize);
 
+  // Use the react-table hooks
+  const { getTableProps, getTableBodyProps, headerGroups, prepareRow, page } =
+    useTable(
+      {
+        columns,
+        data,
+        initialState: { pageIndex, pageSize },
+        manualPagination: true,
+        pageCount,
+      },
+      usePagination
+    );
+
   // Render the UI for your table
   return (
     <>
@@ -155,27 +169,34 @@ const HistoryTable: FC<Props> = ({
         <Text>Loading...</Text>
       ) : (
         <>
-          <Table>
+          <Table {...getTableProps()}>
             <Thead>
-              {columns[0].columns.map((col, idx) => (
-                <Th key={idx}>{col.Header}</Th>
-              ))}
-            </Thead>
-            <Tbody>
-              {data.map((row, rowIndex) => (
-                <Tr key={rowIndex}>
-                  {columns[0].columns.map((col, cellIndex) => (
-                    <Td key={cellIndex}>
-                      {col.Cell
-                        ? col.Cell({
-                            value: row[col.accessor.split(".")[1]],
-                            row,
-                          })
-                        : row[col.accessor.split(".")[1]]}
-                    </Td>
+              {headerGroups.map((headerGroup, i) => (
+                <Tr
+                  {...headerGroup.getHeaderGroupProps()}
+                  key={`header-group-${i}`}
+                >
+                  {headerGroup.headers.map((column) => (
+                    <Th {...column.getHeaderProps()} key={column.id}>
+                      {column.render("Header")}
+                    </Th>
                   ))}
                 </Tr>
               ))}
+            </Thead>
+            <Tbody {...getTableBodyProps()}>
+              {page.map((row, i) => {
+                prepareRow(row);
+                return (
+                  <Tr {...row.getRowProps()} key={`row-${i}`}>
+                    {row.cells.map((cell) => (
+                      <Td {...cell.getCellProps()} key={cell.column.id}>
+                        {cell.render("Cell")}
+                      </Td>
+                    ))}
+                  </Tr>
+                );
+              })}
             </Tbody>
           </Table>
 
