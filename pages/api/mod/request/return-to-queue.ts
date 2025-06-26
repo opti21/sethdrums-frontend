@@ -10,7 +10,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 
 const MakeRequestPrioApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = getSession(req, res);
+    const session = await getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
         twitch_id: session.user.sub.split("|")[2],

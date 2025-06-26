@@ -16,7 +16,7 @@ import { pusher } from "../../../lib/pusher";
 
 const publicRequestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = getSession(req, res);
+    const session = await getSession(req, res);
     if (process.env.NODE_ENV === "development") {
       if (session.user.sub.split("|")[0] === "auth0") {
         session.user.sub = "auth0|test_user|test_user_id";
@@ -28,21 +28,17 @@ const publicRequestApiHandler = withApiAuthRequired(
       const queue = await getQueue();
 
       if (!queue.is_open) {
-        return res
-          .status(406)
-          .json({
-            success: false,
-            error: "Suggestion List is currently closed",
-          });
+        return res.status(406).json({
+          success: false,
+          error: "Suggestion List is currently closed",
+        });
       }
 
       if (queue.is_paused) {
-        return res
-          .status(406)
-          .json({
-            success: false,
-            error: "Suggestion List is currently paused",
-          });
+        return res.status(406).json({
+          success: false,
+          error: "Suggestion List is currently paused",
+        });
       }
 
       const parsed = urlParser.parse(req.body.ytLink);

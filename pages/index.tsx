@@ -26,7 +26,7 @@ import Nav from "../components/Nav";
 import RequestCard from "../components/RequestCard";
 import ReactPlayer from "react-player";
 import { Field, Form, Formik, FormikProps } from "formik";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { toast } from "react-toastify";
 import Image from "next/image";
 import { IoLogoTwitch } from "react-icons/io";
@@ -203,8 +203,8 @@ const Home: NextPage = () => {
                       queue?.is_paused
                         ? "yellow.500"
                         : queue?.is_open
-                          ? "green.500"
-                          : "red.700"
+                        ? "green.500"
+                        : "red.700"
                     }
                     textAlign="center"
                     p={2}
@@ -214,10 +214,10 @@ const Home: NextPage = () => {
                       {queue?.is_paused
                         ? "Paused"
                         : queue?.is_open
-                          ? queue?.is_subOnly
-                            ? "Open To Subs Only"
-                            : "Open To Everyone"
-                          : "Closed"}
+                        ? queue?.is_subOnly
+                          ? "Open To Subs Only"
+                          : "Open To Everyone"
+                        : "Closed"}
                     </Text>
                   </Box>
                   <Box width={"100%"}>

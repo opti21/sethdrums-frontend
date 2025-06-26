@@ -4,7 +4,7 @@ import prisma from "../../../utils/prisma";
 
 const isModHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = getSession(req, res);
+    const session = await getSession(req, res);
     const isMod = await prisma.mod.findMany({
       where: {
         twitch_id: session.user.sub.split("|")[2] || "",

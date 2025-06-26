@@ -3,7 +3,7 @@
   "version": "0.3.5",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "doppler run -- next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -12,7 +12,7 @@
     "cypress:run": "cypress run"
   },
   "dependencies": {
-    "@auth0/nextjs-auth0": "^1.7.0",
+    "@auth0/nextjs-auth0": "^3.8.0",
     "@chakra-ui/icons": "^2.1.1",
     "@chakra-ui/react": "^2.8.2",
     "@chakra-ui/theme-tools": "^2.2.6",
@@ -36,7 +36,7 @@
     "lucide-react": "^0.436.0",
     "mongodb": "^4.5.0",
     "mongoose": "^6.2.10",
-    "next": "12",
+    "next": "^12.3.4",
     "next-auth": "^4.3.1",
     "next-axiom": "^0.8.0",
     "next-plausible": "^3.1.9",

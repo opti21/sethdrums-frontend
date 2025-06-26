@@ -4,7 +4,7 @@ import prisma from "../../../utils/prisma";
 
 const savedSongsApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = getSession(req, res);
+    const session = await getSession(req, res);
     if (process.env.NODE_ENV === "development") {
       if (session.user.sub.split("|")[0] === "auth0") {
         session.user.sub = "auth0|test_user|test_user_id";

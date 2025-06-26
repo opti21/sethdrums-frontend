@@ -30,7 +30,13 @@ import { toast } from "react-toastify";
 import { IoMdTrash } from "react-icons/io";
 import { RiSwordFill, RiSwordLine } from "react-icons/ri";
 import { AiFillCrown, AiOutlineCrown } from "react-icons/ai";
-import { UserProfile } from "@auth0/nextjs-auth0";
+// Define minimal user type based on Auth0 session user structure
+interface Auth0User {
+  sub?: string;
+  preferred_username?: string;
+  picture?: string;
+  [key: string]: any;
+}
 import { useDeleteModalStore } from "../stateStore/modalState";
 
 type Props = {
@@ -41,7 +47,7 @@ type Props = {
   disabled?: boolean;
   sethView?: boolean;
   publicView?: boolean;
-  user?: UserProfile;
+  user?: Auth0User;
 };
 
 const RequestCard: FC<Props> = ({

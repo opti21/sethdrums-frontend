@@ -12,7 +12,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Nav from "../../components/Nav";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
@@ -207,8 +207,8 @@ const Mod: NextPage = () => {
                       queue?.is_paused
                         ? "yellow.500"
                         : queue?.is_open
-                          ? "green.500"
-                          : "red.700"
+                        ? "green.500"
+                        : "red.700"
                     }
                     textAlign="center"
                     p={2}
@@ -219,10 +219,10 @@ const Mod: NextPage = () => {
                       {queue?.is_paused
                         ? "Paused"
                         : queue?.is_open
-                          ? queue?.is_subOnly
-                            ? "Open To Subs Only"
-                            : "Open To Everyone"
-                          : "Closed"}
+                        ? queue?.is_subOnly
+                          ? "Open To Subs Only"
+                          : "Open To Everyone"
+                        : "Closed"}
                     </Text>
                   </Box>
                   <ModQueue />

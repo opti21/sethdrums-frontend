@@ -14,7 +14,7 @@ import { NextPage } from "next";
 import Head from "next/head";
 import { useEffect, useState } from "react";
 import Nav from "../../components/Nav";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import Image from "next/image";
 import BanTable from "../../components/BanTable";
 import Link from "next/link";

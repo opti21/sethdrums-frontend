@@ -34,7 +34,7 @@ import ReactPlayer from "react-player";
 import { Field, Form, Formik, FormikProps } from "formik";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
-import { useUser } from "@auth0/nextjs-auth0";
+import { useUser } from "@auth0/nextjs-auth0/client";
 import { toast } from "react-toastify";
 import Pusher from "pusher-js";
 import Image from "next/image";
@@ -365,8 +365,8 @@ const SethView: NextPage = () => {
                         queue?.is_paused
                           ? "yellow.500"
                           : queue?.is_open
-                            ? "green.500"
-                            : "red.700"
+                          ? "green.500"
+                          : "red.700"
                       }
                       textAlign="center"
                       p={2}
@@ -376,8 +376,8 @@ const SethView: NextPage = () => {
                         {queue?.is_paused
                           ? "Paused"
                           : queue?.is_open
-                            ? "Open"
-                            : "Closed"}
+                          ? "Open"
+                          : "Closed"}
                       </Text>
                     </Box>
                     <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
