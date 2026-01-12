@@ -45,6 +45,18 @@ const userBanApiHandler = withApiAuthRequired(
         });
       }
 
+      // Check if target user is a mod - mods can't ban mods
+      const targetIsMod = await prisma.mod.findFirst({
+        where: { twitch_id },
+      });
+
+      if (targetIsMod) {
+        return res.status(403).json({
+          success: false,
+          message: "Cannot ban a moderator",
+        });
+      }
+
       // Check if user is already banned
       const existingBan = await prisma.bannedUser.findUnique({
         where: { twitch_id },

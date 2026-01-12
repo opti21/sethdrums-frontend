@@ -47,6 +47,8 @@ const BanUserModal: FC = () => {
     } catch (err: any) {
       if (err.response?.status === 409) {
         toast.error("User is already banned");
+      } else if (err.response?.status === 403) {
+        toast.error("Cannot ban a moderator");
       } else {
         toast.error("Error banning user");
         console.error(err);
