@@ -341,6 +341,11 @@ const ModQueue: FC<Props> = ({}) => {
             Banned Videos
           </ChakraLink>
         </Link>
+        <Link passHref href={"/mod/banned-users"}>
+          <ChakraLink fontWeight={"medium"} ml={2}>
+            Banned Users
+          </ChakraLink>
+        </Link>
       </HStack>
       <QueueStatus />
       <NotCountedAlert />

@@ -107,3 +107,12 @@ model SavedSongs {
   saved_at     DateTime @default(now())
   saved_videos Video[]  @relation("SavedSongsToVideo")
 }
+
+model BannedUser {
+  id              Int      @id @default(autoincrement())
+  twitch_id       String   @unique
+  twitch_username String
+  reason          String?
+  banned_by       String
+  banned_time     DateTime @default(now())
+}

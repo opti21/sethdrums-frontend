@@ -37,7 +37,8 @@ interface Auth0User {
   picture?: string;
   [key: string]: any;
 }
-import { useDeleteModalStore } from "../stateStore/modalState";
+import { useDeleteModalStore, useBanUserModalStore } from "../stateStore/modalState";
+import { MdPersonOff } from "react-icons/md";
 
 type Props = {
   id: string;
@@ -61,6 +62,7 @@ const RequestCard: FC<Props> = ({
   user,
 }) => {
   const openDeleteModal = useDeleteModalStore((state) => state.open);
+  const openBanUserModal = useBanUserModalStore((state) => state.open);
 
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({
@@ -410,6 +412,21 @@ const RequestCard: FC<Props> = ({
                       )}
                     </>
                   )}
+              {/* Ban User - show for mod view and seth view */}
+              {!publicView && !request.played && (
+                <Button
+                  onClick={() => {
+                    openBanUserModal(
+                      request.requested_by_id,
+                      request.requested_by
+                    );
+                  }}
+                  bgColor={"#8B0000"}
+                  title="Ban user from requesting"
+                >
+                  <Icon as={MdPersonOff} w={5} h={5} />
+                </Button>
+              )}
             </HStack>
           </Stack>
           {!publicView && video.PG_Status.checker && (

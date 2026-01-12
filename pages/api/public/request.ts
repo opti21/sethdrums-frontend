@@ -41,6 +41,19 @@ const publicRequestApiHandler = withApiAuthRequired(
         });
       }
 
+      // Check if user is banned
+      const userTwitchId = session.user.sub.split("|")[2];
+      const bannedUser = await prisma.bannedUser.findUnique({
+        where: { twitch_id: userTwitchId },
+      });
+
+      if (bannedUser) {
+        return res.status(403).json({
+          success: false,
+          error: "You are banned from making song requests",
+        });
+      }
+
       const parsed = urlParser.parse(req.body.ytLink);
       const youtubeID = parsed?.id;
 

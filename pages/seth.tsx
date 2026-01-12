@@ -40,6 +40,7 @@ import Pusher from "pusher-js";
 import Image from "next/image";
 import NowPlayingCard from "../components/NowPlayingCard";
 import { validateYTUrl } from "../utils/utils";
+import BanUserModal from "../components/modals/BanUserModal";
 
 const SethView: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
@@ -234,6 +235,8 @@ const SethView: NextPage = () => {
       </Head>
       <Container maxW={"container.xl"} p={0}>
         <Nav returnTo="/seth" />
+
+        <BanUserModal />
 
         <Modal isOpen={isAddModalOpen} onClose={closeAddModal} size="2xl">
           <ModalOverlay />

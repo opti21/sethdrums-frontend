@@ -18,6 +18,7 @@ import Pusher from "pusher-js";
 import Image from "next/image";
 import PGConfirmModal from "../../components/modals/PGConfirmModal";
 import PGCheckerModal from "../../components/modals/PGCheckerModal";
+import BanUserModal from "../../components/modals/BanUserModal";
 import { useModQueueStore } from "../../stateStore/queueState";
 import ModQueue from "../../components/ModQueue";
 import ScrollToTop from "react-scroll-to-top";
@@ -178,6 +179,7 @@ const Mod: NextPage = () => {
 
         <PGCheckerModal />
         <PGConfirmModal />
+        <BanUserModal />
 
         <ScrollToTop
           smooth

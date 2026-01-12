@@ -112,3 +112,37 @@ export const useAddRequestModalStore = create<TAddRequestModalState>((set) => ({
   open: () => set(() => ({ isOpen: true })),
   close: () => set(() => ({ isOpen: false })),
 }));
+
+// Ban User Modal
+interface IBanUserModalData {
+  twitch_id: string | null;
+  twitch_username: string | null;
+}
+
+type TBanUserModalState = {
+  isOpen: boolean;
+  open: (twitch_id: string, twitch_username: string) => void;
+  close: () => void;
+  banUserData: IBanUserModalData;
+};
+
+export const useBanUserModalStore = create<TBanUserModalState>((set) => ({
+  isOpen: false,
+  open: (twitch_id, twitch_username) =>
+    set(() => ({
+      isOpen: true,
+      banUserData: { twitch_id, twitch_username },
+    })),
+  close: () =>
+    set(() => ({
+      isOpen: false,
+      banUserData: {
+        twitch_id: null,
+        twitch_username: null,
+      },
+    })),
+  banUserData: {
+    twitch_id: null,
+    twitch_username: null,
+  },
+}));
