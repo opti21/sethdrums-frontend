@@ -38,7 +38,10 @@ const userBanApiHandler = withApiAuthRequired(
       // Ban a user
       const { twitch_id, twitch_username, reason } = req.body;
 
+      console.log("[BanUser] Attempting to ban user:", { twitch_id, twitch_username, reason });
+
       if (!twitch_id || !twitch_username) {
+        console.log("[BanUser] Missing required fields:", { twitch_id, twitch_username });
         return res.status(400).json({
           success: false,
           message: "Missing twitch_id or twitch_username",
@@ -51,6 +54,7 @@ const userBanApiHandler = withApiAuthRequired(
       });
 
       if (targetIsMod) {
+        console.log("[BanUser] Cannot ban mod:", twitch_username);
         return res.status(403).json({
           success: false,
           message: "Cannot ban a moderator",
@@ -63,6 +67,7 @@ const userBanApiHandler = withApiAuthRequired(
       });
 
       if (existingBan) {
+        console.log("[BanUser] User already banned:", twitch_username);
         return res.status(409).json({
           success: false,
           message: "User is already banned",
@@ -70,8 +75,8 @@ const userBanApiHandler = withApiAuthRequired(
       }
 
       // Create ban record
-      await prisma.bannedUser
-        .create({
+      try {
+        await prisma.bannedUser.create({
           data: {
             twitch_id,
             twitch_username,
@@ -79,13 +84,14 @@ const userBanApiHandler = withApiAuthRequired(
             banned_by: session.user.preferred_username,
             banned_time: dayjs.utc().toDate(),
           },
-        })
-        .catch((err) => {
-          console.error(err);
-          return res
-            .status(500)
-            .json({ success: false, message: "Error banning user" });
         });
+        console.log("[BanUser] Successfully banned user:", twitch_username);
+      } catch (err) {
+        console.error("[BanUser] Error creating ban record:", err);
+        return res
+          .status(500)
+          .json({ success: false, message: "Error banning user" });
+      }
 
       // Find and remove all pending requests by this user
       const pendingRequests = await prisma.request.findMany({
@@ -118,6 +124,7 @@ const userBanApiHandler = withApiAuthRequired(
         );
       }
 
+      console.log("[BanUser] Ban complete, removed requests:", removedCount);
       return res.status(200).json({
         success: true,
         removedRequests: removedCount,
