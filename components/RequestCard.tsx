@@ -412,8 +412,8 @@ const RequestCard: FC<Props> = ({
                       )}
                     </>
                   )}
-              {/* Ban User - show for mod view and seth view, only if user has a valid twitch_id */}
-              {!publicView && !request.played && request.requested_by_id && (
+              {/* Ban User - show for mod view only, only if user has a valid twitch_id */}
+              {!publicView && !sethView && !request.played && request.requested_by_id && (
                 <Button
                   onClick={() => {
                     openBanUserModal(
