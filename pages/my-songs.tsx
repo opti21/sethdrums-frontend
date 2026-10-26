@@ -22,59 +22,59 @@ import useSWR from "swr";
 import Link from "next/link";
 import { ChevronRightIcon } from "@chakra-ui/icons";
 import { auth0 } from "../lib/auth0";
-import ReactPlayer from 'react-player/youtube'
+import ReactPlayer from "react-player/youtube";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, SkipBack, SkipForward, Trash2 } from "lucide-react";
 import axios from "axios";
 import { toast } from "react-toastify";
 
+type SavedSong = {
+  id: number;
+  title: string;
+  youtube_id: string;
+};
+
+type PlaylistSong = {
+  id: number;
+  title: string;
+  url: string;
+};
+
+const UNAVAILABLE_YOUTUBE_TITLES = new Set([
+  "Private video",
+  "Deleted video",
+  "Video unavailable",
+]);
+
 const MySongs: NextPage = () => {
   const { data: savedSongsData, error: savedSongsError, mutate } = useSWR(
-    "/api/public/saved-songs", null, {
-    refreshInterval: 0,
-    refreshWhenHidden: false
-  }
+    "/api/public/saved-songs",
+    null,
+    {
+      refreshInterval: 0,
+      refreshWhenHidden: false,
+    }
   );
 
-  const [currentVideo, setCurrentVideo] = useState(0);
+  const [currentSongId, setCurrentSongId] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [autoplay, setAutoplay] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(10); // Number of items per page
   const [searchQuery, setSearchQuery] = useState("");
   const [sortByRecent, setSortByRecent] = useState(true);
+  const [sortReady, setSortReady] = useState(false);
 
   const playerRef = useRef(null);
+  const currentItemRef = useRef<HTMLLIElement | null>(null);
   const skipInProgressRef = useRef(false);
   const unavailableSkipCountRef = useRef(0);
+  const unavailableCheckTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const currentSongIdRef = useRef<number | null>(null);
+  const currentSongRef = useRef<PlaylistSong | null>(null);
+  const sortedPlaylistRef = useRef<PlaylistSong[]>([]);
 
-  const toggleSort = () => {
-    setSortByRecent((prev) => {
-      const newSortByRecent = !prev;
-      const sortedPlaylist = playlist.slice();
-      if (newSortByRecent) {
-        sortedPlaylist.reverse();
-      }
-
-      // Update the currentVideo index based on the new sorting order
-      const currentSongUrl = playlist[currentVideo]?.url;
-      const newIndex = sortedPlaylist.findIndex(video => video.url === currentSongUrl);
-
-      if (newIndex !== -1) {
-        setCurrentVideo(newIndex);
-      }
-
-      // Save the new sort preference in localStorage
-      localStorage.setItem("sortByRecent", JSON.stringify(newSortByRecent));
-
-      return newSortByRecent;
-    });
-  };
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const playlist = useMemo(() => {
+  const playlist = useMemo<PlaylistSong[]>(() => {
     return savedSongsData
-      ? savedSongsData.map((video: { id: number; title: any; youtube_id: any; }) => ({
+      ? savedSongsData.map((video: SavedSong) => ({
           id: video.id,
           title: video.title,
           url: `https://www.youtube.com/watch?v=${video.youtube_id}`,
@@ -82,73 +82,96 @@ const MySongs: NextPage = () => {
       : [];
   }, [savedSongsData]);
 
+  const sortedPlaylist = useMemo(() => {
+    return sortByRecent ? playlist.slice().reverse() : playlist.slice();
+  }, [playlist, sortByRecent]);
+
+  const visiblePlaylist = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) {
+      return sortedPlaylist;
+    }
+
+    return sortedPlaylist.filter((video) =>
+      video.title.toLowerCase().includes(query)
+    );
+  }, [sortedPlaylist, searchQuery]);
+
+  const currentSong = useMemo(() => {
+    if (currentSongId == null) {
+      return null;
+    }
+
+    return playlist.find((video) => video.id === currentSongId) ?? null;
+  }, [playlist, currentSongId]);
+
+  currentSongIdRef.current = currentSongId;
+  currentSongRef.current = currentSong;
+  sortedPlaylistRef.current = sortedPlaylist;
 
   useEffect(() => {
-    if (playlist.length > 0) {  // Ensure that the playlist is not empty
-      const storedSortPreference = localStorage.getItem("sortByRecent");
-      if (storedSortPreference !== null) {
-        const parsedSortPreference = JSON.parse(storedSortPreference);
-        setSortByRecent(parsedSortPreference);
-        
-        // Set the current video index based on the sorting order
-        if (parsedSortPreference) {
-          setCurrentVideo(playlist.length - 1);  // Select the most recent song
-        } else {
-          setCurrentVideo(0);  // Select the oldest song
-        }
-      }
+    const storedSortPreference = localStorage.getItem("sortByRecent");
+    if (storedSortPreference !== null) {
+      setSortByRecent(JSON.parse(storedSortPreference));
     }
-  }, [playlist]); // Run this effect whenever the playlist changes
+    setSortReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!sortReady) {
+      return;
+    }
+
+    if (playlist.length === 0) {
+      setCurrentSongId(null);
+      setIsPlaying(false);
+      return;
+    }
+
+    if (currentSongId != null && playlist.some((video) => video.id === currentSongId)) {
+      return;
+    }
+
+    setCurrentSongId(sortedPlaylist[0]?.id ?? null);
+  }, [sortReady, playlist, sortedPlaylist, currentSongId]);
 
   useEffect(() => {
     skipInProgressRef.current = false;
-  }, [currentVideo]);
+  }, [currentSongId]);
 
-  // Filter and sort playlist
-  const sortedAndFilteredPlaylist = useMemo(() => {
-    const filtered = playlist.filter((video) =>
-      video.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  useEffect(() => {
+    return () => {
+      if (unavailableCheckTimeoutRef.current) {
+        clearTimeout(unavailableCheckTimeoutRef.current);
+      }
+    };
+  }, []);
 
-    return sortByRecent ? filtered.slice().reverse() : filtered.slice();
-  }, [playlist, searchQuery, sortByRecent]);
+  useEffect(() => {
+    currentItemRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest",
+    });
+  }, [currentSongId, sortByRecent, searchQuery]);
 
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = sortedAndFilteredPlaylist.slice(indexOfFirstItem, indexOfLastItem);
+  const toggleSort = () => {
+    setSortByRecent((prev) => {
+      const nextSortByRecent = !prev;
+      localStorage.setItem("sortByRecent", JSON.stringify(nextSortByRecent));
+      return nextSortByRecent;
+    });
+  };
 
-  const totalPages = Math.ceil(sortedAndFilteredPlaylist.length / itemsPerPage);
-
-  const listItemRefs = useRef([]);
-
-  // Function to scroll to the current song
-  const scrollToCurrentSong = () => {
-    // Clear the search query
-    setSearchQuery("");
-  
-    // Find the current song URL in the original playlist
-    const currentSongUrl = playlist[currentVideo]?.url;
-  
-    // Find the index of the current song in the sorted and filtered playlist
-    const sortedIndex = sortedAndFilteredPlaylist.findIndex(video => video.url === currentSongUrl);
-  
-    if (sortedIndex !== -1) {
-      // Calculate the page where the current video is located
-      const currentSongPage = Math.ceil((sortedIndex + 1) / itemsPerPage);
-  
-      // Set the current page to the page with the current video
-      setCurrentPage(currentSongPage);
-  
-      // Scroll to the current video in the playlist
-      setTimeout(() => {
-        if (listItemRefs.current[sortedIndex]) {
-          listItemRefs.current[sortedIndex].scrollIntoView({
-            behavior: "smooth",
-            block: "nearest",
-          });
-        }
-      }, 0);
+  const showCurrentSong = () => {
+    if (searchQuery) {
+      setSearchQuery("");
+      return;
     }
+
+    currentItemRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
   };
 
   const handlePlayPause = () => {
@@ -156,12 +179,38 @@ const MySongs: NextPage = () => {
   };
 
   const handleNext = () => {
-    setCurrentVideo((prev) => (prev + 1) % playlist.length);
+    setCurrentSongId((prevId) => {
+      const queue = sortedPlaylistRef.current;
+      if (queue.length === 0) {
+        return prevId;
+      }
+
+      const currentIndex = queue.findIndex((video) => video.id === prevId);
+      const nextIndex = currentIndex === -1 ? 0 : (currentIndex + 1) % queue.length;
+      return queue[nextIndex].id;
+    });
+  };
+
+  const handlePrevious = () => {
+    setCurrentSongId((prevId) => {
+      const queue = sortedPlaylistRef.current;
+      if (queue.length === 0) {
+        return prevId;
+      }
+
+      const currentIndex = queue.findIndex((video) => video.id === prevId);
+      const previousIndex =
+        currentIndex === -1
+          ? queue.length - 1
+          : (currentIndex - 1 + queue.length) % queue.length;
+      return queue[previousIndex].id;
+    });
   };
 
   const skipUnavailableVideo = () => {
-    const video = playlist[currentVideo];
-    if (!video || playlist.length === 0 || skipInProgressRef.current) {
+    const video = currentSongRef.current;
+    const queue = sortedPlaylistRef.current;
+    if (!video || queue.length === 0 || skipInProgressRef.current) {
       return;
     }
 
@@ -169,7 +218,7 @@ const MySongs: NextPage = () => {
     unavailableSkipCountRef.current += 1;
     toast.warn(`${video.title} is unavailable and was skipped`);
 
-    if (unavailableSkipCountRef.current >= playlist.length) {
+    if (unavailableSkipCountRef.current >= queue.length) {
       setIsPlaying(false);
       unavailableSkipCountRef.current = 0;
       skipInProgressRef.current = false;
@@ -180,44 +229,41 @@ const MySongs: NextPage = () => {
   };
 
   const handlePlayerReady = () => {
-    const internalPlayer = (playerRef.current as any)?.getInternalPlayer?.();
-    const youtubeTitle = internalPlayer?.getVideoData?.()?.title;
+    const songIdWhenReady = currentSongIdRef.current;
 
-    if (youtubeTitle === "Private video" || youtubeTitle === "Deleted video") {
-      skipUnavailableVideo();
+    const checkIfUnavailable = () => {
+      if (currentSongIdRef.current !== songIdWhenReady) {
+        return;
+      }
+
+      const internalPlayer = (playerRef.current as any)?.getInternalPlayer?.();
+      const youtubeTitle = internalPlayer?.getVideoData?.()?.title;
+
+      if (UNAVAILABLE_YOUTUBE_TITLES.has(youtubeTitle)) {
+        skipUnavailableVideo();
+      }
+    };
+
+    checkIfUnavailable();
+
+    if (unavailableCheckTimeoutRef.current) {
+      clearTimeout(unavailableCheckTimeoutRef.current);
     }
+    unavailableCheckTimeoutRef.current = setTimeout(checkIfUnavailable, 400);
   };
 
   const handlePlayerStart = () => {
     unavailableSkipCountRef.current = 0;
   };
 
-  const handlePrevious = () => {
-    setCurrentVideo((prev) => (prev - 1 + playlist.length) % playlist.length);
-  };
-
-  const handleVideoSelect = (index) => {
-    // Calculate the global index in the sorted and filtered list
-    const globalIndex = index + (currentPage - 1) * itemsPerPage;
-  
-    // Get the selected video URL from the sorted and filtered list
-    const selectedVideoUrl = sortedAndFilteredPlaylist[globalIndex]?.url;
-  
-    // Find the corresponding index in the original playlist
-    const originalIndex = playlist.findIndex(video => video.url === selectedVideoUrl);
-  
-    if (originalIndex !== -1) {
-      setCurrentVideo(originalIndex);
-      setIsPlaying(true);
-    }
+  const handleVideoSelect = (id: number) => {
+    setCurrentSongId(id);
+    setIsPlaying(true);
   };
 
   const handleVideoEnded = () => {
     if (autoplay) {
       handleNext();
-      if (searchQuery === "") {
-        scrollToCurrentSong();
-      }
     } else {
       setIsPlaying(false);
     }
@@ -225,10 +271,6 @@ const MySongs: NextPage = () => {
 
   const toggleAutoplay = () => {
     setAutoplay(!autoplay);
-  };
-
-  const handlePageChange = (page) => {
-    setCurrentPage(page);
   };
 
   const handleRemoveSavedSong = async (id: number) => {
@@ -245,6 +287,12 @@ const MySongs: NextPage = () => {
       })
       .then((res) => {
         if (res.status === 200) {
+          if (id === currentSongId) {
+            const currentIndex = sortedPlaylist.findIndex((video) => video.id === id);
+            const nextSong =
+              sortedPlaylist[currentIndex + 1] ?? sortedPlaylist[currentIndex - 1];
+            setCurrentSongId(nextSong && nextSong.id !== id ? nextSong.id : null);
+          }
           toast.success("Video Removed from Saved Songs");
           mutate();
         }
@@ -289,11 +337,12 @@ const MySongs: NextPage = () => {
             flexWrap="nowrap"
           >
             <Box flex={["1", "1", "3"]}>
-              {playlist.length > 0 ? (
+              {currentSong ? (
                 <AspectRatio ratio={16 / 9}>
                   <ReactPlayer
+                    key={currentSong.id}
                     ref={playerRef}
-                    url={playlist[currentVideo]?.url}
+                    url={currentSong.url}
                     playing={isPlaying}
                     controls={true}
                     width="100%"
@@ -305,17 +354,28 @@ const MySongs: NextPage = () => {
                   />
                 </AspectRatio>
               ) : (
-                <Box height="0" paddingBottom="56.25%" bg="gray.100" display="flex" alignItems="center" justifyContent="center">
+                <Box
+                  height="0"
+                  paddingBottom="56.25%"
+                  bg="gray.100"
+                  display="flex"
+                  alignItems="center"
+                  justifyContent="center"
+                >
                   <Text>No videos in playlist</Text>
                 </Box>
               )}
               <HStack justifyContent="center" mt={2}>
                 <HStack>
-                  <Button onClick={handlePrevious} isDisabled={playlist.length === 0}><SkipBack /></Button>
-                  <Button onClick={handlePlayPause} isDisabled={playlist.length === 0}>
+                  <Button onClick={handlePrevious} isDisabled={sortedPlaylist.length === 0}>
+                    <SkipBack />
+                  </Button>
+                  <Button onClick={handlePlayPause} isDisabled={sortedPlaylist.length === 0}>
                     {isPlaying ? <Pause /> : <Play />}
                   </Button>
-                  <Button onClick={handleNext} isDisabled={playlist.length === 0}><SkipForward /></Button>
+                  <Button onClick={handleNext} isDisabled={sortedPlaylist.length === 0}>
+                    <SkipForward />
+                  </Button>
                 </HStack>
               </HStack>
               <HStack justifyContent="center" mt={2}>
@@ -324,7 +384,6 @@ const MySongs: NextPage = () => {
               </HStack>
             </Box>
             <VStack flex={["1", "1", "2"]} spacing={4} align="stretch">
-
               <Input
                 placeholder="Search videos"
                 value={searchQuery}
@@ -333,77 +392,64 @@ const MySongs: NextPage = () => {
               />
 
               <HStack spacing={2} width={"100%"}>
-                <Button width={"100%"} onClick={scrollToCurrentSong}>Show Current Song</Button>
+                <Button width={"100%"} onClick={showCurrentSong} isDisabled={!currentSong}>
+                  Show Current Song
+                </Button>
                 <Button width={"100%"} onClick={toggleSort}>
                   Sort by {sortByRecent ? "Oldest" : "Most Recent"}
                 </Button>
               </HStack>
 
-              {sortedAndFilteredPlaylist.length > 0 ? (
-                <>
-                  <List spacing={2} overflowY="auto" maxH={["200px", "200px", "400px"]}>
-                    {currentItems.map((video, index) => {
-                      // Calculate the global index of the current item in the sorted and filtered list
-                      const globalIndex = index + (currentPage - 1) * itemsPerPage;
+              {currentSong && (
+                <Text fontSize="sm" noOfLines={1}>
+                  Playing: {currentSong.title}
+                </Text>
+              )}
 
-                      // Check if this video is the currently playing video
-                      const isSelected = playlist[currentVideo]?.url === sortedAndFilteredPlaylist[globalIndex]?.url;
+              {visiblePlaylist.length > 0 ? (
+                <List spacing={2} overflowY="auto" maxH={["280px", "320px", "520px"]}>
+                  {visiblePlaylist.map((video) => {
+                    const isSelected = video.id === currentSong?.id;
 
-                      return (
-                        <ListItem
-                          key={video.id}
-                          ref={(el) => {
-                            listItemRefs.current[globalIndex] = el;
-                          }}
-                          onClick={() => {
-                            handleVideoSelect(index);
-                          }}
-                          bg={isSelected ? "gray.700" : "gray.500"}
-                          color={isSelected ? "white" : "black"}
-                          p={3}
-                          borderRadius="md"
-                          boxShadow="sm"
-                          cursor="pointer"
-                          _hover={{ bg: "gray.600" }}
-                          transition="all 0.2s"
-                        >
-                          <HStack justifyContent="space-between">
-                            <Text fontWeight={isSelected ? "bold" : "normal"}>{video.title}</Text>
-                            <IconButton
-                              icon={<Trash2 size={18} />}
-                              aria-label="Remove video"
-                              size="sm"
-                              variant="ghost"
-                              colorScheme="red"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleRemoveSavedSong(video.id);
-                              }}
-                            />
-                          </HStack>
-                        </ListItem>
-                      );
-                    })}
-                  </List>
-
-
-                  <HStack justifyContent="center" mt={4}>
-                    <Button
-                      onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                      isDisabled={currentPage === 1}
-                    >
-                      Previous
-                    </Button>
-                    <Text>{`Page ${currentPage} of ${totalPages}`}</Text>
-                    <Button
-                      onClick={() => handlePageChange(Math.min(currentPage + 1, totalPages))}
-                      isDisabled={currentPage === totalPages}
-                    >
-                      Next
-                    </Button>
-                  </HStack>
-
-                </>
+                    return (
+                      <ListItem
+                        key={video.id}
+                        ref={(el) => {
+                          if (isSelected) {
+                            currentItemRef.current = el;
+                          }
+                        }}
+                        onClick={() => {
+                          handleVideoSelect(video.id);
+                        }}
+                        bg={isSelected ? "gray.700" : "gray.500"}
+                        color={isSelected ? "white" : "black"}
+                        p={3}
+                        borderRadius="md"
+                        boxShadow="sm"
+                        cursor="pointer"
+                        scrollMargin="8px"
+                        _hover={{ bg: "gray.600" }}
+                        transition="all 0.2s"
+                      >
+                        <HStack justifyContent="space-between">
+                          <Text fontWeight={isSelected ? "bold" : "normal"}>{video.title}</Text>
+                          <IconButton
+                            icon={<Trash2 size={18} />}
+                            aria-label="Remove video"
+                            size="sm"
+                            variant="ghost"
+                            colorScheme="red"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRemoveSavedSong(video.id);
+                            }}
+                          />
+                        </HStack>
+                      </ListItem>
+                    );
+                  })}
+                </List>
               ) : (
                 <Text>No videos found</Text>
               )}
