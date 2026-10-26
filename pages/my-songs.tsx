@@ -29,7 +29,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 
 const MySongs: NextPage = () => {
-  const { data: savedSongsData, error: savedSongsError } = useSWR(
+  const { data: savedSongsData, error: savedSongsError, mutate } = useSWR(
     "/api/public/saved-songs", null, {
     refreshInterval: 0,
     refreshWhenHidden: false
@@ -72,7 +72,8 @@ const MySongs: NextPage = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const playlist = useMemo(() => {
     return savedSongsData
-      ? savedSongsData.map((video: { title: any; youtube_id: any; }) => ({
+      ? savedSongsData.map((video: { id: number; title: any; youtube_id: any; }) => ({
+          id: video.id,
           title: video.title,
           url: `https://www.youtube.com/watch?v=${video.youtube_id}`,
         }))
@@ -192,6 +193,11 @@ const MySongs: NextPage = () => {
   };
 
   const handleRemoveSavedSong = async (id: number) => {
+    if (!Number.isInteger(id) || id <= 0) {
+      toast.error("Error removing video");
+      return;
+    }
+
     await axios
       .delete("/api/public/saved-songs", {
         data: {
@@ -201,6 +207,7 @@ const MySongs: NextPage = () => {
       .then((res) => {
         if (res.status === 200) {
           toast.success("Video Removed from Saved Songs");
+          mutate();
         }
       })
       .catch((err) => {
@@ -302,7 +309,7 @@ const MySongs: NextPage = () => {
 
                       return (
                         <ListItem
-                          key={index}
+                          key={video.id}
                           ref={(el) => {
                             listItemRefs.current[globalIndex] = el;
                           }}
