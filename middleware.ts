@@ -19,11 +19,11 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico, sitemap.xml, robots.txt (metadata files)
+     * Skip /api. Auth0 v4 still serves /auth/* from this middleware.
+     * Next.js 15 does not wait to put the request body back after
+     * middleware, so API routes that read a body can stall. API handlers
+     * read the session cookie themselves.
      */
-    "/((?!_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
   ],
 };
