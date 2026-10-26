@@ -98,7 +98,7 @@ async function discardRedis() {
 }
 
 function detachOmClient() {
-  (client as { shim?: unknown }).shim = undefined;
+  (client as unknown as { shim?: unknown }).shim = undefined;
 }
 
 async function safeDisconnect(connection: Redis) {
