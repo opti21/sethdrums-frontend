@@ -45,6 +45,8 @@ const MySongs: NextPage = () => {
   const [sortByRecent, setSortByRecent] = useState(true);
 
   const playerRef = useRef(null);
+  const skipInProgressRef = useRef(false);
+  const unavailableSkipCountRef = useRef(0);
 
   const toggleSort = () => {
     setSortByRecent((prev) => {
@@ -97,6 +99,10 @@ const MySongs: NextPage = () => {
       }
     }
   }, [playlist]); // Run this effect whenever the playlist changes
+
+  useEffect(() => {
+    skipInProgressRef.current = false;
+  }, [currentVideo]);
 
   // Filter and sort playlist
   const sortedAndFilteredPlaylist = useMemo(() => {
@@ -151,6 +157,39 @@ const MySongs: NextPage = () => {
 
   const handleNext = () => {
     setCurrentVideo((prev) => (prev + 1) % playlist.length);
+  };
+
+  const skipUnavailableVideo = () => {
+    const video = playlist[currentVideo];
+    if (!video || playlist.length === 0 || skipInProgressRef.current) {
+      return;
+    }
+
+    skipInProgressRef.current = true;
+    unavailableSkipCountRef.current += 1;
+    toast.warn(`${video.title} is unavailable and was skipped`);
+
+    if (unavailableSkipCountRef.current >= playlist.length) {
+      setIsPlaying(false);
+      unavailableSkipCountRef.current = 0;
+      skipInProgressRef.current = false;
+      return;
+    }
+
+    handleNext();
+  };
+
+  const handlePlayerReady = () => {
+    const internalPlayer = (playerRef.current as any)?.getInternalPlayer?.();
+    const youtubeTitle = internalPlayer?.getVideoData?.()?.title;
+
+    if (youtubeTitle === "Private video" || youtubeTitle === "Deleted video") {
+      skipUnavailableVideo();
+    }
+  };
+
+  const handlePlayerStart = () => {
+    unavailableSkipCountRef.current = 0;
   };
 
   const handlePrevious = () => {
@@ -260,6 +299,9 @@ const MySongs: NextPage = () => {
                     width="100%"
                     height="100%"
                     onEnded={handleVideoEnded}
+                    onError={skipUnavailableVideo}
+                    onReady={handlePlayerReady}
+                    onStart={handlePlayerStart}
                   />
                 </AspectRatio>
               ) : (

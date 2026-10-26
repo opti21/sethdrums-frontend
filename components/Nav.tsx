@@ -16,7 +16,6 @@ import {
   Link as ChakraLink,
   Text,
   Image,
-  Badge,
 } from "@chakra-ui/react";
 import Link from "next/link";
 import axios from "axios";
@@ -142,9 +141,6 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     p={2}
                     variant="ghost"
                   >
-                    <Badge colorScheme="purple" variant="solid" mr={1}>
-                      New
-                    </Badge>
                     My Songs
                   </ChakraLink>
                   <Avatar size="sm" src={user?.picture ? user.picture : ""} />
@@ -240,9 +236,6 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   p={2}
                   variant="ghost"
                 >
-                  <Badge colorScheme="purple" variant="solid" mr={1}>
-                    New
-                  </Badge>
                   My Songs
                 </ChakraLink>
                 {user ? (
