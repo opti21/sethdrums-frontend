@@ -42,13 +42,19 @@ const savedSongsApiHandler = auth0.withApiAuthRequired(
       }
     } else if (req.method === "DELETE") {
       try {
+        const videoId = Number(req.body?.video_id);
+
+        if (!Number.isInteger(videoId) || videoId <= 0) {
+          return res.status(400).json({ error: "video_id is required" });
+        }
+
         await prisma.savedSongs.update({
           where: {
             twitch_id: session.user.sub.split("|")[2],
           },
           data: {
             saved_videos: {
-              disconnect: { id: req.body.video_id },
+              disconnect: [{ id: videoId }],
             },
           },
         });
