@@ -4,7 +4,6 @@ import {
   getQueue,
   removeFromOrder,
 } from "../../../redis/handlers/Queue";
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";

@@ -191,11 +191,9 @@ const BannedUsers: NextPage = () => {
         {bannedUsers && (
           <>
             <Box mb={20}>
-              <Link href="/mod" passHref>
-                <Button m={2} leftIcon={<AiOutlineLeft />}>
-                  Back to Mod View
-                </Button>
-              </Link>
+              <Button as={Link} href="/mod" m={2} leftIcon={<AiOutlineLeft />}>
+                Back to Mod View
+              </Button>
               {/* Manual Ban Form */}
               <Box m={2} p={4} borderWidth="1px" borderRadius="lg">
                 <HStack mb={3} justify="space-between">

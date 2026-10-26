@@ -38,7 +38,6 @@ import {
   ChevronLeftIcon,
 } from "@chakra-ui/icons";
 import { Video } from "@prisma/client";
-import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import useSWR from "swr";
@@ -92,14 +91,13 @@ const SavedSongsTable: FC<Props> = ({ data }) => {
                     objectFit="cover"
                     alt="video thumbnail"
                   />
-                  <Link
+                  <ChakraLink
                     href={`https://www.youtube.com/watch?v=${row.original.youtube_id}`}
-                    passHref
+                    fontWeight={"medium"}
+                    isExternal
                   >
-                    <ChakraLink fontWeight={"medium"} isExternal>
-                      {value}
-                    </ChakraLink>
-                  </Link>
+                    {value}
+                  </ChakraLink>
                 </HStack>
               );
             },

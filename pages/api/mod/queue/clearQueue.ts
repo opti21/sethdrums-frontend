@@ -1,11 +1,12 @@
 import { getQueue, updateOrder } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { auth0 } from "../../../../lib/auth0";
 
-const queueApiHandler = withApiAuthRequired(
+
+const queueApiHandler = auth0.withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getSession(req, res);
+    const session = await auth0.getSession(req);
     const isMod = await prisma.mod.findFirst({
       where: {
         twitch_id: session.user.sub.split("|")[2],

@@ -1,5 +1,5 @@
 import { Video } from "@prisma/client";
-import create from "zustand";
+import { create } from "zustand";
 import { IApiRequest } from "../utils/types";
 
 // PG Confirm Modal

@@ -1,0 +1,17 @@
+allowBuilds:
+  '@prisma/client': true
+  '@prisma/engines': true
+  cypress: false
+  prisma: true
+  sharp: true
+
+overrides:
+  form-data@: 4.0.6
+  ws: ^8.22.0
+  lodash: ^4.18.1
+  lodash-es: ^4.18.1
+  postcss: ^8.5.31
+  source-map-js: ^1.2.2
+  '@babel/runtime': ^7.28.4
+  nanoid@3: ^3.3.18
+  yaml@1: 1.10.3

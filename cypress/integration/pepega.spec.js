@@ -12,7 +12,7 @@ context("Logging in", () => {
   });
 
   it("should login", () => {
-    cy.request("/api/auth/me").then(({ body: user }) => {
+    cy.request("/auth/profile").then(({ body: user }) => {
       expect(user.email).to.equal(Cypress.env("auth0Username"));
     });
   });

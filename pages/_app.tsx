@@ -1,7 +1,7 @@
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
 import { SWRConfig } from "swr";
-import { UserProvider } from "@auth0/nextjs-auth0/client";
+import { Auth0Provider } from "@auth0/nextjs-auth0/client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useEffect } from "react";
@@ -36,7 +36,7 @@ function App({ Component, pageProps }: AppProps) {
 
   return (
     <PlausibleProvider domain="sethdrums.com">
-      <UserProvider>
+      <Auth0Provider>
         <SWRConfig
           value={{
             refreshInterval: 5000,
@@ -68,7 +68,7 @@ function App({ Component, pageProps }: AppProps) {
             <Component {...pageProps} />
           </ChakraProvider>
         </SWRConfig>
-      </UserProvider>
+      </Auth0Provider>
     </PlausibleProvider>
   );
 }

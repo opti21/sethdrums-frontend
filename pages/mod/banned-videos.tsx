@@ -90,11 +90,9 @@ const Mod: NextPage = () => {
         {bannedVideos && (
           <>
             <Box mb={20}>
-              <Link href="/mod" passHref>
-                <Button m={2} leftIcon={<AiOutlineLeft />}>
-                  Back to Mod View
-                </Button>
-              </Link>
+              <Button as={Link} href="/mod" m={2} leftIcon={<AiOutlineLeft />}>
+                Back to Mod View
+              </Button>
               <Stack direction={["column", "row"]}>
                 <Box m={2}>
                   <FormLabel htmlFor="titleSearch">Search By Title</FormLabel>

@@ -1,10 +1,11 @@
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { auth0 } from "../../../lib/auth0";
+
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../utils/prisma";
 
-const savedSongsApiHandler = withApiAuthRequired(
+const savedSongsApiHandler = auth0.withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getSession(req, res);
+    const session = await auth0.getSession(req);
     if (process.env.NODE_ENV === "development") {
       if (session.user.sub.split("|")[0] === "auth0") {
         session.user.sub = "auth0|test_user|test_user_id";
