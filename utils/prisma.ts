@@ -27,9 +27,12 @@ function getPrisma() {
 }
 
 const prisma = new Proxy({} as PrismaClient, {
-  get(_target, prop, receiver) {
+  get(_target, prop) {
     const client = getPrisma();
-    const value = Reflect.get(client, prop, receiver);
+    // Model getters store their state on `this`. The proxy must not be
+    // that receiver, or the getter recurses through the proxy and the
+    // query never settles.
+    const value = Reflect.get(client, prop, client);
     return typeof value === "function" ? value.bind(client) : value;
   },
 });

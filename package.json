@@ -47,6 +47,7 @@
     "react-shortcut": "^2.0.9",
     "react-table": "^7.8.0",
     "react-toastify": "^10.0.6",
+    "redis": "4.0.6",
     "redis-om": "^0.2.1",
     "sharp": "^0.35.5",
     "swr": "^2.5.1",
