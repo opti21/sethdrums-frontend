@@ -1,4 +1,4 @@
-import create from "zustand";
+import { create } from "zustand";
 import { IQueue } from "../utils/types";
 
 type TModQueueState = {

@@ -2,7 +2,8 @@ import // removeNonPlayedRequests,
 "../../../../redis/handlers/Request";
 import type { NextApiRequest, NextApiResponse } from "next";
 import { addToQueue, removeFromOrder } from "../../../../redis/handlers/Queue";
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { auth0 } from "../../../../lib/auth0";
+
 import urlParser from "js-video-url-parser";
 import "js-video-url-parser/lib/provider/youtube";
 import axios from "axios";
@@ -14,9 +15,9 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
 
-const requestApiHandler = withApiAuthRequired(
+const requestApiHandler = auth0.withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getSession(req, res);
+    const session = await auth0.getSession(req);
     const isMod = await prisma.mod.findFirst({
       where: {
         twitch_id: session.user.sub.split("|")[2],

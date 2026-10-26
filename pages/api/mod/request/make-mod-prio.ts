@@ -1,4 +1,5 @@
-import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
+import { auth0 } from "../../../../lib/auth0";
+
 import { NextApiRequest, NextApiResponse } from "next";
 import {
   getQueue,
@@ -8,9 +9,9 @@ import {
 } from "../../../../redis/handlers/Queue";
 import prisma from "../../../../utils/prisma";
 
-const MakeRequestModPrioApiHandler = withApiAuthRequired(
+const MakeRequestModPrioApiHandler = auth0.withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await getSession(req, res);
+    const session = await auth0.getSession(req);
     const isMod = await prisma.mod.findFirst({
       where: {
         twitch_id: session.user.sub.split("|")[2],

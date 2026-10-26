@@ -37,7 +37,6 @@ import {
   ChevronLeftIcon,
 } from "@chakra-ui/icons";
 import { Video } from "@prisma/client";
-import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import useSWR from "swr";
@@ -87,14 +86,13 @@ const HistoryTable: FC<Props> = ({
                     objectFit="cover"
                     alt="video thumbnail"
                   />
-                  <Link
+                  <ChakraLink
                     href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
-                    passHref
+                    fontWeight={"medium"}
+                    isExternal
                   >
-                    <ChakraLink fontWeight={"medium"} isExternal>
-                      {video.title}
-                    </ChakraLink>
-                  </Link>
+                    {video.title}
+                  </ChakraLink>
                 </HStack>
               );
             },
