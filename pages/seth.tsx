@@ -48,7 +48,6 @@ const SethView: NextPage = () => {
   const [queue, setQueue] = useState<IQueue | null>(null);
   const [queueStatusData, setQueueStatus] = useState<string>("loading");
   const [beingUpdatedBy, setBeingUpdatedBy] = useState<string>("");
-  const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
 
   useEffect(() => {
@@ -63,118 +62,122 @@ const SethView: NextPage = () => {
 
     let channel = pusher.subscribe(process.env.NEXT_PUBLIC_PUSHER_CHANNEL);
 
-    if (!pusherConnected) {
-      channel.bind("pusher:subscription_error", (error) => {
-        console.error(error);
-        if (error.status === 403) {
-          setQueueError("Only mods and seth can access this page");
-          return;
-        }
+    channel.bind("pusher:subscription_error", (error) => {
+      console.error(error);
+      if (error.status === 403) {
+        setQueueError("Only mods and seth can access this page");
+        return;
+      }
+    });
+
+    channel.bind("pusher:subscription_succeeded", (members) => {
+      console.log("pusher connected");
+
+      // Replace the list on every (re)subscribe so reconnects do not
+      // duplicate members.
+      const online: any[] = [];
+      members.each((member) => {
+        online.push(member);
       });
+      setModsOnline(online);
 
-      channel.bind("pusher:subscription_succeeded", (members) => {
-        console.log("pusher connected");
-
-        members.each((member) => {
-          setModsOnline((currModsOnline) => [...currModsOnline, member]);
-        });
-
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            setQueue(res.data);
-            setQueueStatus("ready");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            } else if (error.response.status === 403) {
-              setQueueError("Only mods can access this");
-              return;
-            }
-
-            setQueueError("Error Fetching queue");
-            console.error(error);
-          });
-      });
-
-      channel.bind("pusher:member_added", (member) => {
-        setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
-      });
-
-      channel.bind("pusher:member_removed", (member) => {
-        setModsOnline((currOnlineMods) => {
-          const updatedMods = currOnlineMods.filter((mod) => {
-            return member.id != mod.id;
-          });
-
-          return [...updatedMods];
-        });
-      });
-
-      channel.bind("lock-queue", (data: any) => {
-        setQueueStatus("updating");
-        setBeingUpdatedBy(data.beingUpdatedBy);
-      });
-
-      channel.bind("unlock-queue", (data: any) => {
-        if (beingUpdatedBy === user?.preferred_username) {
-          setQueueStatus("ready");
-          setBeingUpdatedBy("");
-          return;
-        }
-
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            setQueue(res.data);
-            setQueueStatus("ready");
-            setBeingUpdatedBy("");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
-            console.error(error);
-          });
-      });
-
-      channel.bind("queue-add", (data: any) => {
-        axios
-          .get("/api/mod/queue")
-          .then((res) => {
-            if (res.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
-
-            setQueue(res.data);
-            setQueueStatus("ready");
-          })
-          .catch((error) => {
-            if (error.response.status === 401) {
-              setQueueError("You are unauthorized please Sign In.");
-              return;
-            }
-            console.error(error);
-          });
-      });
-
-      channel.bind("update-queue", (data: any) => {
-        axios.get("/api/mod/queue").then((res) => {
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
           setQueue(res.data);
           setQueueStatus("ready");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          } else if (error.response.status === 403) {
+            setQueueError("Only mods can access this");
+            return;
+          }
+
+          setQueueError("Error Fetching queue");
+          console.error(error);
         });
+    });
+
+    channel.bind("pusher:member_added", (member) => {
+      setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
+    });
+
+    channel.bind("pusher:member_removed", (member) => {
+      setModsOnline((currOnlineMods) => {
+        const updatedMods = currOnlineMods.filter((mod) => {
+          return member.id != mod.id;
+        });
+
+        return [...updatedMods];
       });
-      setPusherConnected(true);
-    }
+    });
+
+    channel.bind("lock-queue", (data: any) => {
+      setQueueStatus("updating");
+      setBeingUpdatedBy(data.beingUpdatedBy);
+    });
+
+    channel.bind("unlock-queue", (data: any) => {
+      if (beingUpdatedBy === user?.preferred_username) {
+        setQueueStatus("ready");
+        setBeingUpdatedBy("");
+        return;
+      }
+
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          setQueue(res.data);
+          setQueueStatus("ready");
+          setBeingUpdatedBy("");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+          console.error(error);
+        });
+    });
+
+    channel.bind("queue-add", (data: any) => {
+      axios
+        .get("/api/mod/queue")
+        .then((res) => {
+          if (res.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+
+          setQueue(res.data);
+          setQueueStatus("ready");
+        })
+        .catch((error) => {
+          if (error.response.status === 401) {
+            setQueueError("You are unauthorized please Sign In.");
+            return;
+          }
+          console.error(error);
+        });
+    });
+
+    channel.bind("update-queue", (data: any) => {
+      axios.get("/api/mod/queue").then((res) => {
+        setQueue(res.data);
+        setQueueStatus("ready");
+      });
+    });
 
     return () => {
       pusher.disconnect();
     };
-  }, [user]);
+    // Key on the user id, not the object, so a profile refetch does not
+    // tear down the socket. Handlers are bound on every connect: a guard
+    // here used to leave a reconnected socket with no handlers at all.
+  }, [user?.sub]);
 
   const QueueStatus = () => {
     switch (queueStatusData) {

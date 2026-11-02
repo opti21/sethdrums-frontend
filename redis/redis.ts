@@ -4,6 +4,7 @@ import { Client } from "redis-om";
 export const client = new Client();
 
 const CONNECT_TIMEOUT_MS = 5_000;
+const MAX_RECONNECT_ATTEMPTS = 3;
 
 type Redis = ReturnType<typeof createClient>;
 
@@ -44,7 +45,12 @@ async function openRedis() {
       connectTimeout: CONNECT_TIMEOUT_MS,
       // node-redis 4 only stops retrying when this returns an Error.
       // Anything else, including the socket error, is treated as a delay.
-      reconnectStrategy: () => new Error("Redis connection lost"),
+      // Ride out a brief drop (hosts close idle sockets), then give up so
+      // the next request opens a fresh connection.
+      reconnectStrategy: (retries: number) =>
+        retries < MAX_RECONNECT_ATTEMPTS
+          ? Math.min(100 * 2 ** retries, 1_000)
+          : new Error("Redis connection lost"),
     },
   });
 
