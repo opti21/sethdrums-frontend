@@ -26,7 +26,6 @@ import { ArrowUpIcon } from "@chakra-ui/icons";
 
 const Mod: NextPage = () => {
   const { user, error: userError, isLoading } = useUser();
-  const [pusherConnected, setPusherConnected] = useState<boolean>(false);
   const [modsOnline, setModsOnline] = useState<any[]>([]);
 
   const queue = useModQueueStore((state) => state.queue);
@@ -76,96 +75,100 @@ const Mod: NextPage = () => {
         });
     };
 
-    if (!pusherConnected) {
-      channel.bind("pusher:subscription_error", (error) => {
-        console.error(error);
-        if (error.status === 403) {
-          setQueueError("Only mods and seth can access this page");
-          return;
-        }
+    channel.bind("pusher:subscription_error", (error) => {
+      console.error(error);
+      if (error.status === 403) {
+        setQueueError("Only mods and seth can access this page");
+        return;
+      }
+    });
+
+    channel.bind("pusher:subscription_succeeded", (members) => {
+      console.log("pusher connected");
+
+      // Replace the list on every (re)subscribe so reconnects do not
+      // duplicate members.
+      const online: any[] = [];
+      members.each((member) => {
+        online.push(member);
       });
+      setModsOnline(online);
 
-      channel.bind("pusher:subscription_succeeded", (members) => {
-        console.log("pusher connected");
+      fetchQueue();
+    });
 
-        members.each((member) => {
-          setModsOnline((currModsOnline) => [...currModsOnline, member]);
+    channel.bind("pusher:member_added", (member) => {
+      setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
+    });
+
+    channel.bind("pusher:member_removed", (member) => {
+      setModsOnline((currOnlineMods) => {
+        const updatedMods = currOnlineMods.filter((mod) => {
+          return member.id != mod.id;
         });
 
-        fetchQueue();
+        return [...updatedMods];
+      });
+    });
+
+    channel.bind("lock-queue", (data: any) => {
+      setQueueStatus("updating");
+      setBeingUpdatedBy(data.beingUpdatedBy);
+    });
+
+    channel.bind("unlock-queue", (data: any) => {
+      if (beingUpdatedBy === user?.preferred_username) {
+        setQueueStatus("ready");
+        setBeingUpdatedBy("");
+        return;
+      }
+
+      fetchQueue();
+    });
+
+    channel.bind("queue-add", (data: any) => {
+      toast.info("New Request Added", {
+        onClick: () =>
+          window.scroll({
+            top: document.body.offsetHeight,
+            left: 0,
+            behavior: "smooth",
+          }),
+        toastId: "new-song",
+        position: "bottom-left",
+        pauseOnFocusLoss: false,
       });
 
-      channel.bind("pusher:member_added", (member) => {
-        setModsOnline((currOnlineMods) => [...currOnlineMods, member]);
+      fetchQueue();
+    });
+
+    channel.bind("update-queue", (data: any) => {
+      fetchQueue();
+    });
+
+    channel.bind("request-updated", (data: any) => {
+      toast.info("User updated request", {
+        onClick: () =>
+          window.scroll({
+            top: document.body.offsetHeight,
+            left: 0,
+            behavior: "smooth",
+          }),
+        toastId: "updated-request",
+        position: "bottom-left",
+        pauseOnFocusLoss: false,
       });
 
-      channel.bind("pusher:member_removed", (member) => {
-        setModsOnline((currOnlineMods) => {
-          const updatedMods = currOnlineMods.filter((mod) => {
-            return member.id != mod.id;
-          });
-
-          return [...updatedMods];
-        });
-      });
-
-      channel.bind("lock-queue", (data: any) => {
-        setQueueStatus("updating");
-        setBeingUpdatedBy(data.beingUpdatedBy);
-      });
-
-      channel.bind("unlock-queue", (data: any) => {
-        if (beingUpdatedBy === user?.preferred_username) {
-          setQueueStatus("ready");
-          setBeingUpdatedBy("");
-          return;
-        }
-
-        fetchQueue();
-      });
-
-      channel.bind("queue-add", (data: any) => {
-        toast.info("New Request Added", {
-          onClick: () =>
-            window.scroll({
-              top: document.body.offsetHeight,
-              left: 0,
-              behavior: "smooth",
-            }),
-          toastId: "new-song",
-          position: "bottom-left",
-          pauseOnFocusLoss: false,
-        });
-
-        fetchQueue();
-      });
-
-      channel.bind("update-queue", (data: any) => {
-        fetchQueue();
-      });
-
-      channel.bind("request-updated", (data: any) => {
-        toast.info("User updated request", {
-          onClick: () =>
-            window.scroll({
-              top: document.body.offsetHeight,
-              left: 0,
-              behavior: "smooth",
-            }),
-          toastId: "updated-request",
-          position: "bottom-left",
-          pauseOnFocusLoss: false,
-        });
-
-        fetchQueue();
-      });
-      setPusherConnected(true);
-    }
+      fetchQueue();
+    });
 
     return () => {
       pusher.disconnect();
     };
-  }, [user]);
+    // Key on the user id, not the object, so a profile refetch does not
+    // tear down the socket. Handlers are bound on every connect: a guard
+    // here used to leave a reconnected socket with no handlers at all.
+  }, [user?.sub]);
 
   return (
     <>

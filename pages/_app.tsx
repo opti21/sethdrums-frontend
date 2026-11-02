@@ -1,6 +1,6 @@
 import type { AppProps } from "next/app";
 import { ChakraProvider } from "@chakra-ui/react";
-import { SWRConfig } from "swr";
+import { SWRConfig, type Middleware } from "swr";
 import { Auth0Provider } from "@auth0/nextjs-auth0/client";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -13,6 +13,27 @@ import ReactShortcut from "react-shortcut";
 import ReactAudioPlayer from "react-audio-player";
 import { useFartModalStore } from "../stateStore/modalState";
 import FartModal from "../components/modals/FartModal";
+
+// Auth0 v4's useUser() is a plain useSWR("/auth/profile"), so it inherits
+// the global 5s refreshInterval below. Any failed poll (a network blip, a
+// Render restart, waking from sleep) makes useUser() return user: null,
+// which logs the UI out and tears down the mod/seth Pusher sockets. Load the
+// profile once, like the v3 SDK did.
+const AUTH_PROFILE_ROUTE = "/auth/profile";
+
+const noAuthProfilePolling: Middleware = (useSWRNext) => (key, fetcher, config) =>
+  useSWRNext(
+    key,
+    fetcher,
+    key === AUTH_PROFILE_ROUTE
+      ? {
+          ...config,
+          refreshInterval: 0,
+          revalidateOnFocus: false,
+          revalidateOnReconnect: false,
+        }
+      : config
+  );
 
 function App({ Component, pageProps }: AppProps) {
   const openFartModal = useFartModalStore((state) => state.open);
@@ -41,6 +62,7 @@ function App({ Component, pageProps }: AppProps) {
           value={{
             refreshInterval: 5000,
             fetcher,
+            use: [noAuthProfilePolling],
           }}
         >
           <ToastContainer
