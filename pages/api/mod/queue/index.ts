@@ -21,12 +21,14 @@ const queueApiHandler = withApiAuthRequired(
         const queue = await getQueue();
 
         if (!queue) {
-          res.status(500).json({ error: "Error getting queue" });
+          return res.status(500).json({ error: "Error getting queue" });
         }
+
+        const order = Array.isArray(queue.order) ? queue.order : [];
 
         const requestData = await prisma.request.findMany({
           where: {
-            id: { in: queue.order.map((requestID) => parseInt(requestID)) },
+            id: { in: order.map((requestID) => parseInt(requestID)) },
           },
           include: {
             Video: {
@@ -39,9 +41,9 @@ const queueApiHandler = withApiAuthRequired(
 
         let requests = [];
 
-        for (let i = 0; i < queue?.order?.length; i++) {
+        for (let i = 0; i < order.length; i++) {
           const requestIndex = requestData.findIndex(
-            (request) => request.id.toString() === queue?.order[i]
+            (request) => request.id.toString() === order[i]
           );
           if (requestIndex != -1) {
             requests.push(requestData[requestIndex]);
@@ -50,7 +52,7 @@ const queueApiHandler = withApiAuthRequired(
 
         let nowPlaying = null;
 
-        if (queue.now_playing.length > 0) {
+        if (queue.now_playing?.length > 0) {
           const nowPlayingRequest = await prisma.request.findFirst({
             where: {
               id: parseInt(queue.now_playing),

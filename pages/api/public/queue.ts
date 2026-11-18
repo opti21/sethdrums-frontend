@@ -13,9 +13,11 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
           .json({ error: "Error getting queue from redis" });
       }
 
+      const order = Array.isArray(queue.order) ? queue.order : [];
+
       const requestData = await prisma.request.findMany({
         where: {
-          id: { in: queue.order.map((requestID) => parseInt(requestID)) },
+          id: { in: order.map((requestID) => parseInt(requestID)) },
         },
         select: {
           id: true,
@@ -60,9 +62,9 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       let requests = [];
 
-      for (let i = 0; i < queue?.order?.length; i++) {
+      for (let i = 0; i < order.length; i++) {
         const requestIndex = requestData.findIndex(
-          (request) => request.id.toString() === queue?.order[i]
+          (request) => request.id.toString() === order[i]
         );
         if (requestIndex != -1) {
           requests.push(requestData[requestIndex]);
@@ -71,7 +73,7 @@ const queueApiHandler = async (req: NextApiRequest, res: NextApiResponse) => {
 
       let nowPlaying = null;
 
-      if (queue.now_playing.length > 0) {
+      if (queue.now_playing?.length > 0) {
         const nowPlayingRequest = await prisma.request.findFirst({
           where: {
             id: parseInt(queue.now_playing),
