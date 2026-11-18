@@ -34,6 +34,7 @@ import {
   ChevronLeftIcon,
 } from "@chakra-ui/icons";
 import { Video } from "@prisma/client";
+import Link from "next/link";
 import axios from "axios";
 import { toast } from "react-toastify";
 import useSWR from "swr";
@@ -79,12 +80,12 @@ const BanTable: FC<Props> = ({ data }) => {
             accessor: "title",
             Cell: ({ value, row }) => {
               return (
-                <ChakraLink
+                <Link
                   href={`https://www.youtube.com/watch?v=${row.original.youtube_id}`}
-                  isExternal
+                  passHref
                 >
-                  {value}
-                </ChakraLink>
+                  <ChakraLink isExternal>{value}</ChakraLink>
+                </Link>
               );
             },
           },

@@ -21,7 +21,7 @@ import Nav from "../components/Nav";
 import useSWR from "swr";
 import Link from "next/link";
 import { ChevronRightIcon } from "@chakra-ui/icons";
-import { auth0 } from "../lib/auth0";
+import { withPageAuthRequired } from "@auth0/nextjs-auth0";
 import ReactPlayer from "react-player/youtube";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Pause, Play, SkipBack, SkipForward, Trash2 } from "lucide-react";
@@ -319,14 +319,14 @@ const MySongs: NextPage = () => {
           separator={<ChevronRightIcon color="gray.500" />}
         >
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/">
-              Home
-            </BreadcrumbLink>
+            <Link href="/" passHref>
+              <BreadcrumbLink>Home</BreadcrumbLink>
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/my-songs">
-              My Songs
-            </BreadcrumbLink>
+            <Link href="/my-songs" passHref>
+              <BreadcrumbLink>My Songs</BreadcrumbLink>
+            </Link>
           </BreadcrumbItem>
         </Breadcrumb>
         <Box w="100%" mb={4}>
@@ -463,4 +463,4 @@ const MySongs: NextPage = () => {
 
 export default MySongs;
 
-export const getServerSideProps = auth0.withPageAuthRequired();
+export const getServerSideProps = withPageAuthRequired();

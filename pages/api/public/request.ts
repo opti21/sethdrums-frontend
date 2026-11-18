@@ -11,13 +11,12 @@ import { Request, Video } from "@prisma/client";
 import { YTApiResponse } from "../../../utils/types";
 import { parseYTDuration } from "../../../utils/utils";
 import prisma from "../../../utils/prisma";
-import { auth0 } from "../../../lib/auth0";
-
+import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { pusher } from "../../../lib/pusher";
 
-const publicRequestApiHandler = auth0.withApiAuthRequired(
+const publicRequestApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await auth0.getSession(req);
+    const session = await getSession(req, res);
     if (process.env.NODE_ENV === "development") {
       if (session.user.sub.split("|")[0] === "auth0") {
         session.user.sub = "auth0|test_user|test_user_id";

@@ -1,12 +1,11 @@
 import { getQueue, updateOrder } from "../../../../redis/handlers/Queue";
 import type { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
-import { auth0 } from "../../../../lib/auth0";
+import { getSession, withApiAuthRequired } from "@auth0/nextjs-auth0";
 
-
-const queueApiHandler = auth0.withApiAuthRequired(
+const queueApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
-    const session = await auth0.getSession(req);
+    const session = await getSession(req, res);
     const isMod = await prisma.mod.findFirst({
       where: {
         twitch_id: session.user.sub.split("|")[2],
@@ -22,14 +21,12 @@ const queueApiHandler = auth0.withApiAuthRequired(
         const queue = await getQueue();
 
         if (!queue) {
-          return res.status(500).json({ error: "Error getting queue" });
+          res.status(500).json({ error: "Error getting queue" });
         }
-
-        const order = Array.isArray(queue.order) ? queue.order : [];
 
         const requestData = await prisma.request.findMany({
           where: {
-            id: { in: order.map((requestID) => parseInt(requestID)) },
+            id: { in: queue.order.map((requestID) => parseInt(requestID)) },
           },
           include: {
             Video: {
@@ -42,9 +39,9 @@ const queueApiHandler = auth0.withApiAuthRequired(
 
         let requests = [];
 
-        for (let i = 0; i < order.length; i++) {
+        for (let i = 0; i < queue?.order?.length; i++) {
           const requestIndex = requestData.findIndex(
-            (request) => request.id.toString() === order[i]
+            (request) => request.id.toString() === queue?.order[i]
           );
           if (requestIndex != -1) {
             requests.push(requestData[requestIndex]);
@@ -53,7 +50,7 @@ const queueApiHandler = auth0.withApiAuthRequired(
 
         let nowPlaying = null;
 
-        if (queue.now_playing?.length > 0) {
+        if (queue.now_playing.length > 0) {
           const nowPlayingRequest = await prisma.request.findFirst({
             where: {
               id: parseInt(queue.now_playing),

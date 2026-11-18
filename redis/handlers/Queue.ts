@@ -41,34 +41,6 @@ export async function createQueueIndex() {
   await repository.createIndex();
 }
 
-function asStringArray(value: unknown): string[] {
-  if (!Array.isArray(value)) {
-    return [];
-  }
-
-  return value.filter((item) => item != null && item !== "").map(String);
-}
-
-function withQueueDefaults(queue: Queue | null): Queue {
-  // redis-om JSON entities return null for missing array/string/boolean fields.
-  if (!queue) {
-    throw new Error("Queue entity not found");
-  }
-
-  queue.order = asStringArray(queue.order);
-  queue.currently_processing = asStringArray(queue.currently_processing);
-  queue.now_playing =
-    typeof queue.now_playing === "string" ? queue.now_playing : "";
-  queue.being_updated_by =
-    typeof queue.being_updated_by === "string" ? queue.being_updated_by : "";
-  queue.is_updating = Boolean(queue.is_updating);
-  queue.is_paused = Boolean(queue.is_paused);
-  queue.is_open = Boolean(queue.is_open);
-  queue.is_subOnly = Boolean(queue.is_subOnly);
-
-  return queue;
-}
-
 async function getQueue() {
   await connect();
 
@@ -76,11 +48,7 @@ async function getQueue() {
 
   const queue = await repository.fetch(QUEUE_ID);
 
-  if (!queue) {
-    return queue;
-  }
-
-  return withQueueDefaults(queue);
+  return queue;
 }
 
 async function createQueue(data: EntityCreationData) {
@@ -100,7 +68,7 @@ async function lockQueue() {
 
   const repository = client.fetchRepository(queueSchema);
 
-  const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+  const queue = await repository.fetch(QUEUE_ID);
 
   queue.is_updating = true;
   queue.being_updated_by = "PEPEGA BOT";
@@ -115,7 +83,7 @@ async function unLockQueue() {
 
   const repository = client.fetchRepository(queueSchema);
 
-  const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+  const queue = await repository.fetch(QUEUE_ID);
 
   queue.being_updated_by = "";
   queue.is_updating = false;
@@ -140,9 +108,9 @@ async function addToQueue(
 
     const repository = client.fetchRepository(queueSchema);
 
-    const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+    const queue = await repository.fetch(QUEUE_ID);
 
-    queue.order.push(requestID);
+    queue?.order?.push(requestID);
 
     await repository.save(queue);
 
@@ -165,11 +133,13 @@ async function removeFromOrder(
 
     const repository = client.fetchRepository(queueSchema);
 
-    const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+    const queue = await repository.fetch(QUEUE_ID);
 
-    for (let i = 0; i < queue.order.length; i++) {
-      if (queue.order[i] === requestID) {
-        queue.order.splice(i, 1);
+    if (queue.order) {
+      for (let i = 0; i < queue.order.length; i++) {
+        if (queue.order[i] === requestID) {
+          queue.order.splice(i, 1);
+        }
       }
     }
 
@@ -185,10 +155,6 @@ async function removeFromOrder(
 
 async function updateOrder(updatedOrderData: any): Promise<boolean> {
   try {
-    if (!Array.isArray(updatedOrderData)) {
-      return Promise.reject("Error updating queue");
-    }
-
     const updatedOrder = updatedOrderData.map((request: any) => {
       return request.id;
     });
@@ -199,7 +165,7 @@ async function updateOrder(updatedOrderData: any): Promise<boolean> {
 
     const repository = client.fetchRepository(queueSchema);
 
-    const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+    const queue = await repository.fetch(QUEUE_ID);
 
     queue.order = updatedOrder;
 
@@ -221,7 +187,7 @@ async function updateOrderIdStrings(updatedOrder: string[]): Promise<boolean> {
 
     const repository = client.fetchRepository(queueSchema);
 
-    const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+    const queue = await repository.fetch(QUEUE_ID);
 
     queue.order = updatedOrder;
 
@@ -244,7 +210,7 @@ async function updateNowPlaying(requestID: string): Promise<boolean> {
 
     const repository = client.fetchRepository(queueSchema);
 
-    const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+    const queue = await repository.fetch(QUEUE_ID);
 
     queue.now_playing = requestID;
 
@@ -264,7 +230,7 @@ async function setPrioAsProcessing(requestID: string) {
 
   const repository = client.fetchRepository(queueSchema);
 
-  const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+  const queue = await repository.fetch(QUEUE_ID);
 
   queue.currently_processing.push(requestID);
 
@@ -276,11 +242,13 @@ async function removePrioFromProcessing(requestID: string) {
 
   const repository = client.fetchRepository(queueSchema);
 
-  const queue = withQueueDefaults(await repository.fetch(QUEUE_ID));
+  const queue = await repository.fetch(QUEUE_ID);
 
-  for (let i = 0; i < queue.currently_processing.length; i++) {
-    if (queue.currently_processing[i] === requestID) {
-      queue.currently_processing.splice(i, 1);
+  if (queue.order) {
+    for (let i = 0; i < queue.currently_processing.length; i++) {
+      if (queue.currently_processing[i] === requestID) {
+        queue.currently_processing.splice(i, 1);
+      }
     }
   }
 

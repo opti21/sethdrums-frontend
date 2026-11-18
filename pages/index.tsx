@@ -251,16 +251,16 @@ const Home: NextPage = () => {
                     Suggestion List
                   </Text>
                   {!user ? (
-                    <Button
-                      as={Link}
-                      href="/auth/login"
-                      className="request-button"
-                      my={2}
-                      isLoading={isLoading}
-                      leftIcon={<IoLogoTwitch />}
-                    >
-                      Sign In to Suggest
-                    </Button>
+                    <Link passHref={true} href={"/api/auth/login"}>
+                      <Button
+                        className="request-button"
+                        my={2}
+                        isLoading={isLoading}
+                        leftIcon={<IoLogoTwitch />}
+                      >
+                        Sign In to Suggest
+                      </Button>
+                    </Link>
                   ) : !queue.is_paused ? (
                     queue.is_subOnly ? (
                       <Text>
@@ -318,14 +318,11 @@ const Home: NextPage = () => {
                   <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                     Recently Played
                   </Text>
-                  <ChakraLink
-                    as={Link}
-                    href="/previously-played"
-                    fontWeight={"medium"}
-                    ml={2}
-                  >
-                    View Previously Played
-                  </ChakraLink>
+                  <Link href="/previously-played" passHref>
+                    <ChakraLink fontWeight={"medium"} ml={2}>
+                      View Previously Played
+                    </ChakraLink>
+                  </Link>
                   {queue?.recentlyPlayed.map((request) => {
                     return (
                       <RequestCard
