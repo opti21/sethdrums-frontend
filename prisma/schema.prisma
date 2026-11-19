@@ -1,11 +1,12 @@
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["driverAdapters"]
+  provider = "prisma-client"
+  output   = "../lib/generated/prisma"
 }
 
+// Production data lives in Turso and is shared with the chat bot. Keep this
+// schema in sync with opti21/sethdrums-chat-bot.
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
 }
 
 model Request {
