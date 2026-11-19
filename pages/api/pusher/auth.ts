@@ -4,7 +4,12 @@ import prisma from "../../../utils/prisma";
 import { pusher } from "../../../lib/pusher";
 
 const pusherAuth = async (req: NextApiRequest, res: NextApiResponse) => {
+  const started = Date.now();
   const session = await getSession(req, res);
+  const sessionMs = Date.now() - started;
+  if (sessionMs > 2000) {
+    console.warn(`[pusher-auth] getSession took ${sessionMs}ms`);
+  }
   if (!session) {
     return res.status(403).send("Not Signed In");
   }
