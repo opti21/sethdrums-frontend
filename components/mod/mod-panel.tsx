@@ -36,7 +36,7 @@ import { AddRequestDialog } from "./add-request-dialog";
 export function ModPanel({ view }: { view: "mod" | "seth" }) {
   const { user } = useSession();
   const me = user?.username ?? "";
-  const { queue, setQueue, error, refresh, modsOnline, lockedBy, lockedByOther, connected, draggingRef } =
+  const { queue, setQueue, error, refresh, modsOnline, lockedBy, lockedByOther, connected, draggingRef, markLocalChange } =
     useModQueue(me);
 
   const [pgTarget, setPgTarget] = useState<{ request: RequestInfo; previous: PgStatus } | null>(null);
@@ -109,17 +109,20 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
 
   async function onDragStart() {
     draggingRef.current = true;
+    markLocalChange();
     void api("/api/mod/trigger", { method: "POST", body: { eventName: "lock-queue" } }).catch(() => {});
   }
 
   async function onDragEnd(event: DragEndEvent) {
-    draggingRef.current = false;
     const { active, over } = event;
     if (queue && over && active.id !== over.id) {
       const from = queue.order.findIndex((r) => String(r.id) === active.id);
       const to = queue.order.findIndex((r) => String(r.id) === over.id);
       const order = arrayMove(queue.order, from, to);
+      markLocalChange();
       setQueue({ ...queue, order });
+      // Still treated as dragging until the save lands, so no fetch of the
+      // old order can flash back in.
       try {
         await api("/api/mod/queue", { method: "POST", body: { order: order.map((r) => String(r.id)) } });
         toast.success("Order saved");
@@ -127,6 +130,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
         toast.error("Couldn't save the new order");
       }
     }
+    draggingRef.current = false;
     void api("/api/mod/trigger", { method: "POST", body: { eventName: "unlock-queue" } }).catch(() => {});
     void refresh();
   }
@@ -257,6 +261,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
               onDragCancel={() => {
                 draggingRef.current = false;
                 void api("/api/mod/trigger", { method: "POST", body: { eventName: "unlock-queue" } }).catch(() => {});
+                void refresh();
               }}
             >
               <SortableContext items={queue.order.map((r) => String(r.id))} strategy={verticalListSortingStrategy}>

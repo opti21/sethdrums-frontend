@@ -65,6 +65,22 @@ export async function setOrder(order: string[]) {
   await setField("$.order", stringArray(order));
 }
 
+/**
+ * Saves a mod's reorder without losing changes made since their panel last
+ * loaded: ids that left the queue are dropped, and ids added since (by chat
+ * or another mod) keep their current place instead of vanishing.
+ */
+export async function saveReorder(submitted: string[]) {
+  const current = (await getQueue()).order;
+  const live = new Set(current);
+  const order = [...new Set(submitted)].filter((id) => live.has(id));
+  const seen = new Set(order);
+  current.forEach((id, index) => {
+    if (!seen.has(id)) order.splice(Math.min(index, order.length), 0, id);
+  });
+  await setOrder(order);
+}
+
 export async function addToQueue(requestId: string | number) {
   const queue = await getQueue();
   await setOrder([...queue.order, String(requestId)]);

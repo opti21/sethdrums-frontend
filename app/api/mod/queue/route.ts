@@ -1,7 +1,7 @@
 import { requireMod } from "@/lib/server/auth";
 import { json, readJson, route } from "@/lib/server/api";
 import { getModQueue } from "@/lib/server/queue-view";
-import { setOrder } from "@/lib/server/queue";
+import { saveReorder } from "@/lib/server/queue";
 
 export const dynamic = "force-dynamic";
 
@@ -21,6 +21,6 @@ export const POST = route(async (request) => {
   const order = raw.map((item) =>
     typeof item === "object" && item && "id" in item ? String((item as { id: unknown }).id) : String(item)
   );
-  await setOrder(order);
+  await saveReorder(order);
   return json({ success: true });
 });

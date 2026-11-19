@@ -12,7 +12,7 @@ type MemberInfo = { username?: string; picture?: string };
 
 /**
  * Loads the mod queue and keeps it live over the Pusher presence channel.
- * Also polls every 20 seconds, so a dropped socket can never leave the
+ * Also polls every 20 seconds (5 while the socket is down), so a dropped socket can never leave the
  * panel stuck on old data.
  */
 export function useModQueue(me: string) {
@@ -23,34 +23,59 @@ export function useModQueue(me: string) {
   const [connected, setConnected] = useState(false);
   const draggingRef = useRef(false);
   const inflight = useRef<Promise<void> | null>(null);
+  // Set when a refresh is asked for while one is already running, so the
+  // events that arrive mid-fetch still get a fetch that starts after them.
+  const stale = useRef(false);
+  // Bumped by local edits (like a drag) so an older fetch can't undo them.
+  const generation = useRef(0);
 
-  const refresh = useCallback(async () => {
+  const refresh = useCallback(async (): Promise<void> => {
     // Don't overwrite an optimistic reorder while this mod is mid-drag.
-    if (draggingRef.current) return;
-    if (inflight.current) return inflight.current;
+    if (draggingRef.current) {
+      stale.current = true;
+      return;
+    }
+    if (inflight.current) {
+      stale.current = true;
+      return inflight.current;
+    }
     inflight.current = (async () => {
-      try {
-        const data = await api<ModQueue>("/api/mod/queue");
-        setQueue(data);
-        setError(null);
-      } catch (err) {
-        if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
-          setError("Only mods can see this page. Try signing in again.");
-        } else {
-          setError("Couldn't reach the server. Retrying...");
+      do {
+        stale.current = false;
+        const started = generation.current;
+        try {
+          const data = await api<ModQueue>("/api/mod/queue");
+          if (started === generation.current && !draggingRef.current) setQueue(data);
+          else stale.current = true;
+          setError(null);
+        } catch (err) {
+          if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
+            setError("Only mods can see this page. Try signing in again.");
+            stale.current = false;
+          } else {
+            setError("Couldn't reach the server. Retrying...");
+            stale.current = false;
+          }
         }
-      } finally {
-        inflight.current = null;
-      }
+      } while (stale.current && !draggingRef.current);
+      inflight.current = null;
     })();
     return inflight.current;
   }, []);
 
+  /** Call before an optimistic local change so in-flight fetches are discarded. */
+  const markLocalChange = useCallback(() => {
+    generation.current += 1;
+  }, []);
+
   useEffect(() => {
     void refresh();
-    const timer = setInterval(() => void refresh(), 20_000);
-    return () => clearInterval(timer);
   }, [refresh]);
+
+  useEffect(() => {
+    const timer = setInterval(() => void refresh(), connected ? 20_000 : 5_000);
+    return () => clearInterval(timer);
+  }, [refresh, connected]);
 
   useEffect(() => {
     const key = process.env.NEXT_PUBLIC_PUSHER_KEY;
@@ -127,5 +152,6 @@ export function useModQueue(me: string) {
     lockedByOther,
     connected,
     draggingRef,
+    markLocalChange,
   };
 }
