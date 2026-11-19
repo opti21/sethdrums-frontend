@@ -92,7 +92,7 @@ const SavedSongsTable: FC<Props> = ({ data }) => {
                     objectFit="cover"
                     alt="video thumbnail"
                   />
-                  <Link
+                  <Link legacyBehavior
                     href={`https://www.youtube.com/watch?v=${row.original.youtube_id}`}
                     passHref
                   >

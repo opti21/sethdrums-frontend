@@ -251,7 +251,7 @@ const Home: NextPage = () => {
                     Suggestion List
                   </Text>
                   {!user ? (
-                    <Link passHref={true} href={"/api/auth/login"}>
+                    <Link legacyBehavior passHref={true} href={"/api/auth/login"}>
                       <Button
                         className="request-button"
                         my={2}
@@ -318,7 +318,7 @@ const Home: NextPage = () => {
                   <Text as={"u"} fontSize={"2xl"} fontWeight={"bold"}>
                     Recently Played
                   </Text>
-                  <Link href="/previously-played" passHref>
+                  <Link legacyBehavior href="/previously-played" passHref>
                     <ChakraLink fontWeight={"medium"} ml={2}>
                       View Previously Played
                     </ChakraLink>

@@ -87,7 +87,7 @@ const HistoryTable: FC<Props> = ({
                     objectFit="cover"
                     alt="video thumbnail"
                   />
-                  <Link
+                  <Link legacyBehavior
                     href={`https://www.youtube.com/watch?v=${video.youtube_id}`}
                     passHref
                   >

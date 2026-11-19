@@ -80,7 +80,7 @@ const BanTable: FC<Props> = ({ data }) => {
             accessor: "title",
             Cell: ({ value, row }) => {
               return (
-                <Link
+                <Link legacyBehavior
                   href={`https://www.youtube.com/watch?v=${row.original.youtube_id}`}
                   passHref
                 >
