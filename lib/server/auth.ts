@@ -14,9 +14,18 @@ function auth0Domain() {
   return issuer ? new URL(issuer).host : undefined;
 }
 
+// Render PR previews copy the prod env vars, so the prod URL would send the
+// login callback to prod. Previews use their own URL instead.
+function appBaseUrl() {
+  if (process.env.IS_PULL_REQUEST === "true" && process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL;
+  }
+  return process.env.APP_BASE_URL ?? process.env.AUTH0_BASE_URL;
+}
+
 export const auth0 = new Auth0Client({
   domain: auth0Domain(),
-  appBaseUrl: process.env.APP_BASE_URL ?? process.env.AUTH0_BASE_URL,
+  appBaseUrl: appBaseUrl(),
   clientId: process.env.AUTH0_CLIENT_ID,
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   secret: process.env.AUTH0_SECRET,

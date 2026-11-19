@@ -18,13 +18,19 @@ function toHttpUrl(url: string | undefined) {
   return url.replace(/^(libsql|wss):\/\//, "https://");
 }
 
-// The libSQL client has no request timeout of its own.
+// The libSQL client has no request timeout of its own. Each request also
+// opens a fresh connection: on Render, pooled keep-alive sockets to Turso go
+// dead a minute or two after boot and every query on them stalls.
 function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit) {
   const signal = AbortSignal.timeout(QUERY_TIMEOUT_MS);
   if (input instanceof Request) {
-    return fetch(new Request(input, { signal }));
+    const headers = new Headers(input.headers);
+    headers.set("connection", "close");
+    return fetch(new Request(input, { signal, headers }));
   }
-  return fetch(input, { ...init, signal });
+  const headers = new Headers(init?.headers);
+  headers.set("connection", "close");
+  return fetch(input, { ...init, headers, signal });
 }
 
 function createPrisma() {
