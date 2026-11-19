@@ -1,11 +1,10 @@
-import { auth0 } from "../../../lib/auth0";
-
+import { getSession } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../utils/prisma";
 import { pusher } from "../../../lib/pusher";
 
 const pusherAuth = async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await auth0.getSession(req);
+  const session = await getSession(req, res);
   if (!session) {
     return res.status(403).send("Not Signed In");
   }

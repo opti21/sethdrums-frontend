@@ -1,9 +1,8 @@
-import { auth0 } from "../../../../lib/auth0";
-
+import { withApiAuthRequired } from "@auth0/nextjs-auth0";
 import { NextApiRequest, NextApiResponse } from "next";
 import prisma from "../../../../utils/prisma";
 
-const videoApiHandler = auth0.withApiAuthRequired(
+const videoApiHandler = withApiAuthRequired(
   async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
       // TODO: validate body

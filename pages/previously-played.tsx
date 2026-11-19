@@ -95,14 +95,14 @@ const PreviouslyPlayed: NextPage = () => {
           separator={<ChevronRightIcon color="gray.500" />}
         >
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/">
-              Home
-            </BreadcrumbLink>
+            <Link href="/" passHref>
+              <BreadcrumbLink>Home</BreadcrumbLink>
+            </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <BreadcrumbLink as={Link} href="/previously-played">
-              Previously Played
-            </BreadcrumbLink>
+            <Link href="/previously-played" passHref>
+              <BreadcrumbLink>Previously Played</BreadcrumbLink>
+            </Link>
           </BreadcrumbItem>
         </Breadcrumb>
         {historyError && (

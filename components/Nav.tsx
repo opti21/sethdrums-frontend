@@ -84,11 +84,13 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
             >
               <VisuallyHidden>SethDrums Song Panel</VisuallyHidden>
             </chakra.a>
-            <ChakraLink as={Link} href="/" style={{ textDecoration: "none" }}>
-              <Text p={1} fontWeight="bold">
-                SethDrums Song Panel
-              </Text>
-            </ChakraLink>
+            <Link href="/" passHref>
+              <ChakraLink style={{ textDecoration: "none" }}>
+                <Text p={1} fontWeight="bold">
+                  SethDrums Song Panel
+                </Text>
+              </ChakraLink>
+            </Link>
           </Flex>
           <HStack display="flex" alignItems="center" spacing={1}>
             <HStack
@@ -107,67 +109,63 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
               {user ? (
                 <>
                   {isMod && (
-                    <ChakraLink
-                      as={Link}
-                      href="/mod"
-                      fontWeight={"medium"}
-                      mx={2}
-                      size="sm"
-                      p={2}
-                      variant="ghost"
-                    >
-                      Mod View
-                    </ChakraLink>
+                    <Link href="/mod" passHref>
+                      <ChakraLink
+                        fontWeight={"medium"}
+                        mx={2}
+                        size="sm"
+                        p={2}
+                        variant="ghost"
+                      >
+                        Mod View
+                      </ChakraLink>
+                    </Link>
                   )}
                   {isSeth && (
+                    <Link href="/seth" passHref>
+                      <ChakraLink
+                        fontWeight={"medium"}
+                        mx={2}
+                        size="sm"
+                        p={2}
+                        variant="ghost"
+                      >
+                        Seth View
+                      </ChakraLink>
+                    </Link>
+                  )}
+                  <Link href="/my-songs" passHref>
                     <ChakraLink
-                      as={Link}
-                      href="/seth"
                       fontWeight={"medium"}
                       mx={2}
                       size="sm"
                       p={2}
                       variant="ghost"
                     >
-                      Seth View
+                      My Songs
                     </ChakraLink>
-                  )}
-                  <ChakraLink
-                    as={Link}
-                    href="/my-songs"
-                    fontWeight={"medium"}
-                    mx={2}
-                    size="sm"
-                    p={2}
-                    variant="ghost"
-                  >
-                    My Songs
-                  </ChakraLink>
+                  </Link>
                   <Avatar size="sm" src={user?.picture ? user.picture : ""} />
                   <chakra.h1 fontSize="md" fontWeight="medium" px={1}>
                     {username}
                   </chakra.h1>
-                  <Button
-                    as={Link}
-                    href="/auth/logout"
-                    size={"sm"}
-                    isLoading={isLoading}
-                    variant="ghost"
-                    color="white"
-                  >
-                    Sign out
-                  </Button>
+                  <Link href={"/api/auth/logout"} passHref>
+                    <Button
+                      size={"sm"}
+                      isLoading={isLoading}
+                      variant="ghost"
+                      color="white"
+                    >
+                      Sign out
+                    </Button>
+                  </Link>
                 </>
               ) : (
-                <Button
-                  as={Link}
-                  href={`/auth/login?returnTo=${returnTo}`}
-                  isLoading={isLoading}
-                  variant="ghost"
-                  color="white"
-                >
-                  Sign in
-                </Button>
+                <Link href={`/api/auth/login?returnTo=${returnTo}`} passHref>
+                  <Button isLoading={isLoading} variant="ghost" color="white">
+                    Sign in
+                  </Button>
+                </Link>
               )}
             </HStack>
             <Box display={{ base: "inline-flex", md: "none" }}>
@@ -202,65 +200,61 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   onClick={mobileNav.onClose}
                 />
                 {isMod && (
-                  <ChakraLink
-                    as={Link}
-                    href="/mod"
-                    fontWeight={"medium"}
-                    mx={2}
-                    size="sm"
-                    p={2}
-                    variant="ghost"
-                  >
-                    Mod View
-                  </ChakraLink>
+                  <Link href="/mod" passHref>
+                    <ChakraLink
+                      fontWeight={"medium"}
+                      mx={2}
+                      size="sm"
+                      p={2}
+                      variant="ghost"
+                    >
+                      Mod View
+                    </ChakraLink>
+                  </Link>
                 )}
                 {isSeth && (
+                  <Link href="/seth" passHref>
+                    <ChakraLink
+                      fontWeight={"medium"}
+                      mx={2}
+                      size="sm"
+                      p={2}
+                      variant="ghost"
+                    >
+                      Seth View
+                    </ChakraLink>
+                  </Link>
+                )}
+                <Link href="/my-songs" passHref>
                   <ChakraLink
-                    as={Link}
-                    href="/seth"
                     fontWeight={"medium"}
                     mx={2}
                     size="sm"
                     p={2}
                     variant="ghost"
                   >
-                    Seth View
+                    My Songs
                   </ChakraLink>
-                )}
-                <ChakraLink
-                  as={Link}
-                  href="/my-songs"
-                  fontWeight={"medium"}
-                  mx={2}
-                  size="sm"
-                  p={2}
-                  variant="ghost"
-                >
-                  My Songs
-                </ChakraLink>
+                </Link>
                 {user ? (
                   <>
-                    <Button
-                      as={Link}
-                      href="/auth/logout"
-                      isLoading={isLoading}
-                      variant="ghost"
-                      color="white"
-                    >
-                      Sign out
-                    </Button>
+                    <Link href={"/api/auth/logout"} passHref>
+                      <Button
+                        isLoading={isLoading}
+                        variant="ghost"
+                        color="white"
+                      >
+                        Sign out
+                      </Button>
+                    </Link>
                     <Avatar size="sm" src={user?.picture ? user.picture : ""} />
                   </>
                 ) : (
-                  <Button
-                    as={Link}
-                    href="/auth/login"
-                    isLoading={isLoading}
-                    variant="ghost"
-                    color="white"
-                  >
-                    Sign in
-                  </Button>
+                  <Link href={"/api/auth/login"} passHref>
+                    <Button isLoading={isLoading} variant="ghost" color="white">
+                      Sign in
+                    </Button>
+                  </Link>
                 )}
               </VStack>
             </Box>
