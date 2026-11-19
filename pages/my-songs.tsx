@@ -319,12 +319,12 @@ const MySongs: NextPage = () => {
           separator={<ChevronRightIcon color="gray.500" />}
         >
           <BreadcrumbItem>
-            <Link href="/" passHref>
+            <Link legacyBehavior href="/" passHref>
               <BreadcrumbLink>Home</BreadcrumbLink>
             </Link>
           </BreadcrumbItem>
           <BreadcrumbItem>
-            <Link href="/my-songs" passHref>
+            <Link legacyBehavior href="/my-songs" passHref>
               <BreadcrumbLink>My Songs</BreadcrumbLink>
             </Link>
           </BreadcrumbItem>

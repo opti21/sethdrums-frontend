@@ -336,12 +336,12 @@ const ModQueue: FC<Props> = ({}) => {
             </PopoverBody>
           </PopoverContent>
         </Popover>
-        <Link passHref href={"/mod/banned-videos"}>
+        <Link legacyBehavior passHref href={"/mod/banned-videos"}>
           <ChakraLink fontWeight={"medium"} ml={2}>
             Banned Videos
           </ChakraLink>
         </Link>
-        <Link passHref href={"/mod/banned-users"}>
+        <Link legacyBehavior passHref href={"/mod/banned-users"}>
           <ChakraLink fontWeight={"medium"} ml={2}>
             Banned Users
           </ChakraLink>

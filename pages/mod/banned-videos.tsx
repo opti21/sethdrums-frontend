@@ -90,7 +90,7 @@ const Mod: NextPage = () => {
         {bannedVideos && (
           <>
             <Box mb={20}>
-              <Link href="/mod" passHref>
+              <Link legacyBehavior href="/mod" passHref>
                 <Button m={2} leftIcon={<AiOutlineLeft />}>
                   Back to Mod View
                 </Button>

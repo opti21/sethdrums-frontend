@@ -84,7 +84,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
             >
               <VisuallyHidden>SethDrums Song Panel</VisuallyHidden>
             </chakra.a>
-            <Link href="/" passHref>
+            <Link legacyBehavior href="/" passHref>
               <ChakraLink style={{ textDecoration: "none" }}>
                 <Text p={1} fontWeight="bold">
                   SethDrums Song Panel
@@ -109,7 +109,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
               {user ? (
                 <>
                   {isMod && (
-                    <Link href="/mod" passHref>
+                    <Link legacyBehavior href="/mod" passHref>
                       <ChakraLink
                         fontWeight={"medium"}
                         mx={2}
@@ -122,7 +122,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     </Link>
                   )}
                   {isSeth && (
-                    <Link href="/seth" passHref>
+                    <Link legacyBehavior href="/seth" passHref>
                       <ChakraLink
                         fontWeight={"medium"}
                         mx={2}
@@ -134,7 +134,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                       </ChakraLink>
                     </Link>
                   )}
-                  <Link href="/my-songs" passHref>
+                  <Link legacyBehavior href="/my-songs" passHref>
                     <ChakraLink
                       fontWeight={"medium"}
                       mx={2}
@@ -149,7 +149,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   <chakra.h1 fontSize="md" fontWeight="medium" px={1}>
                     {username}
                   </chakra.h1>
-                  <Link href={"/api/auth/logout"} passHref>
+                  <Link legacyBehavior href={"/api/auth/logout"} passHref>
                     <Button
                       size={"sm"}
                       isLoading={isLoading}
@@ -161,7 +161,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   </Link>
                 </>
               ) : (
-                <Link href={`/api/auth/login?returnTo=${returnTo}`} passHref>
+                <Link legacyBehavior href={`/api/auth/login?returnTo=${returnTo}`} passHref>
                   <Button isLoading={isLoading} variant="ghost" color="white">
                     Sign in
                   </Button>
@@ -200,7 +200,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   onClick={mobileNav.onClose}
                 />
                 {isMod && (
-                  <Link href="/mod" passHref>
+                  <Link legacyBehavior href="/mod" passHref>
                     <ChakraLink
                       fontWeight={"medium"}
                       mx={2}
@@ -213,7 +213,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                   </Link>
                 )}
                 {isSeth && (
-                  <Link href="/seth" passHref>
+                  <Link legacyBehavior href="/seth" passHref>
                     <ChakraLink
                       fontWeight={"medium"}
                       mx={2}
@@ -225,7 +225,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     </ChakraLink>
                   </Link>
                 )}
-                <Link href="/my-songs" passHref>
+                <Link legacyBehavior href="/my-songs" passHref>
                   <ChakraLink
                     fontWeight={"medium"}
                     mx={2}
@@ -238,7 +238,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                 </Link>
                 {user ? (
                   <>
-                    <Link href={"/api/auth/logout"} passHref>
+                    <Link legacyBehavior href={"/api/auth/logout"} passHref>
                       <Button
                         isLoading={isLoading}
                         variant="ghost"
@@ -250,7 +250,7 @@ const Nav: FC<NavProps> = ({ returnTo }) => {
                     <Avatar size="sm" src={user?.picture ? user.picture : ""} />
                   </>
                 ) : (
-                  <Link href={"/api/auth/login"} passHref>
+                  <Link legacyBehavior href={"/api/auth/login"} passHref>
                     <Button isLoading={isLoading} variant="ghost" color="white">
                       Sign in
                     </Button>
