@@ -247,6 +247,36 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
 
         <div>
           <SectionTitle
+            status={
+              <>
+                {lockedBy && (
+                  <span className="inline-flex h-7 items-center rounded-full border border-neon-gold/40 bg-neon-gold/10 px-2.5 text-xs font-semibold text-amber-100">
+                    {lockedBy === me ? "You're" : `${lockedBy} is`} reordering
+                  </span>
+                )}
+                {view === "mod" && notChecked > 0 && (
+                  <button
+                    type="button"
+                    title="Jump to the first one"
+                    className="inline-flex h-7 items-center rounded-full border border-neon-gold/40 bg-neon-gold/10 px-2.5 text-xs font-semibold text-amber-100 transition hover:brightness-125"
+                    onClick={() => {
+                      const first = queue.order.find(
+                        (r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED"
+                      );
+                      const row = first && document.getElementById(`request-${first.id}`);
+                      if (!row) return;
+                      row.scrollIntoView({ behavior: "smooth", block: "center" });
+                      row.animate(
+                        [{ boxShadow: "0 0 0 2px rgb(255 61 154 / 0.9)" }, { boxShadow: "0 0 0 2px transparent" }],
+                        { duration: 1600, easing: "ease-out" }
+                      );
+                    }}
+                  >
+                    {notChecked} need{notChecked === 1 ? "s" : ""} a PG check
+                  </button>
+                )}
+              </>
+            }
             action={
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" variant="primary" onClick={() => setAddOpen(true)}>
@@ -288,36 +318,6 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
           >
             Up next <span className="ml-1 text-ink-400">({queue.order.length})</span>
           </SectionTitle>
-
-          <div className="mb-3 space-y-2">
-            {lockedBy && (
-              <Notice tone="warn">{lockedBy === me ? "You're" : `${lockedBy} is`} reordering the list</Notice>
-            )}
-            {view === "mod" && notChecked > 0 && (
-              <button
-                type="button"
-                className="block w-full text-left"
-                title="Jump to the first one"
-                onClick={() => {
-                  const first = queue.order.find(
-                    (r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED"
-                  );
-                  const row = first && document.getElementById(`request-${first.id}`);
-                  if (!row) return;
-                  row.scrollIntoView({ behavior: "smooth", block: "center" });
-                  row.animate(
-                    [{ boxShadow: "0 0 0 2px rgb(255 61 154 / 0.9)" }, { boxShadow: "0 0 0 2px transparent" }],
-                    { duration: 1600, easing: "ease-out" }
-                  );
-                }}
-              >
-                <Notice tone="warn" className="transition hover:brightness-125">
-                  {notChecked} {notChecked === 1 ? "suggestion needs" : "suggestions need"} a PG check. Click to jump to
-                  it.
-                </Notice>
-              </button>
-            )}
-          </div>
 
           {queue.order.length === 0 ? (
             <EmptyState>No suggestions in the list</EmptyState>

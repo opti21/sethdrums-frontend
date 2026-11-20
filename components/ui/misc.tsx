@@ -29,10 +29,22 @@ export function Notice({
   return <div className={cn("rounded-xl border px-4 py-3 text-sm", tones[tone], className)}>{children}</div>;
 }
 
-export function SectionTitle({ children, action }: { children: ReactNode; action?: ReactNode }) {
+export function SectionTitle({
+  children,
+  action,
+  status,
+}: {
+  children: ReactNode;
+  action?: ReactNode;
+  /** Small inline notes shown right after the heading. */
+  status?: ReactNode;
+}) {
   return (
     <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-      <h2 className="font-display text-lg font-bold tracking-wide text-white uppercase">{children}</h2>
+      <div className="flex flex-wrap items-center gap-2">
+        <h2 className="font-display text-lg font-bold tracking-wide text-white uppercase">{children}</h2>
+        {status}
+      </div>
       {action}
     </div>
   );
