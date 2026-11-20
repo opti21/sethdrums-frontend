@@ -40,9 +40,7 @@ export const POST = route(async (request) => {
     where: { requested_by_id: twitchId, played: false },
     select: { id: true },
   });
-  for (const { id } of pending) {
-    await removeFromOrder(id);
-  }
+  await removeFromOrder(...pending.map((row) => row.id));
   await prisma.request.deleteMany({ where: { id: { in: pending.map((row) => row.id) } } });
   if (pending.length > 0) {
     await broadcast("update-queue");

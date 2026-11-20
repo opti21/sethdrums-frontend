@@ -1,8 +1,7 @@
 import { requireMod } from "@/lib/server/auth";
 import { json, readJson, route } from "@/lib/server/api";
 import { prisma } from "@/lib/server/prisma";
-import { getQueue, setNowPlaying, updateQueue } from "@/lib/server/queue";
-import { toIds } from "@/lib/server/queue-view";
+import { placeRequest, setNowPlaying } from "@/lib/server/queue";
 import { broadcast } from "@/lib/server/pusher";
 
 export const dynamic = "force-dynamic";
@@ -26,20 +25,11 @@ export const POST = route(async (request) => {
     data: { played: false, played_at: null, vod_link: null },
   });
 
-  const queue = await getQueue();
-  const others = toIds(queue.order.filter((item) => item !== String(id)));
-  const at = updated.priority
-    ? 0
-    : await prisma.request.count({
-        where: updated.mod_prio
-          ? { id: { in: others }, priority: true }
-          : { id: { in: others }, OR: [{ priority: true }, { mod_prio: true }] },
-      });
-  await updateQueue((current) => {
-    const next = current.order.filter((item) => item !== String(id));
-    next.splice(Math.min(at, next.length), 0, String(id));
-    return { order: next };
-  });
+  await placeRequest(
+    id,
+    updated.priority ? "priority" : updated.mod_prio ? "mod_prio" : "none",
+    "start"
+  );
   await setNowPlaying("");
   await broadcast("update-queue");
   return json({ success: true });
