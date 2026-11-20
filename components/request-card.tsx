@@ -81,7 +81,7 @@ export function RequestCard({
         </span>
       </a>
       <div className="min-w-0 flex-1 self-center">
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex min-h-6 flex-wrap items-center gap-1.5">
           {position !== undefined && (
             <span className="text-xs font-bold text-ink-400 tabular-nums">#{position}</span>
           )}
@@ -106,7 +106,8 @@ export function RequestCard({
           target="_blank"
           rel="noreferrer"
           onClick={onTitleClick}
-          className="mt-0.5 line-clamp-2 font-semibold text-white hover:underline sm:text-lg"
+          title={video.title}
+          className="mt-0.5 line-clamp-2 font-semibold text-white hover:underline sm:line-clamp-1 sm:text-lg"
         >
           {video.title}
         </a>

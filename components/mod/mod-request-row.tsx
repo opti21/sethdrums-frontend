@@ -27,7 +27,7 @@ export function ModNotes({ request }: { request: RequestInfo }) {
   return (
     <div className="mt-2 max-w-xl rounded-md border-l-2 border-neon-gold/60 bg-white/[0.03] px-2.5 py-1 text-xs text-ink-300">
       {notes && (
-        <p className="line-clamp-2">
+        <p className="truncate">
           <span className="mr-1 text-[0.7rem] font-bold tracking-wider text-neon-gold/80 uppercase">
             Note
           </span>
@@ -52,15 +52,16 @@ export function ModNotes({ request }: { request: RequestInfo }) {
 /** Who checked (or is checking) the video. Sits under the buttons, away from "Suggested by". */
 function CheckedBy({ request }: { request: RequestInfo }) {
   const pg = request.Video.PG_Status;
-  if (!pg?.checker || pg.status === "NOT_CHECKED") return null;
+  const show = Boolean(pg?.checker) && pg?.status !== "NOT_CHECKED";
+  // Always takes the same space, so every card is the same height.
   return (
-    <p className="basis-full text-right text-xs text-ink-300 sm:basis-auto">
-      {pg.status === "BEING_CHECKED" ? "Being checked by" : "Checked by"}
-      <span
-        className="block truncate font-semibold text-ink-100 sm:max-w-44"
-        title={pg.checker}
-      >
-        {pg.checker}
+    <p
+      className={cn("basis-full text-right text-xs text-ink-300 sm:basis-auto", !show && "invisible")}
+      aria-hidden={!show}
+    >
+      {pg?.status === "BEING_CHECKED" ? "Being checked by" : "Checked by"}
+      <span className="block truncate font-semibold text-ink-100 sm:max-w-44" title={pg?.checker ?? undefined}>
+        {show ? pg?.checker : "-"}
       </span>
     </p>
   );
