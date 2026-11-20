@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog } from "@/components/ui/dialog";
 import { Popover, PopoverClose } from "@/components/ui/popover";
 import { EmptyState, Loading, Notice, SectionTitle } from "@/components/ui/misc";
+import { cn } from "@/lib/client/cn";
 import { api } from "@/lib/client/api";
 import type { PgStatus, RequestInfo } from "@/lib/shared/types";
 import { useModQueue } from "./use-mod-queue";
@@ -247,38 +248,6 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
 
         <div>
           <SectionTitle
-            status={
-              <>
-                {lockedBy && (
-                  <span className="inline-flex h-8 items-center gap-2 rounded-full bg-neon-gold px-3 text-sm font-bold text-ink-950 shadow-[0_0_18px_-4px_var(--color-neon-gold)]">
-                    <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-ink-950/60" /><span className="relative inline-flex size-2 rounded-full bg-ink-950" /></span>
-                    {lockedBy === me ? "You're" : `${lockedBy} is`} reordering
-                  </span>
-                )}
-                {view === "mod" && notChecked > 0 && (
-                  <button
-                    type="button"
-                    title="Jump to the first one"
-                    className="inline-flex h-8 items-center gap-2 rounded-full bg-neon-gold px-3 text-sm font-bold text-ink-950 shadow-[0_0_18px_-4px_var(--color-neon-gold)] transition hover:brightness-125"
-                    onClick={() => {
-                      const first = queue.order.find(
-                        (r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED"
-                      );
-                      const row = first && document.getElementById(`request-${first.id}`);
-                      if (!row) return;
-                      row.scrollIntoView({ behavior: "smooth", block: "center" });
-                      row.animate(
-                        [{ boxShadow: "0 0 0 2px rgb(255 61 154 / 0.9)" }, { boxShadow: "0 0 0 2px transparent" }],
-                        { duration: 1600, easing: "ease-out" }
-                      );
-                    }}
-                  >
-                    <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-ink-950/60" /><span className="relative inline-flex size-2 rounded-full bg-ink-950" /></span>
-                    {notChecked} need{notChecked === 1 ? "s" : ""} a PG check
-                  </button>
-                )}
-              </>
-            }
             action={
               <div className="flex flex-wrap items-center gap-2">
                 <Button size="sm" variant="primary" onClick={() => setAddOpen(true)}>
@@ -320,6 +289,21 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
           >
             Up next <span className="ml-1 text-ink-400">({queue.order.length})</span>
           </SectionTitle>
+          <ListStatus
+            lockedBy={lockedBy}
+            me={me}
+            notChecked={view === "mod" ? notChecked : 0}
+            onJump={() => {
+              const first = queue.order.find((r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED");
+              const row = first && document.getElementById(`request-${first.id}`);
+              if (!row) return;
+              row.scrollIntoView({ behavior: "smooth", block: "center" });
+              row.animate(
+                [{ boxShadow: "0 0 0 2px rgb(255 61 154 / 0.9)" }, { boxShadow: "0 0 0 2px transparent" }],
+                { duration: 1600, easing: "ease-out" }
+              );
+            }}
+          />
 
           {queue.order.length === 0 ? (
             <EmptyState>No suggestions in the list</EmptyState>
@@ -437,4 +421,56 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
       />
     </div>
   );
+}
+
+const PULSE = (
+  <span className="relative flex size-2.5">
+    <span className="absolute inline-flex size-full animate-ping rounded-full bg-ink-950/60" />
+    <span className="relative inline-flex size-2.5 rounded-full bg-ink-950" />
+  </span>
+);
+
+/**
+ * Always-present bar above the list, so the list never shifts. Quiet purple
+ * when all is well; solid gold when something needs a mod. Sticks to the top
+ * while scrolling.
+ */
+function ListStatus({
+  lockedBy,
+  me,
+  notChecked,
+  onJump,
+}: {
+  lockedBy: string;
+  me: string;
+  notChecked: number;
+  onJump: () => void;
+}) {
+  const base = "flex h-11 w-full items-center gap-2.5 rounded-xl px-4 text-sm";
+  const alert = cn(base, "bg-neon-gold font-bold text-ink-950 shadow-[0_0_24px_-6px_var(--color-neon-gold)]");
+  let content: React.ReactNode;
+  if (lockedBy) {
+    content = (
+      <div className={alert} role="status">
+        {PULSE}
+        {lockedBy === me ? "You're" : `${lockedBy} is`} reordering the list
+      </div>
+    );
+  } else if (notChecked > 0) {
+    content = (
+      <button type="button" className={cn(alert, "text-left transition hover:brightness-110")} onClick={onJump}>
+        {PULSE}
+        {notChecked} {notChecked === 1 ? "suggestion needs" : "suggestions need"} a PG check
+        <span className="ml-auto text-xs font-semibold opacity-70">Click to jump to it</span>
+      </button>
+    );
+  } else {
+    content = (
+      <div className={cn(base, "border border-neon-purple/15 bg-neon-purple/[0.06] text-ink-400")} role="status">
+        <span className="size-2 rounded-full bg-neon-purple/40" />
+        All suggestions PG checked
+      </div>
+    );
+  }
+  return <div className="sticky top-[4.5rem] z-20 mb-3">{content}</div>;
 }
