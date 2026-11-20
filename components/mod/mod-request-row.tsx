@@ -69,13 +69,11 @@ function CheckedBy({ request }: { request: RequestInfo }) {
 
 export function ModRequestRow({
   request,
-  position,
   view,
   dragDisabled,
   actions,
 }: {
   request: RequestInfo;
-  position: number;
   view: "mod" | "seth";
   dragDisabled: boolean;
   actions: RowActions;
@@ -163,7 +161,6 @@ export function ModRequestRow({
     >
       <RequestCard
         request={request}
-        position={position}
         leading={handle}
         actions={buttons}
         footer={<ModNotes request={request} />}

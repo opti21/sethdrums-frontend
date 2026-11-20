@@ -250,7 +250,8 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
             status={
               <>
                 {lockedBy && (
-                  <span className="inline-flex h-7 items-center rounded-full border border-neon-gold/40 bg-neon-gold/10 px-2.5 text-xs font-semibold text-amber-100">
+                  <span className="inline-flex h-8 items-center gap-2 rounded-full bg-neon-gold px-3 text-sm font-bold text-ink-950 shadow-[0_0_18px_-4px_var(--color-neon-gold)]">
+                    <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-ink-950/60" /><span className="relative inline-flex size-2 rounded-full bg-ink-950" /></span>
                     {lockedBy === me ? "You're" : `${lockedBy} is`} reordering
                   </span>
                 )}
@@ -258,7 +259,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
                   <button
                     type="button"
                     title="Jump to the first one"
-                    className="inline-flex h-7 items-center rounded-full border border-neon-gold/40 bg-neon-gold/10 px-2.5 text-xs font-semibold text-amber-100 transition hover:brightness-125"
+                    className="inline-flex h-8 items-center gap-2 rounded-full bg-neon-gold px-3 text-sm font-bold text-ink-950 shadow-[0_0_18px_-4px_var(--color-neon-gold)] transition hover:brightness-125"
                     onClick={() => {
                       const first = queue.order.find(
                         (r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED"
@@ -272,6 +273,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
                       );
                     }}
                   >
+                    <span className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-ink-950/60" /><span className="relative inline-flex size-2 rounded-full bg-ink-950" /></span>
                     {notChecked} need{notChecked === 1 ? "s" : ""} a PG check
                   </button>
                 )}
@@ -336,11 +338,10 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
             >
               <SortableContext items={queue.order.map((r) => String(r.id))} strategy={verticalListSortingStrategy}>
                 <ol className="space-y-2">
-                  {queue.order.map((request, index) => (
+                  {queue.order.map((request) => (
                     <ModRequestRow
                       key={request.id}
                       request={request}
-                      position={index + 1}
                       view={view}
                       dragDisabled={lockedByOther}
                       actions={actions}

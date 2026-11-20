@@ -97,12 +97,11 @@ export function PublicQueue() {
               <EmptyState>The list is empty. Be the first!</EmptyState>
             ) : (
               <ol className="space-y-2">
-                {data.order.map((request, index) => (
+                {data.order.map((request) => (
                   <li key={request.id}>
                     <RequestCard
                       request={request}
                       publicView
-                      position={index + 1}
                       highlight={request.id === mine?.id}
                       actions={
                         request.id === mine?.id ? (

@@ -1,6 +1,5 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { Crown, Sparkles, Swords } from "lucide-react";
 import type { RequestInfo } from "@/lib/shared/types";
 import { formatDuration, youtubeUrl } from "@/lib/shared/youtube";
 import { cn } from "@/lib/client/cn";
@@ -17,7 +16,6 @@ type Props = {
   footer?: ReactNode;
   /** Called when the title link is clicked (Seth view marks it playing). */
   onTitleClick?: () => void;
-  position?: number;
   highlight?: boolean;
   className?: string;
 };
@@ -30,9 +28,10 @@ export function requestKind(request: RequestInfo, publicView?: boolean) {
 }
 
 const accents = {
-  prio: "border-neon-gold/50 bg-gradient-to-r from-neon-gold/15 via-ink-850/90 to-ink-850/90 shadow-[0_0_24px_-12px_var(--color-neon-gold)]",
-  raffle: "border-neon-pink/50 bg-gradient-to-r from-neon-pink/15 via-ink-850/90 to-ink-850/90",
-  mod: "border-neon-teal/50 bg-gradient-to-r from-neon-teal/15 via-ink-850/90 to-ink-850/90",
+  // Color alone tells the kind apart, so it's a bit stronger than a hint.
+  prio: "border-neon-gold/70 bg-gradient-to-r from-neon-gold/25 via-neon-gold/[0.07] to-ink-850/90 shadow-[0_0_24px_-12px_var(--color-neon-gold)]",
+  raffle: "border-neon-pink/70 bg-gradient-to-r from-neon-pink/25 via-neon-pink/[0.07] to-ink-850/90",
+  mod: "border-neon-teal/70 bg-gradient-to-r from-neon-teal/25 via-neon-teal/[0.07] to-ink-850/90",
   regular: "border-white/8 bg-ink-850/80",
 };
 
@@ -43,7 +42,6 @@ export function RequestCard({
   actions,
   footer,
   onTitleClick,
-  position,
   highlight,
   className,
 }: Props) {
@@ -81,33 +79,13 @@ export function RequestCard({
         </span>
       </a>
       <div className="min-w-0 flex-1 self-center">
-        <div className="flex min-h-6 flex-wrap items-center gap-1.5">
-          {position !== undefined && (
-            <span className="text-xs font-bold text-ink-400 tabular-nums">#{position}</span>
-          )}
-          {kind === "prio" && (
-            <Badge className="bg-neon-gold/20 text-neon-gold">
-              <Crown className="size-3" /> Priority
-            </Badge>
-          )}
-          {kind === "raffle" && (
-            <Badge className="bg-neon-pink/20 text-neon-pink">
-              <Sparkles className="size-3" /> Raffle
-            </Badge>
-          )}
-          {kind === "mod" && (
-            <Badge className="bg-neon-teal/20 text-neon-teal">
-              <Swords className="size-3" /> Mod priority
-            </Badge>
-          )}
-        </div>
         <a
           href={youtubeUrl(video.youtube_id)}
           target="_blank"
           rel="noreferrer"
           onClick={onTitleClick}
           title={video.title}
-          className="mt-0.5 line-clamp-2 font-semibold text-white hover:underline sm:line-clamp-1 sm:text-lg"
+          className="line-clamp-2 font-semibold text-white hover:underline sm:line-clamp-1 sm:text-lg"
         >
           {video.title}
         </a>
@@ -124,13 +102,5 @@ export function RequestCard({
         </div>
       )}
     </article>
-  );
-}
-
-export function Badge({ className, children }: { className?: string; children: ReactNode }) {
-  return (
-    <span className={cn("inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-bold uppercase", className)}>
-      {children}
-    </span>
   );
 }
