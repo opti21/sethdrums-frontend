@@ -97,7 +97,7 @@ export function RequestCard({
         {footer}
       </div>
       {actions && (
-        <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:min-w-44 sm:flex-col sm:flex-nowrap sm:items-stretch sm:justify-center">
+        <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:flex-col sm:flex-nowrap sm:items-end sm:justify-center">
           {actions}
         </div>
       )}
