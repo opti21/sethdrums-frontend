@@ -58,7 +58,7 @@ export function StreamCalendar({ streamDays, value, onChange }: Props) {
         </div>
         <div className="grid grid-cols-7 gap-1 text-center">
           {WEEKDAYS.map((d) => (
-            <span key={d} className="py-1 text-xs text-ink-400">
+            <span key={d} className="py-1 text-xs font-semibold text-ink-300">
               {d}
             </span>
           ))}
@@ -70,7 +70,7 @@ export function StreamCalendar({ streamDays, value, onChange }: Props) {
             const label = d.format("D");
             if (!streamed) {
               return (
-                <span key={key} className={cn("py-1.5 text-sm", inMonth ? "text-ink-500" : "text-ink-700")}>
+                <span key={key} className={cn("py-1.5 text-sm", inMonth ? "text-ink-300" : "text-ink-600")}>
                   {label}
                 </span>
               );
@@ -95,7 +95,7 @@ export function StreamCalendar({ streamDays, value, onChange }: Props) {
             );
           })}
         </div>
-        <p className="mt-3 text-xs text-ink-400">Highlighted days had a stream.</p>
+        <p className="mt-3 text-xs text-ink-300">Highlighted days had a stream.</p>
       </Popover>
       {value && (
         <Button variant="ghost" size="sm" onClick={() => onChange("")}>
