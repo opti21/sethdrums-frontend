@@ -98,7 +98,13 @@ export function MySongs() {
                 setPlaying(true);
               }}
               onPause={() => setPlaying(false)}
-              onEnded={() => (autoplay ? step(1) : setPlaying(false))}
+              // YouTube fires pause right before ended, which sets playing to false,
+              // so autoplay has to turn it back on for the next song to start.
+              onEnded={() => {
+                if (!autoplay) return setPlaying(false);
+                setPlaying(true);
+                step(1);
+              }}
               onError={skipUnavailable}
             />
           )}
