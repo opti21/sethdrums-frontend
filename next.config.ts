@@ -11,6 +11,10 @@ const securityHeaders = [
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Tabs left open across a deploy otherwise keep asking the new server for
+  // the old build's files, which can leave a page stuck loading. With this,
+  // Next notices the new deploy and does a full page load instead.
+  deploymentId: process.env.RENDER_GIT_COMMIT,
   serverExternalPackages: ["@libsql/client", "@prisma/adapter-libsql", "redis", "pusher"],
   images: {
     remotePatterns: [
