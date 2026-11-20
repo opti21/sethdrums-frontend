@@ -102,16 +102,40 @@ export async function withRedis<T>(fn: (client: RedisClient) => Promise<T>): Pro
   }
 }
 
+const globalForTx = globalThis as unknown as {
+  redisTx?: RedisClient;
+  redisTxQueue?: Promise<unknown>;
+};
+
+async function getTxClient(): Promise<RedisClient> {
+  const existing = globalForTx.redisTx;
+  if (existing?.isReady) {
+    return existing;
+  }
+  const client = (await getClient()).duplicate();
+  await withTimeout(client.connect(), "Redis connection timed out");
+  globalForTx.redisTx = client;
+  return client;
+}
+
 /**
- * Run a WATCH/MULTI transaction on its own short-lived connection, so the
- * WATCH can't be cleared by other requests sharing the main connection.
+ * Run a WATCH/MULTI transaction on a connection kept just for transactions,
+ * one at a time, so no other command can clear the WATCH mid-transaction.
+ * Reusing it skips a new connection per write.
  */
 export async function withIsolatedRedis<T>(fn: (client: RedisClient) => Promise<T>): Promise<T> {
-  const client = (await getClient()).duplicate();
-  try {
-    await withTimeout(client.connect(), "Redis connection timed out");
-    return await withTimeout(fn(client), "Redis command timed out");
-  } finally {
-    client.destroy();
-  }
+  const run = async () => {
+    const client = await getTxClient();
+    try {
+      return await withTimeout(fn(client), "Redis command timed out");
+    } catch (error) {
+      // Leave no WATCH or half-built MULTI behind for the next transaction.
+      if (globalForTx.redisTx === client) globalForTx.redisTx = undefined;
+      client.destroy();
+      throw error;
+    }
+  };
+  const result = (globalForTx.redisTxQueue ?? Promise.resolve()).then(run, run);
+  globalForTx.redisTxQueue = result.catch(() => {});
+  return result;
 }

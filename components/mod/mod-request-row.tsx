@@ -121,7 +121,7 @@ export function ModRequestRow({
     );
 
   return (
-    <li ref={setNodeRef} style={style} className={cn(isDragging && "relative z-10 opacity-80")}>
+    <li ref={setNodeRef} id={`request-${request.id}`} style={style} className={cn("scroll-mt-24", isDragging && "relative z-10 opacity-80")}>
       <RequestCard
         request={request}
         position={position}

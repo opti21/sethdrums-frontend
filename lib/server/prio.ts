@@ -38,7 +38,8 @@ export async function setPrio(requestId: number, kind: PrioKind, on: boolean) {
     });
 
     await moveInOrder(idStr, on ? prioCount : prioCount - 1);
-    await broadcast("update-queue");
+    // Other panels refresh on this; no need to hold up the reply for it.
+    void broadcast("update-queue");
     return true;
   } finally {
     await releaseProcessing(idStr);

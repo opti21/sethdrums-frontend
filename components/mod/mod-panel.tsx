@@ -69,6 +69,40 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
     }
   }
 
+  /**
+   * Shows the priority change right away, using the same placement rule as
+   * the server, then saves it. A failed save puts the list back.
+   */
+  async function changePrio(request: RequestInfo, kind: "priority" | "mod_prio", on: boolean) {
+    if (!queue) return;
+    const previous = queue;
+    const isPrio = (r: RequestInfo) =>
+      kind === "priority" && on ? r.priority : r.priority || Boolean(r.mod_prio);
+    const prioCount = previous.order.filter(isPrio).length;
+    const updated: RequestInfo =
+      kind === "priority"
+        ? on
+          ? { ...request, priority: true }
+          : { ...request, priority: false, mod_prio: false, raffle_prio: false }
+        : { ...request, mod_prio: on };
+    const rest = previous.order.filter((r) => r.id !== request.id);
+    const at = Math.max(0, Math.min(on ? prioCount : prioCount - 1, rest.length));
+    markLocalChange();
+    setQueue({ ...previous, order: [...rest.slice(0, at), updated, ...rest.slice(at)] });
+    try {
+      await api(
+        `/api/mod/request/${kind === "priority" ? "make-prio" : "make-mod-prio"}?requestID=${request.id}&newStatus=${on}`,
+        { method: "POST" }
+      );
+      toast.success(on ? (kind === "priority" ? "Marked priority" : "Marked mod priority") : "Priority removed");
+    } catch (err) {
+      markLocalChange();
+      setQueue(previous);
+      toast.error(err instanceof Error ? err.message : "Something went wrong");
+    }
+    void refresh();
+  }
+
   async function openPg(request: RequestInfo) {
     const pg = request.Video.PG_Status;
     if (!pg) return;
@@ -90,15 +124,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
 
   const actions: RowActions = {
     onPg: openPg,
-    onPrio: (request, kind, on) =>
-      void run(
-        `prio-${request.id}`,
-        () =>
-          api(`/api/mod/request/${kind === "priority" ? "make-prio" : "make-mod-prio"}?requestID=${request.id}&newStatus=${on}`, {
-            method: "POST",
-          }),
-        on ? (kind === "priority" ? "Marked priority" : "Marked mod priority") : "Priority removed"
-      ),
+    onPrio: (request, kind, on) => void changePrio(request, kind, on),
     onDelete: setDeleteTarget,
     onBanUser: (request) =>
       request.requested_by_id &&
@@ -243,9 +269,28 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
               <Notice tone="warn">{lockedBy === me ? "You're" : `${lockedBy} is`} reordering the list</Notice>
             )}
             {view === "mod" && notChecked > 0 && (
-              <Notice tone="warn">
-                {notChecked} {notChecked === 1 ? "suggestion needs" : "suggestions need"} a PG check
-              </Notice>
+              <button
+                type="button"
+                className="block w-full text-left"
+                title="Jump to the first one"
+                onClick={() => {
+                  const first = queue.order.find(
+                    (r) => (r.Video.PG_Status?.status ?? "NOT_CHECKED") === "NOT_CHECKED"
+                  );
+                  const row = first && document.getElementById(`request-${first.id}`);
+                  if (!row) return;
+                  row.scrollIntoView({ behavior: "smooth", block: "center" });
+                  row.animate(
+                    [{ boxShadow: "0 0 0 2px rgb(255 61 154 / 0.9)" }, { boxShadow: "0 0 0 2px transparent" }],
+                    { duration: 1600, easing: "ease-out" }
+                  );
+                }}
+              >
+                <Notice tone="warn" className="transition hover:brightness-125">
+                  {notChecked} {notChecked === 1 ? "suggestion needs" : "suggestions need"} a PG check. Click to jump to
+                  it.
+                </Notice>
+              </button>
             )}
           </div>
 

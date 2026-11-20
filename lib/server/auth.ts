@@ -68,12 +68,23 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
   };
 }
 
+// Every page view and every panel poll checks mod status, so remember the
+// answer briefly instead of asking the database each time. Adding or removing
+// a mod takes effect within a minute.
+const MOD_CACHE_MS = 60_000;
+const modCache = new Map<string, { mod: boolean; until: number }>();
+
 export async function isMod(twitchId: string) {
   if (!twitchId) {
     return false;
   }
-  const mod = await prisma.mod.findFirst({ where: { twitch_id: twitchId } });
-  return Boolean(mod);
+  const cached = modCache.get(twitchId);
+  if (cached && cached.until > Date.now()) {
+    return cached.mod;
+  }
+  const mod = Boolean(await prisma.mod.findFirst({ where: { twitch_id: twitchId }, select: { id: true } }));
+  modCache.set(twitchId, { mod, until: Date.now() + MOD_CACHE_MS });
+  return mod;
 }
 
 export class HttpError extends Error {
