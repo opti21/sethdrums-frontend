@@ -74,17 +74,17 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
   async function changePrio(request: RequestInfo, kind: "priority" | "mod_prio", on: boolean) {
     if (!queue) return;
     const previous = queue;
-    const isPrio = (r: RequestInfo) =>
-      kind === "priority" && on ? r.priority : r.priority || Boolean(r.mod_prio);
-    const prioCount = previous.order.filter(isPrio).length;
+    // Same placement as the server: see lib/server/prio.ts.
+    const rest = previous.order.filter((r) => r.id !== request.id);
+    const at = rest.filter((r) => (kind === "priority" && on ? r.priority : r.priority || r.mod_prio)).length;
     const updated: RequestInfo =
       kind === "priority"
         ? on
-          ? { ...request, priority: true }
+          ? { ...request, priority: true, mod_prio: false }
           : { ...request, priority: false, mod_prio: false, raffle_prio: false }
-        : { ...request, mod_prio: on };
-    const rest = previous.order.filter((r) => r.id !== request.id);
-    const at = Math.max(0, Math.min(on ? prioCount : prioCount - 1, rest.length));
+        : on
+          ? { ...request, mod_prio: true, priority: false }
+          : { ...request, mod_prio: false };
     markLocalChange();
     setQueue({ ...previous, order: [...rest.slice(0, at), updated, ...rest.slice(at)] });
     try {
