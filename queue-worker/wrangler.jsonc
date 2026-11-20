@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sethdrums-queue",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+  "durable_objects": {
+    "bindings": [{ "name": "QUEUE_ROOM", "class_name": "QueueRoom" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["QueueRoom"] }],
+  "observability": { "enabled": true }
+  // Secret, set with `wrangler secret put QUEUE_WORKER_SECRET`:
+  //   QUEUE_WORKER_SECRET  shared with the frontend and chat bot. Signs
+  //                        panel socket tokens and authorizes server calls.
+  // To serve it from the site's domain, add for example:
+  //   "routes": [{ "pattern": "queue.sethdrums.tv", "custom_domain": true }]
+}

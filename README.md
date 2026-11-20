@@ -40,3 +40,10 @@ pnpm lint && pnpm typecheck
 ```
 
 Every call to Turso, Redis, YouTube, Twitch and Pusher has a timeout, so a stuck service shows up as an error in the logs instead of a request that never finishes.
+
+## Queue backend
+
+The suggestion list lives in Redis by default. `queue-worker/` holds a
+Cloudflare Durable Object that can replace Redis and Pusher; see
+[queue-worker/README.md](queue-worker/README.md) for the env vars and the
+switch-over steps.
