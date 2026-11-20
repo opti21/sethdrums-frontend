@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ExternalLink } from "lucide-react";
 import dayjs from "dayjs";
 import { RequestCard } from "@/components/request-card";
+import { StreamCalendar } from "@/components/stream-calendar";
 import { Pager } from "@/components/ui/pager";
 import { EmptyState, Loading, Notice } from "@/components/ui/misc";
 import { fetcher } from "@/lib/client/api";
@@ -35,27 +36,14 @@ export function History() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-wrap items-center gap-3">
-        <label htmlFor="day" className="text-sm text-ink-300">
-          Stream day
-        </label>
-        <select
-          id="day"
-          value={date}
-          onChange={(event) => {
-            setDate(event.target.value);
-            setPage(0);
-          }}
-          className="h-10 rounded-lg border border-white/10 bg-ink-950/70 px-3 text-sm"
-        >
-          <option value="">All streams</option>
-          {(days ?? []).map((day) => (
-            <option key={day} value={day}>
-              {dayjs(day).format("ddd, MMM D, YYYY")}
-            </option>
-          ))}
-        </select>
-      </div>
+      <StreamCalendar
+        streamDays={days ?? []}
+        value={date}
+        onChange={(day) => {
+          setDate(day);
+          setPage(0);
+        }}
+      />
 
       {error && <Notice tone="error">Couldn&apos;t load the history.</Notice>}
       {!data && !error && <Loading label="Loading previously played..." />}
