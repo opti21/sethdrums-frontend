@@ -160,6 +160,10 @@ export function useModQueue(me: string) {
   const [lockedBy, setLockedBy] = useState("");
   const [connected, setConnected] = useState(false);
   const draggingRef = useRef(false);
+  // Saves in flight from this panel (prio, play, return). Live events that
+  // arrive meanwhile wait, so a fetch taken halfway through the server's
+  // steps can't flash an in-between list over the optimistic one.
+  const pending = useRef(0);
   const inflight = useRef<Promise<void> | null>(null);
   // Set when a refresh is asked for while one is already running, so the
   // events that arrive mid-fetch still get a fetch that starts after them.
@@ -168,8 +172,9 @@ export function useModQueue(me: string) {
   const generation = useRef(0);
 
   const refresh = useCallback(async (): Promise<void> => {
-    // Don't overwrite an optimistic reorder while this mod is mid-drag.
-    if (draggingRef.current) {
+    // Don't overwrite an optimistic change while this mod is mid-drag or
+    // mid-save; the caller refreshes once its save lands.
+    if (draggingRef.current || pending.current > 0) {
       stale.current = true;
       return;
     }
@@ -183,7 +188,7 @@ export function useModQueue(me: string) {
         const started = generation.current;
         try {
           const data = await api<ModQueue>("/api/mod/queue");
-          if (started === generation.current && !draggingRef.current) setQueue(data);
+          if (started === generation.current && !draggingRef.current && pending.current === 0) setQueue(data);
           else stale.current = true;
           setError(null);
         } catch (err) {
@@ -195,7 +200,7 @@ export function useModQueue(me: string) {
             stale.current = false;
           }
         }
-      } while (stale.current && !draggingRef.current);
+      } while (stale.current && !draggingRef.current && pending.current === 0);
       inflight.current = null;
     })();
     return inflight.current;
@@ -205,6 +210,20 @@ export function useModQueue(me: string) {
   const markLocalChange = useCallback(() => {
     generation.current += 1;
   }, []);
+
+  /** Run a save with live refreshes held until it finishes, then refresh. */
+  const whileSaving = useCallback(
+    async <T,>(save: () => Promise<T>): Promise<T> => {
+      pending.current += 1;
+      try {
+        return await save();
+      } finally {
+        pending.current -= 1;
+        if (pending.current === 0) void refresh();
+      }
+    },
+    [refresh]
+  );
 
   useEffect(() => {
     void refresh();
@@ -272,5 +291,6 @@ export function useModQueue(me: string) {
     connected,
     draggingRef,
     markLocalChange,
+    whileSaving,
   };
 }

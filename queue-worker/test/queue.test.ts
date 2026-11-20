@@ -206,6 +206,8 @@ describe("worker", () => {
     await rpc(room, { op: "add", id: "1" });
     await rpc(room, { op: "remove", ids: ["1"] });
     await rpc(room, { op: "remove", ids: ["1"] }); // no change, no event
+    await rpc(room, { op: "claim", id: "9" }); // soft lock only, no event
+    await rpc(room, { op: "release", id: "9" });
     await tick();
     const events = b.messages.filter((m) => m.type === "event").map((m) => m.event);
     expect(events).toEqual(["queue-add", "update-queue"]);

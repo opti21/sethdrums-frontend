@@ -26,6 +26,7 @@ import { Popover, PopoverClose } from "@/components/ui/popover";
 import { EmptyState, Loading, Notice, SectionTitle } from "@/components/ui/misc";
 import { cn } from "@/lib/client/cn";
 import { api } from "@/lib/client/api";
+import { placeInGroup, type GroupEdge, type PrioKind } from "@/lib/shared/queue-order";
 import type { PgStatus, RequestInfo } from "@/lib/shared/types";
 import { useModQueue } from "./use-mod-queue";
 import { ModNotes, ModRequestRow, type RowActions } from "./mod-request-row";
@@ -36,7 +37,7 @@ import { AddRequestDialog } from "./add-request-dialog";
 export function ModPanel({ view }: { view: "mod" | "seth" }) {
   const { user } = useSession();
   const me = user?.username ?? "";
-  const { queue, setQueue, error, refresh, modsOnline, lockedBy, lockedByOther, connected, draggingRef, markLocalChange } =
+  const { queue, setQueue, error, refresh, modsOnline, lockedBy, lockedByOther, connected, draggingRef, markLocalChange, whileSaving } =
     useModQueue(me);
 
   const [pgTarget, setPgTarget] = useState<{ request: RequestInfo; previous: PgStatus } | null>(null);
@@ -75,9 +76,6 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
   async function changePrio(request: RequestInfo, kind: "priority" | "mod_prio", on: boolean) {
     if (!queue) return;
     const previous = queue;
-    // Same placement as the server: see lib/server/prio.ts.
-    const rest = previous.order.filter((r) => r.id !== request.id);
-    const at = rest.filter((r) => (kind === "priority" && on ? r.priority : r.priority || r.mod_prio)).length;
     const updated: RequestInfo =
       kind === "priority"
         ? on
@@ -86,20 +84,24 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
         : on
           ? { ...request, mod_prio: true, priority: false }
           : { ...request, mod_prio: false };
+    // Same placement as the server: see lib/server/prio.ts.
+    const order = placeLocally(previous.order, updated, on ? kind : "none", on ? "end" : "start");
     markLocalChange();
-    setQueue({ ...previous, order: [...rest.slice(0, at), updated, ...rest.slice(at)] });
+    setQueue({ ...previous, order });
     try {
-      await api(
-        `/api/mod/request/${kind === "priority" ? "make-prio" : "make-mod-prio"}?requestID=${request.id}&newStatus=${on}`,
-        { method: "POST" }
+      await whileSaving(() =>
+        api(
+          `/api/mod/request/${kind === "priority" ? "make-prio" : "make-mod-prio"}?requestID=${request.id}&newStatus=${on}`,
+          { method: "POST" }
+        )
       );
       toast.success(on ? (kind === "priority" ? "Marked priority" : "Marked mod priority") : "Priority removed");
     } catch (err) {
       markLocalChange();
       setQueue(previous);
+      void refresh();
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     }
-    void refresh();
   }
 
   /** Shows the song as now playing right away, then saves it. */
@@ -109,35 +111,38 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
     markLocalChange();
     setQueue({ ...previous, now_playing: request, order: previous.order.filter((r) => r.id !== request.id) });
     try {
-      await api("/api/mod/queue/now-playing", { method: "POST", body: { requestID: request.id } });
+      await whileSaving(() => api("/api/mod/queue/now-playing", { method: "POST", body: { requestID: request.id } }));
     } catch (err) {
       markLocalChange();
       setQueue(previous);
+      void refresh();
       toast.error(err instanceof Error ? err.message : "Couldn't play that song");
     }
-    void refresh();
   }
 
   /** Puts the now playing song back in the list right away, using the server's placement rule. */
   async function returnToList(request: RequestInfo) {
     if (!queue) return;
     const previous = queue;
-    const at = request.priority
-      ? 0
-      : previous.order.filter((r) => r.priority || (!request.mod_prio && r.mod_prio)).length;
-    const order = [...previous.order];
-    order.splice(Math.min(at, order.length), 0, request);
+    const order = placeLocally(
+      previous.order,
+      request,
+      request.priority ? "priority" : request.mod_prio ? "mod_prio" : "none",
+      "start"
+    );
     markLocalChange();
     setQueue({ ...previous, now_playing: null, order });
     try {
-      await api("/api/mod/request/return-to-queue", { method: "POST", body: { requestID: request.id } });
+      await whileSaving(() =>
+        api("/api/mod/request/return-to-queue", { method: "POST", body: { requestID: request.id } })
+      );
       toast.success("Returned to the list");
     } catch (err) {
       markLocalChange();
       setQueue(previous);
+      void refresh();
       toast.error(err instanceof Error ? err.message : "Couldn't return it to the list");
     }
-    void refresh();
   }
 
   async function openPg(request: RequestInfo) {
@@ -473,4 +478,23 @@ function ListStatus({
     );
   }
   return <div className="sticky top-[4.5rem] z-20 mb-3">{content}</div>;
+}
+
+/** The server's placement rule (lib/shared/queue-order.ts) applied to the rows on screen. */
+function placeLocally(rows: RequestInfo[], request: RequestInfo, kind: PrioKind, edge: GroupEdge) {
+  const kinds: Record<string, PrioKind> = {};
+  for (const row of rows) {
+    if (row.priority) kinds[String(row.id)] = "priority";
+    else if (row.mod_prio) kinds[String(row.id)] = "mod_prio";
+  }
+  const byId = new Map(rows.map((row) => [String(row.id), row]));
+  byId.set(String(request.id), request);
+  const ids = placeInGroup(
+    rows.map((row) => String(row.id)),
+    kinds,
+    String(request.id),
+    kind,
+    edge
+  );
+  return ids.map((id) => byId.get(id)!).filter(Boolean);
 }

@@ -198,7 +198,12 @@ export class QueueRoom extends DurableObject<Env> {
       // Storage writes finish before the reply leaves (output gate), so a
       // caller never sees a change that could be lost.
       await this.ctx.storage.put("queue", { state: this.state, version: this.version });
-      this.send({ type: "event", event, data: { version: this.version } });
+      // Claim/release only guard against two mods moving one song; panels
+      // don't show them, and an event mid-change would make them refetch an
+      // in-between list.
+      if (input.op !== "claim" && input.op !== "release") {
+        this.send({ type: "event", event, data: { version: this.version } });
+      }
     }
     return this.reply(changed, result);
   }
