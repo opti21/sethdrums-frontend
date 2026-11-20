@@ -22,7 +22,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
         <RadixDialog.Overlay className="fixed inset-0 z-40 bg-black/70 backdrop-blur-sm data-[state=open]:animate-in" />
         <RadixDialog.Content
           className={cn(
-            "card fixed top-1/2 left-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto bg-ink-900 p-6 shadow-2xl",
+            "card fixed top-1/2 left-1/2 z-50 max-h-[96dvh] w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 overflow-y-auto bg-ink-900 p-5 shadow-2xl sm:p-6",
             wide ? "max-w-3xl" : "max-w-lg"
           )}
         >
@@ -40,7 +40,7 @@ export function Dialog({ open, onOpenChange, title, description, children, foote
             </RadixDialog.Close>
           </div>
           {children}
-          {footer && <div className="mt-6 flex flex-wrap justify-end gap-2">{footer}</div>}
+          {footer && <div className="mt-5 flex flex-wrap justify-end gap-2">{footer}</div>}
         </RadixDialog.Content>
       </RadixDialog.Portal>
     </RadixDialog.Root>

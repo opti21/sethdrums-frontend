@@ -17,6 +17,7 @@ const sizes = {
   sm: "h-8 px-3 text-sm gap-1.5",
   md: "h-10 px-4 text-sm gap-2",
   icon: "h-9 w-9 justify-center",
+  iconLg: "h-11 w-11 justify-center rounded-xl",
 } as const;
 
 export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {

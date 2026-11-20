@@ -1,6 +1,7 @@
 import "server-only";
 import { Auth0Client, DEFAULT_ID_TOKEN_CLAIMS } from "@auth0/nextjs-auth0/server";
 import { prisma } from "./prisma";
+import { helix } from "./twitch";
 
 // Seth's Twitch account id. Seth gets the Seth view on top of mod access.
 export const SETH_TWITCH_ID = "147155277";
@@ -69,9 +70,11 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     return { twitchId: "test_user_id", username: "test_user", picture: session.user.picture };
   }
 
+  const twitchId = sub.split("|")[2] ?? "";
   return {
-    twitchId: sub.split("|")[2] ?? "",
-    username,
+    twitchId,
+    // Sessions from before the username was kept have none; look it up.
+    username: username || (await twitchLogin(twitchId)),
     picture: session.user.picture,
   };
 }
@@ -81,6 +84,24 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
 // a mod takes effect within a minute.
 const MOD_CACHE_MS = 60_000;
 const modCache = new Map<string, { mod: boolean; until: number }>();
+
+const loginCache = new Map<string, string>();
+
+/** Twitch login for a user id, cached. Empty string if Twitch can't say. */
+export async function twitchLogin(twitchId: string) {
+  if (!twitchId) return "";
+  const cached = loginCache.get(twitchId);
+  if (cached) return cached;
+  try {
+    const { data } = await helix<{ data: { login: string }[] }>(`/users?id=${encodeURIComponent(twitchId)}`);
+    const login = data[0]?.login ?? "";
+    if (login) loginCache.set(twitchId, login);
+    return login;
+  } catch (error) {
+    console.error("[auth] Twitch username lookup failed", error);
+    return "";
+  }
+}
 
 export async function isMod(twitchId: string) {
   if (!twitchId) {

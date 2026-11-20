@@ -2,7 +2,7 @@
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { Crown, GripVertical, Swords, Trash2, UserX } from "lucide-react";
+import { Crown, GripVertical, Swords, Trash2 } from "lucide-react";
 import { RequestCard } from "@/components/request-card";
 import { Button } from "@/components/ui/button";
 import { Popover } from "@/components/ui/popover";
@@ -14,7 +14,6 @@ export type RowActions = {
   onPg: (request: RequestInfo) => void;
   onPrio: (request: RequestInfo, kind: "priority" | "mod_prio", on: boolean) => void;
   onDelete: (request: RequestInfo) => void;
-  onBanUser: (request: RequestInfo) => void;
   onPlay: (request: RequestInfo) => void;
 };
 
@@ -43,9 +42,11 @@ function CheckedBy({ request }: { request: RequestInfo }) {
   const pg = request.Video.PG_Status;
   if (!pg?.checker || pg.status === "NOT_CHECKED") return null;
   return (
-    <p className="basis-full text-right text-xs text-ink-300 sm:max-w-48 sm:basis-auto">
-      {pg.status === "BEING_CHECKED" ? "Being checked by" : "Checked by"}:{" "}
-      <span className="font-semibold break-all text-ink-100">{pg.checker}</span>
+    <p className="basis-full text-right text-xs text-ink-300 sm:basis-auto">
+      {pg.status === "BEING_CHECKED" ? "Being checked by" : "Checked by"}
+      <span className="block truncate font-semibold text-ink-100 sm:max-w-44" title={pg.checker}>
+        {pg.checker}
+      </span>
     </p>
   );
 }
@@ -89,37 +90,32 @@ export function ModRequestRow({
     view === "mod" ? (
       <>
         <PgPill status={request.Video.PG_Status?.status} onClick={() => actions.onPg(request)} />
-        <div className="flex gap-1">
+        <div className="flex gap-2">
           {!modPrio && (
             <Button
-              size="icon"
+              size="iconLg"
               variant={prio ? "gold" : "outline"}
               aria-label={prio ? "Remove priority" : "Make priority"}
               title={prio ? "Remove priority" : "Make priority"}
               onClick={() => actions.onPrio(request, "priority", !prio)}
             >
-              <Crown className={cn("size-4", !prio && "text-neon-gold")} />
+              <Crown className={cn("size-5", !prio && "text-neon-gold")} />
             </Button>
           )}
           {!prio && (
             <Button
-              size="icon"
+              size="iconLg"
               variant={modPrio ? "teal" : "outline"}
               aria-label={modPrio ? "Remove mod priority" : "Make mod priority"}
               title={modPrio ? "Remove mod priority" : "Make mod priority"}
               onClick={() => actions.onPrio(request, "mod_prio", !modPrio)}
             >
-              <Swords className={cn("size-4", !modPrio && "text-neon-teal")} />
+              <Swords className={cn("size-5", !modPrio && "text-neon-teal")} />
             </Button>
           )}
-          <Button size="icon" variant="outline" aria-label="Delete suggestion" title="Delete" onClick={() => actions.onDelete(request)}>
-            <Trash2 className="size-4 text-red-400" />
+          <Button size="iconLg" variant="outline" aria-label="Delete suggestion" title="Delete" onClick={() => actions.onDelete(request)}>
+            <Trash2 className="size-5 text-red-400" />
           </Button>
-          {request.requested_by_id && (
-            <Button size="icon" variant="outline" aria-label="Ban user" title="Ban user from suggesting" onClick={() => actions.onBanUser(request)}>
-              <UserX className="size-4 text-red-400" />
-            </Button>
-          )}
         </div>
         <CheckedBy request={request} />
       </>

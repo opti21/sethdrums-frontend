@@ -21,7 +21,7 @@ export function PgPill({
 }) {
   const { label, className: tone } = look[status ?? "NOT_CHECKED"];
   const classes = cn(
-    "inline-flex h-8 min-w-28 items-center justify-center rounded-lg bg-gradient-to-r px-3 text-xs font-bold whitespace-nowrap uppercase",
+    "inline-flex h-10 min-w-36 items-center justify-center rounded-xl bg-gradient-to-r px-4 text-sm font-bold whitespace-nowrap uppercase",
     tone,
     onClick && "transition hover:brightness-110",
     className

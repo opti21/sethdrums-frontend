@@ -30,7 +30,6 @@ import { useModQueue } from "./use-mod-queue";
 import { ModNotes, ModRequestRow, type RowActions } from "./mod-request-row";
 import { PgPill } from "./pg";
 import { PgCheckerDialog } from "./pg-checker-dialog";
-import { BanUserDialog, type BanTarget } from "./ban-user-dialog";
 import { AddRequestDialog } from "./add-request-dialog";
 
 export function ModPanel({ view }: { view: "mod" | "seth" }) {
@@ -41,7 +40,6 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
 
   const [pgTarget, setPgTarget] = useState<{ request: RequestInfo; previous: PgStatus } | null>(null);
   const [pgConfirm, setPgConfirm] = useState<RequestInfo | null>(null);
-  const [banTarget, setBanTarget] = useState<BanTarget | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<RequestInfo | null>(null);
   const [addOpen, setAddOpen] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
@@ -103,6 +101,44 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
     void refresh();
   }
 
+  /** Shows the song as now playing right away, then saves it. */
+  async function playNow(request: RequestInfo) {
+    if (!queue) return;
+    const previous = queue;
+    markLocalChange();
+    setQueue({ ...previous, now_playing: request, order: previous.order.filter((r) => r.id !== request.id) });
+    try {
+      await api("/api/mod/queue/now-playing", { method: "POST", body: { requestID: request.id } });
+    } catch (err) {
+      markLocalChange();
+      setQueue(previous);
+      toast.error(err instanceof Error ? err.message : "Couldn't play that song");
+    }
+    void refresh();
+  }
+
+  /** Puts the now playing song back in the list right away, using the server's placement rule. */
+  async function returnToList(request: RequestInfo) {
+    if (!queue) return;
+    const previous = queue;
+    const at = request.priority
+      ? 0
+      : previous.order.filter((r) => r.priority || (!request.mod_prio && r.mod_prio)).length;
+    const order = [...previous.order];
+    order.splice(Math.min(at, order.length), 0, request);
+    markLocalChange();
+    setQueue({ ...previous, now_playing: null, order });
+    try {
+      await api("/api/mod/request/return-to-queue", { method: "POST", body: { requestID: request.id } });
+      toast.success("Returned to the list");
+    } catch (err) {
+      markLocalChange();
+      setQueue(previous);
+      toast.error(err instanceof Error ? err.message : "Couldn't return it to the list");
+    }
+    void refresh();
+  }
+
   async function openPg(request: RequestInfo) {
     const pg = request.Video.PG_Status;
     if (!pg) return;
@@ -126,11 +162,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
     onPg: openPg,
     onPrio: (request, kind, on) => void changePrio(request, kind, on),
     onDelete: setDeleteTarget,
-    onBanUser: (request) =>
-      request.requested_by_id &&
-      setBanTarget({ twitch_id: request.requested_by_id, twitch_username: request.requested_by }),
-    onPlay: (request) =>
-      void run("play", () => api("/api/mod/queue/now-playing", { method: "POST", body: { requestID: request.id } }), "Now playing"),
+    onPlay: (request) => void playNow(request),
   };
 
   async function onDragStart() {
@@ -200,14 +232,7 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
                       size="sm"
                       variant="outline"
                       title="Return to list"
-                      loading={busy === "return"}
-                      onClick={() =>
-                        void run(
-                          "return",
-                          () => api("/api/mod/request/return-to-queue", { method: "POST", body: { requestID: nowPlaying.id } }),
-                          "Returned to the list"
-                        )
-                      }
+                      onClick={() => void returnToList(nowPlaying)}
                     >
                       <RotateCcw className="size-4" /> Return
                     </Button>
@@ -378,13 +403,6 @@ export function ModPanel({ view }: { view: "mod" | "seth" }) {
             </Button>
           </>
         }
-      />
-      <BanUserDialog
-        target={banTarget}
-        onClose={() => {
-          setBanTarget(null);
-          void refresh();
-        }}
       />
       <Dialog
         open={Boolean(deleteTarget)}

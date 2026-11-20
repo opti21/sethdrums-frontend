@@ -1,4 +1,5 @@
 import "server-only";
+import { twitchLogin } from "./auth";
 import { prisma } from "./prisma";
 import { getQueue } from "./queue";
 
@@ -22,6 +23,24 @@ function toIds(order: string[]) {
   return order.map((id) => parseInt(id, 10)).filter((id) => Number.isInteger(id));
 }
 
+type WithPg = { Video: { PG_Status: { id: number; checker: string | null } | null } };
+
+/**
+ * A preview build briefly saved Twitch user ids as PG checker names. Swap
+ * any numeric checker for the Twitch login, here and in the database.
+ */
+async function repairCheckers(rows: WithPg[]) {
+  const broken = rows.map((row) => row.Video.PG_Status).filter((pg) => pg?.checker && /^\d+$/.test(pg.checker));
+  await Promise.all(
+    broken.map(async (pg) => {
+      const login = await twitchLogin(pg!.checker!);
+      if (!login) return;
+      pg!.checker = login;
+      await prisma.pG_Status.updateMany({ where: { id: pg!.id, checker: { not: login } }, data: { checker: login } });
+    })
+  );
+}
+
 /** Everything the mod panel and Seth view need, in list order. */
 export async function getModQueue() {
   const queue = await getQueue();
@@ -31,6 +50,8 @@ export async function getModQueue() {
       ? prisma.request.findFirst({ where: { id: parseInt(queue.now_playing, 10) }, include: modInclude })
       : null,
   ]);
+
+  await repairCheckers(nowPlaying ? [...rows, nowPlaying] : rows);
 
   return {
     order: inOrder(queue.order, rows),

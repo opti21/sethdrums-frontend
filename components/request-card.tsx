@@ -53,7 +53,7 @@ export function RequestCard({
   return (
     <article
       className={cn(
-        "group relative flex flex-wrap items-stretch gap-3 rounded-xl border p-2.5 pr-3 transition sm:flex-nowrap",
+        "group relative flex flex-wrap items-stretch gap-3 rounded-xl border p-3 transition sm:flex-nowrap sm:gap-4 sm:p-4",
         accents[kind],
         highlight && "ring-2 ring-neon-pink/60",
         className
@@ -118,7 +118,7 @@ export function RequestCard({
         {footer}
       </div>
       {actions && (
-        <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-1.5 sm:w-auto sm:flex-col sm:flex-nowrap sm:items-end sm:justify-center">
+        <div className="flex w-full shrink-0 flex-wrap items-center justify-end gap-2 sm:w-auto sm:min-w-44 sm:flex-col sm:flex-nowrap sm:items-stretch sm:justify-center">
           {actions}
         </div>
       )}

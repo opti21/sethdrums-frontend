@@ -120,7 +120,7 @@ export function PgCheckerDialog({ request, previousStatus, onClose }: Props) {
       }
     >
       {video && (
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div className="flex items-start gap-2">
             <Button
               size="icon"
@@ -135,7 +135,8 @@ export function PgCheckerDialog({ request, previousStatus, onClose }: Props) {
             </Button>
             <p className="pt-1.5 font-semibold">{video.title}</p>
           </div>
-          <div className="aspect-video w-full overflow-hidden rounded-xl bg-black">
+          {/* Sized so the whole dialog, notes and buttons included, fits the window. */}
+          <div className="mx-auto aspect-video w-full max-w-[max(18rem,calc((100dvh-31rem)*16/9))] overflow-hidden rounded-xl bg-black">
             <ReactPlayer
               src={youtubeUrl(video.youtube_id)}
               controls
@@ -159,7 +160,7 @@ export function PgCheckerDialog({ request, previousStatus, onClose }: Props) {
           </div>
           <div>
             <Label htmlFor="video-notes">Video notes (mods only)</Label>
-            <Textarea id="video-notes" value={notes} onChange={(event) => setNotes(event.target.value)} />
+            <Textarea id="video-notes" rows={2} value={notes} onChange={(event) => setNotes(event.target.value)} />
             <Button className="mt-2" size="sm" loading={busy === "notes"} onClick={saveNotes}>
               Save notes
             </Button>

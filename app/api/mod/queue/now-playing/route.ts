@@ -31,7 +31,7 @@ export const POST = route(async (request) => {
   });
   await setNowPlaying(id);
   await removeFromOrder(id);
-  await broadcast("update-queue");
+  void broadcast("update-queue");
 
   // Best effort: a VOD link with a timestamp for the history page.
   void addVodLink(id);

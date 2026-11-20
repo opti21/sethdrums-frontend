@@ -15,7 +15,11 @@ export const PUT = route(async (request) => {
   if (!Number.isInteger(id) || !PG_STATUSES.includes(status as PgStatus)) {
     return json({ success: false, error: "pgStatusID and a valid status are required" }, 422);
   }
-  const checker = user.username || user.twitchId;
+  // Never fall back to the numeric Twitch id: mods read this name.
+  const checker =
+    user.username ||
+    (await prisma.mod.findFirst({ where: { twitch_id: user.twitchId }, select: { name: true } }))?.name ||
+    "a mod";
   const current = await prisma.pG_Status.findUnique({ where: { id } });
   if (!current) {
     return json({ success: false, error: "PG status not found" }, 404);

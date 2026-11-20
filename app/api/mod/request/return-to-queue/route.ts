@@ -7,8 +7,9 @@ import { broadcast } from "@/lib/server/pusher";
 
 export const dynamic = "force-dynamic";
 
-// Put the now playing request back: priority to the top, others after the
-// priority block.
+// Put the now playing request back at the top of its own group:
+// priority -> top of the list, mod priority -> right after the priority
+// songs, anything else -> right after every priority and mod priority song.
 export const POST = route(async (request) => {
   await requireMod();
   const { requestID } = await readJson<{ requestID?: number | string }>(request);
@@ -26,10 +27,14 @@ export const POST = route(async (request) => {
   });
 
   const queue = await getQueue();
-  const order = queue.order.filter((item) => item !== String(id));
+  const others = toIds(queue.order.filter((item) => item !== String(id)));
   const at = updated.priority
     ? 0
-    : await prisma.request.count({ where: { id: { in: toIds(order) }, priority: true } });
+    : await prisma.request.count({
+        where: updated.mod_prio
+          ? { id: { in: others }, priority: true }
+          : { id: { in: others }, OR: [{ priority: true }, { mod_prio: true }] },
+      });
   await updateQueue((current) => {
     const next = current.order.filter((item) => item !== String(id));
     next.splice(Math.min(at, next.length), 0, String(id));
