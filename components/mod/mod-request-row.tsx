@@ -20,13 +20,13 @@ export type RowActions = {
 
 export function ModNotes({ request }: { request: RequestInfo }) {
   const notes = request.Video.notes ?? "";
-  const pg = request.Video.PG_Status;
-  if (!notes && !pg?.checker) return null;
+  if (!notes) return null;
   return (
-    <div className="mt-1 space-y-0.5 text-xs text-ink-300">
+    <div className="mt-2 max-w-xl rounded-md border-l-2 border-neon-gold/60 bg-white/[0.03] px-2.5 py-1 text-xs text-ink-300">
       {notes && (
         <p className="line-clamp-2">
-          <span className="font-semibold text-neon-gold">Notes:</span> {notes}
+          <span className="mr-1 text-[0.7rem] font-bold tracking-wider text-neon-gold/80 uppercase">Note</span>
+          {notes}
           {notes.length > 80 && (
             <Popover trigger={<button className="ml-1 font-semibold text-neon-pink hover:underline">more</button>}>
               <p className="whitespace-pre-wrap">{notes}</p>
@@ -34,13 +34,19 @@ export function ModNotes({ request }: { request: RequestInfo }) {
           )}
         </p>
       )}
-      {pg?.checker && (
-        <p>
-          {pg.status === "BEING_CHECKED" ? "Being checked" : "Checked"} by{" "}
-          <span className="font-semibold text-ink-100">{pg.checker}</span>
-        </p>
-      )}
     </div>
+  );
+}
+
+/** Who checked (or is checking) the video. Sits under the buttons, away from "Suggested by". */
+function CheckedBy({ request }: { request: RequestInfo }) {
+  const pg = request.Video.PG_Status;
+  if (!pg?.checker || pg.status === "NOT_CHECKED") return null;
+  return (
+    <p className="basis-full text-right text-xs text-ink-300 sm:max-w-48 sm:basis-auto">
+      {pg.status === "BEING_CHECKED" ? "Being checked by" : "Checked by"}:{" "}
+      <span className="font-semibold break-all text-ink-100">{pg.checker}</span>
+    </p>
   );
 }
 
@@ -115,9 +121,13 @@ export function ModRequestRow({
             </Button>
           )}
         </div>
+        <CheckedBy request={request} />
       </>
     ) : (
-      <PgPill status={request.Video.PG_Status?.status} />
+      <>
+        <PgPill status={request.Video.PG_Status?.status} />
+        <CheckedBy request={request} />
+      </>
     );
 
   return (
