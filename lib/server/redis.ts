@@ -1,6 +1,8 @@
 import "server-only";
 import { createClient } from "redis";
 
+export { WatchError } from "redis";
+
 const TIMEOUT_MS = 5_000;
 
 type RedisClient = ReturnType<typeof createClient>;
@@ -97,5 +99,19 @@ export async function withRedis<T>(fn: (client: RedisClient) => Promise<T>): Pro
       drop(client);
     }
     throw error;
+  }
+}
+
+/**
+ * Run a WATCH/MULTI transaction on its own short-lived connection, so the
+ * WATCH can't be cleared by other requests sharing the main connection.
+ */
+export async function withIsolatedRedis<T>(fn: (client: RedisClient) => Promise<T>): Promise<T> {
+  const client = (await getClient()).duplicate();
+  try {
+    await withTimeout(client.connect(), "Redis connection timed out");
+    return await withTimeout(fn(client), "Redis command timed out");
+  } finally {
+    client.destroy();
   }
 }

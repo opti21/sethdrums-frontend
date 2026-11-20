@@ -1,7 +1,7 @@
 import { requireMod } from "@/lib/server/auth";
 import { json, readJson, route } from "@/lib/server/api";
 import { prisma } from "@/lib/server/prisma";
-import { getQueue, setNowPlaying, setOrder } from "@/lib/server/queue";
+import { getQueue, setNowPlaying, updateQueue } from "@/lib/server/queue";
 import { toIds } from "@/lib/server/queue-view";
 import { broadcast } from "@/lib/server/pusher";
 
@@ -30,9 +30,11 @@ export const POST = route(async (request) => {
   const at = updated.priority
     ? 0
     : await prisma.request.count({ where: { id: { in: toIds(order) }, priority: true } });
-  order.splice(at, 0, String(id));
-
-  await setOrder(order);
+  await updateQueue((current) => {
+    const next = current.order.filter((item) => item !== String(id));
+    next.splice(Math.min(at, next.length), 0, String(id));
+    return { order: next };
+  });
   await setNowPlaying("");
   await broadcast("update-queue");
   return json({ success: true });

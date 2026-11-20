@@ -1,6 +1,6 @@
 import "server-only";
 import { prisma } from "./prisma";
-import { getQueue, move, setOrder, setProcessing } from "./queue";
+import { claimProcessing, getQueue, moveInOrder, releaseProcessing } from "./queue";
 import { toIds } from "./queue-view";
 import { broadcast } from "./pusher";
 
@@ -13,12 +13,11 @@ export type PrioKind = "priority" | "mod_prio";
  */
 export async function setPrio(requestId: number, kind: PrioKind, on: boolean) {
   const idStr = String(requestId);
-  const queue = await getQueue();
-  if (queue.currently_processing.includes(idStr)) {
+  if (!(await claimProcessing(idStr))) {
     return false;
   }
-  await setProcessing(idStr, true);
   try {
+    const queue = await getQueue();
     const ids = toIds(queue.order);
     // Plain priority goes behind other plain priorities; mod priority goes
     // behind every kind of priority.
@@ -38,13 +37,10 @@ export async function setPrio(requestId: number, kind: PrioKind, on: boolean) {
           : { mod_prio: on },
     });
 
-    const from = queue.order.indexOf(idStr);
-    if (from !== -1) {
-      await setOrder(move(queue.order, from, on ? prioCount : prioCount - 1));
-    }
+    await moveInOrder(idStr, on ? prioCount : prioCount - 1);
     await broadcast("update-queue");
     return true;
   } finally {
-    await setProcessing(idStr, false);
+    await releaseProcessing(idStr);
   }
 }
