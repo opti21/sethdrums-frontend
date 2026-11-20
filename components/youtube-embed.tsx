@@ -6,6 +6,7 @@ export function YouTubeEmbed({ id, title }: { id: string; title?: string }) {
         src={`https://www.youtube-nocookie.com/embed/${id}`}
         title={title ?? "YouTube preview"}
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        referrerPolicy="strict-origin-when-cross-origin"
         allowFullScreen
       />
     </div>

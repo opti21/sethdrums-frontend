@@ -49,3 +49,18 @@ body {
 ::selection {
   background: rgb(255 79 195 / 0.4);
 }
+
+/* Tailwind 4 resets buttons to the default cursor; show they're clickable. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  summary,
+  select,
+  label[for],
+  input[type="checkbox"]:not(:disabled) {
+    cursor: pointer;
+  }
+  button:disabled {
+    cursor: not-allowed;
+  }
+}
