@@ -1,5 +1,5 @@
 import "server-only";
-import { Auth0Client } from "@auth0/nextjs-auth0/server";
+import { Auth0Client, DEFAULT_ID_TOKEN_CLAIMS } from "@auth0/nextjs-auth0/server";
 import { prisma } from "./prisma";
 
 // Seth's Twitch account id. Seth gets the Seth view on top of mod access.
@@ -23,6 +23,10 @@ function appBaseUrl() {
   return process.env.APP_BASE_URL ?? process.env.AUTH0_BASE_URL;
 }
 
+// Keep the default claims plus Twitch's username, which the SDK would
+// otherwise drop. The whole app uses it as the mod's display name.
+const KEEP_CLAIMS = [...DEFAULT_ID_TOKEN_CLAIMS, "preferred_username"];
+
 export const auth0 = new Auth0Client({
   domain: auth0Domain(),
   appBaseUrl: appBaseUrl(),
@@ -30,6 +34,10 @@ export const auth0 = new Auth0Client({
   clientSecret: process.env.AUTH0_CLIENT_SECRET,
   secret: process.env.AUTH0_SECRET,
   // Same paths as before, so the Auth0 callback URL stays the same.
+  async beforeSessionSaved(session) {
+    const user = Object.fromEntries(Object.entries(session.user).filter(([key]) => KEEP_CLAIMS.includes(key)));
+    return { ...session, user: user as typeof session.user };
+  },
   routes: {
     login: "/api/auth/login",
     logout: "/api/auth/logout",
@@ -55,7 +63,7 @@ export async function getCurrentUser(): Promise<CurrentUser | null> {
     return null;
   }
   const sub = String(session.user.sub ?? "");
-  const username = String(session.user.preferred_username ?? session.user.nickname ?? "");
+  const username = String(session.user.preferred_username || session.user.nickname || session.user.name || "");
 
   if (process.env.NODE_ENV === "development" && sub.startsWith("auth0|")) {
     return { twitchId: "test_user_id", username: "test_user", picture: session.user.picture };

@@ -56,7 +56,12 @@ export function PgCheckerDialog({ request, previousStatus, onClose }: Props) {
 
   async function cancel() {
     try {
-      await setStatus(previousStatus);
+      if (pgId) {
+        await api("/api/mod/pg-status", {
+          method: "PUT",
+          body: { pgStatusID: pgId, status: previousStatus, release: true },
+        });
+      }
     } catch {
       toast.error("Couldn't reset the PG status");
     }
