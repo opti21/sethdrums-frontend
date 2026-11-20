@@ -1,137 +1,78 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 export const metadata: Metadata = { title: "Terms and Conditions" };
 
+const h2 = "mt-8 font-display text-xl font-bold text-white";
+
 export default function Page() {
   return (
-    <article className="mx-auto max-w-3xl space-y-3 text-sm leading-relaxed text-ink-300 [&_a]:text-neon-pink [&_a]:underline [&_strong]:text-ink-100">
+    <article className="mx-auto max-w-3xl space-y-3 text-sm leading-relaxed text-ink-300 [&_a]:text-neon-pink [&_a]:underline [&_li]:pl-1 [&_strong]:text-ink-100">
+      <h1 className="font-display text-3xl font-bold text-white">Terms and Conditions</h1>
+      <p>Last updated: November 19, 2026</p>
+      <p>
+        These terms cover your use of the SethDrums Song Panel (&quot;the panel&quot;), run by SethDrum LLC, 104 Zion St.,
+        Anderson, MO 64831, United States. By using the panel you agree to them. If you don&apos;t agree, please don&apos;t
+        use it.
+      </p>
 
-      <h2 className="mt-8 font-display text-xl font-bold text-white"><strong>Terms and Conditions</strong></h2>
+      <h2 className={h2}>What the panel is</h2>
+      <p>
+        The panel lets viewers suggest songs for SethDrums to play on stream, and lets Seth and his mods manage the
+        suggestion list. It&apos;s free, and it&apos;s offered as is.
+      </p>
 
-      <p>Welcome to SethDrums Song Panel!</p>
-
-      <p>These terms and conditions outline the rules and regulations for the use of SethDrum LLC{`'`}s Website, located at https://sethdrums.com.</p>
-
-      <p>By accessing this website we assume you accept these terms and conditions. Do not continue to use Seth Drums Song Panel if you do not agree to take all of the terms and conditions stated on this page.</p>
-
-      <p>The following terminology applies to these Terms and Conditions, Privacy Statement and Disclaimer Notice and all Agreements: {`"`}Client{`"`}, {`"`}You{`"`} and {`"`}Your{`"`} refers to you, the person log on this website and compliant to the Company’s terms and conditions. {`"`}The Company{`"`}, {`"`}Ourselves{`"`}, {`"`}We{`"`}, {`"`}Our{`"`} and {`"`}Us{`"`}, refers to our Company. {`"`}Party{`"`}, {`"`}Parties{`"`}, or {`"`}Us{`"`}, refers to both the Client and ourselves. All terms refer to the offer, acceptance and consideration of payment necessary to undertake the process of our assistance to the Client in the most appropriate manner for the express purpose of meeting the Client’s needs in respect of provision of the Company’s stated services, in accordance with and subject to, prevailing law of Netherlands. Any use of the above terminology or other words in the singular, plural, capitalization and/or he/she or they, are taken as interchangeable and therefore as referring to same.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Cookies</strong></h3>
-
-      <p>We employ the use of cookies. By accessing Seth Drums Song Panel, you agreed to use cookies in agreement with the SethDrum LLC{`'`}s Privacy Policy. </p>
-
-      <p>Most interactive websites use cookies to let us retrieve the user’s details for each visit. Cookies are used by our website to enable the functionality of certain areas to make it easier for people visiting our website. Some of our affiliate/advertising partners may also use cookies.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>License</strong></h3>
-
-      <p>Unless otherwise stated, SethDrum LLC and/or its licensors own the intellectual property rights for all material on Seth Drums Song Panel. All intellectual property rights are reserved. You may access this from Seth Drums Song Panel for your own personal use subjected to restrictions set in these terms and conditions.</p>
-
-      <p>You must not:</p>
+      <h2 className={h2}>Suggestions</h2>
       <ul className="list-disc space-y-2 pl-6">
-        <li>Republish material from Seth Drums Song Panel</li>
-        <li>Sell, rent or sub-license material from Seth Drums Song Panel</li>
-        <li>Reproduce, duplicate or copy material from Seth Drums Song Panel</li>
-        <li>Redistribute content from Seth Drums Song Panel</li>
+        <li>A suggestion is just that. Seth and the mods decide what gets played, in what order, and whether at all.</li>
+        <li>
+          Suggestions are checked to be suitable for stream. Mods may reject, remove or reorder any suggestion, without
+          giving a reason.
+        </li>
+        <li>
+          Don&apos;t suggest anything hateful, sexually explicit, or otherwise against Twitch&apos;s Community Guidelines,
+          and don&apos;t use the panel to spam or harass anyone.
+        </li>
+        <li>Mods may ban users or videos from the panel, for example for breaking these rules or the stream&apos;s chat rules.</li>
       </ul>
 
-      <p>This Agreement shall begin on the date hereof. Our Terms and Conditions were created with the help of the <a href="https://www.termsandconditionsgenerator.com/">Free Terms and Conditions Generator</a>.</p>
+      <h2 className={h2}>Your account</h2>
+      <p>
+        You sign in with your Twitch account, and Twitch&apos;s own terms apply to it. You&apos;re responsible for
+        what&apos;s done with your account on the panel.
+      </p>
 
-      <p>Parts of this website offer an opportunity for users to post and exchange opinions and information in certain areas of the website. SethDrum LLC does not filter, edit, publish or review Comments prior to their presence on the website. Comments do not reflect the views and opinions of SethDrum LLC,its agents and/or affiliates. Comments reflect the views and opinions of the person who post their views and opinions. To the extent permitted by applicable laws, SethDrum LLC shall not be liable for the Comments or for any liability, damages or expenses caused and/or suffered as a result of any use of and/or posting of and/or appearance of the Comments on this website.</p>
+      <h2 className={h2}>Videos and other content</h2>
+      <p>
+        Videos are played through YouTube&apos;s embedded player and belong to their owners. YouTube&apos;s Terms of
+        Service apply when you watch them. The panel&apos;s own design, name and logos belong to SethDrum LLC.
+      </p>
 
-      <p>SethDrum LLC reserves the right to monitor all Comments and to remove any Comments which can be considered inappropriate, offensive or causes breach of these Terms and Conditions.</p>
+      <h2 className={h2}>Privacy</h2>
+      <p>
+        Our <Link href="/privacy-policy">Privacy Policy</Link> explains what we collect and how it&apos;s used.
+      </p>
 
-      <p>You warrant and represent that:</p>
+      <h2 className={h2}>No guarantees</h2>
+      <p>
+        We try to keep the panel running and accurate, but we don&apos;t promise it will always be available, error-free,
+        or that any song will be played. To the extent the law allows, SethDrum LLC isn&apos;t liable for any loss that
+        comes from using the panel or not being able to use it.
+      </p>
 
-      <ul className="list-disc space-y-2 pl-6">
-        <li>You are entitled to post the Comments on our website and have all necessary licenses and consents to do so;</li>
-        <li>The Comments do not invade any intellectual property right, including without limitation copyright, patent or trademark of any third party;</li>
-        <li>The Comments do not contain any defamatory, libelous, offensive, indecent or otherwise unlawful material which is an invasion of privacy</li>
-        <li>The Comments will not be used to solicit or promote business or custom or present commercial activities or unlawful activity.</li>
-      </ul>
+      <h2 className={h2}>Changes</h2>
+      <p>
+        We may update these terms. When we do, we&apos;ll change the date at the top. Using the panel after a change means
+        you accept the updated terms.
+      </p>
 
-      <p>You hereby grant SethDrum LLC a non-exclusive license to use, reproduce, edit and authorize others to use, reproduce and edit any of your Comments in any and all forms, formats or media.</p>
+      <h2 className={h2}>Governing law</h2>
+      <p>These terms are governed by the laws of the State of Missouri, United States.</p>
 
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Hyperlinking to our Content</strong></h3>
-
-      <p>The following organizations may link to our Website without prior written approval:</p>
-
-      <ul className="list-disc space-y-2 pl-6">
-        <li>Government agencies;</li>
-        <li>Search engines;</li>
-        <li>News organizations;</li>
-        <li>Online directory distributors may link to our Website in the same manner as they hyperlink to the Websites of other listed businesses; and</li>
-        <li>System wide Accredited Businesses except soliciting non-profit organizations, charity shopping malls, and charity fundraising groups which may not hyperlink to our Web site.</li>
-      </ul>
-
-      <p>These organizations may link to our home page, to publications or to other Website information so long as the link: (a) is not in any way deceptive; (b) does not falsely imply sponsorship, endorsement or approval of the linking party and its products and/or services; and (c) fits within the context of the linking party’s site.</p>
-
-      <p>We may consider and approve other link requests from the following types of organizations:</p>
-
-      <ul className="list-disc space-y-2 pl-6">
-        <li>commonly-known consumer and/or business information sources;</li>
-        <li>dot.com community sites;</li>
-        <li>associations or other groups representing charities;</li>
-        <li>online directory distributors;</li>
-        <li>internet portals;</li>
-        <li>accounting, law and consulting firms; and</li>
-        <li>educational institutions and trade associations.</li>
-      </ul>
-
-      <p>We will approve link requests from these organizations if we decide that: (a) the link would not make us look unfavorably to ourselves or to our accredited businesses; (b) the organization does not have any negative records with us; (c) the benefit to us from the visibility of the hyperlink compensates the absence of SethDrum LLC; and (d) the link is in the context of general resource information.</p>
-
-      <p>These organizations may link to our home page so long as the link: (a) is not in any way deceptive; (b) does not falsely imply sponsorship, endorsement or approval of the linking party and its products or services; and (c) fits within the context of the linking party’s site.</p>
-
-      <p>If you are one of the organizations listed in paragraph 2 above and are interested in linking to our website, you must inform us by sending an e-mail to SethDrum LLC. Please include your name, your organization name, contact information as well as the URL of your site, a list of any URLs from which you intend to link to our Website, and a list of the URLs on our site to which you would like to link. Wait 2-3 weeks for a response.</p>
-
-      <p>Approved organizations may hyperlink to our Website as follows:</p>
-
-      <ul className="list-disc space-y-2 pl-6">
-        <li>By use of our corporate name; or</li>
-        <li>By use of the uniform resource locator being linked to; or</li>
-        <li>By use of any other description of our Website being linked to that makes sense within the context and format of content on the linking party’s site.</li>
-      </ul>
-
-      <p>No use of SethDrum LLC{`'`}s logo or other artwork will be allowed for linking absent a trademark license agreement.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>iFrames</strong></h3>
-
-      <p>Without prior approval and written permission, you may not create frames around our Webpages that alter in any way the visual presentation or appearance of our Website.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Content Liability</strong></h3>
-
-      <p>We shall not be hold responsible for any content that appears on your Website. You agree to protect and defend us against all claims that is rising on your Website. No link(s) should appear on any Website that may be interpreted as libelous, obscene or criminal, or which infringes, otherwise violates, or advocates the infringement or other violation of, any third party rights.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Your Privacy</strong></h3>
-
-      <p>Please read <a href='/privacy-policy'>Privacy Policy</a></p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Reservation of Rights</strong></h3>
-
-      <p>We reserve the right to request that you remove all links or any particular link to our Website. You approve to immediately remove all links to our Website upon request. We also reserve the right to amen these terms and conditions and it’s linking policy at any time. By continuously linking to our Website, you agree to be bound to and follow these linking terms and conditions.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Removal of links from our website</strong></h3>
-
-      <p>If you find any link on our Website that is offensive for any reason, you are free to contact and inform us any moment. We will consider requests to remove links but we are not obligated to or so or to respond to you directly.</p>
-
-      <p>We do not ensure that the information on this website is correct, we do not warrant its completeness or accuracy; nor do we promise to ensure that the website remains available or that the material on the website is kept up to date.</p>
-
-      <h3 className="mt-6 text-lg font-bold text-white"><strong>Disclaimer</strong></h3>
-
-      <p>To the maximum extent permitted by applicable law, we exclude all representations, warranties and conditions relating to our website and the use of this website. Nothing in this disclaimer will:</p>
-
-      <ul className="list-disc space-y-2 pl-6">
-        <li>limit or exclude our or your liability for death or personal injury;</li>
-        <li>limit or exclude our or your liability for fraud or fraudulent misrepresentation;</li>
-        <li>limit any of our or your liabilities in any way that is not permitted under applicable law; or</li>
-        <li>exclude any of our or your liabilities that may not be excluded under applicable law.</li>
-      </ul>
-
-      <p>The limitations and prohibitions of liability set in this Section and elsewhere in this disclaimer: (a) are subject to the preceding paragraph; and (b) govern all liabilities arising under the disclaimer, including liabilities arising in contract, in tort and for breach of statutory duty.</p>
-
-      <p>As long as the website and the information and services on the website are provided free of charge, we will not be liable for any loss or damage of any nature.</p>
-
-      
-    
+      <h2 className={h2}>Contact</h2>
+      <p>
+        Questions: <a href="mailto:sethdrumstv@gmail.com">sethdrumstv@gmail.com</a>
+      </p>
     </article>
   );
 }

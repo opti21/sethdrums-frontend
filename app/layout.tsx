@@ -37,7 +37,6 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <footer className="mx-auto flex max-w-7xl flex-wrap gap-4 px-4 pb-10 text-xs text-ink-400">
             <a href="/privacy-policy" className="hover:text-ink-100">Privacy</a>
             <a href="/terms-conditions" className="hover:text-ink-100">Terms</a>
-            <a href="/merch" className="hover:text-ink-100">Merch</a>
           </footer>
           <Konami />
           <Toaster theme="dark" position="bottom-left" richColors closeButton />

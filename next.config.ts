@@ -25,11 +25,6 @@ const nextConfig: NextConfig = {
   async headers() {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
-  async redirects() {
-    return [
-      { source: "/merch", destination: "https://sethdrums-shop.fourthwall.com/", permanent: false },
-    ];
-  },
 };
 
 export default nextConfig;
